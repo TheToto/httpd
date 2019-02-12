@@ -24,14 +24,20 @@ namespace http
         /**
          * \brief Create a default EventLoop based on a default ev_loop.
          */
-        EventLoop();
+        EventLoop()
+        {
+            loop = ev_default_loop();
+        }
 
         /**
          * \brief Create an EventLoop from an existing ev_loop.
          *
          * \param loop ev_loop* custom ev_loop.
          */
-        explicit EventLoop(struct ev_loop*);
+        explicit EventLoop(struct ev_loop*)
+        {
+            loop = ev_loop;
+        }
 
         EventLoop(const EventLoop&) = default;
         EventLoop& operator=(const EventLoop&) = default;
@@ -41,7 +47,11 @@ namespace http
         /**
          * \brief Destroy the ev_loop.
          */
-        ~EventLoop();
+        ~EventLoop()
+        {
+            if (!ev_is_default_loop(loop))
+                ev_loop_destroy(loop);
+        }
 
         /**
          * \brief Activate the given ev_io.
@@ -50,26 +60,38 @@ namespace http
          *
          * \param watcher EventWatcher* to register in the loop.
          */
-        void register_watcher(EventWatcher*);
+        void register_watcher(EventWatcher* ev)
+        {
+            ev_io_start(loop, &ev->watcher_get());
+        }
 
         /**
          * \brief Stop the given ev_io.
          *
          * \param watcher EventWatcher* to unregister in the loop.
          */
-        void unregister_watcher(EventWatcher*);
+        void unregister_watcher(EventWatcher*)
+        {
+            ev_io_stop(loop, &ev->watcher_get());
+        }
 
         /**
          * \brief Register SIGINT ev_signal.
          *
          * \param watcher ev_signal* to register in the loop.
          */
-        void register_sigint_watcher(ev_signal*) const;
+        void register_sigint_watcher(ev_signal* sig) const
+        {
+            ev_signals_start(loop, sig);
+        }
 
         /**
          * \brief Start waiting for events.
          */
-        void operator()() const;
+        void operator()() const
+        {
+            ev_run(loop, 0);
+        }
 
         /**
          * \brief Libev's event loop.
