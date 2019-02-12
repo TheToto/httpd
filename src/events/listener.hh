@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <iostream>
+
 #include "events/events.hh"
 #include "socket/socket.hh"
 
@@ -36,7 +38,7 @@ namespace http
         void operator()() final
         {
             std::string str;
-            printf("[r]");
+            std::cout << "[r]";
             int n = sock_->recv(str, 100, 0);
             if (n <= 0)
             {
@@ -51,7 +53,8 @@ namespace http
                 }
                 return;
             }
-            printf("socket client said: %s", str);
+            std::cout << "socket client said: " << str;
+            ;
         }
 
     private:
