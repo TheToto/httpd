@@ -23,6 +23,8 @@ namespace http
     ServerConfig parse_configuration(const std::string& path)
     {
         std::ifstream ifs(path);
+        if (!ifs.is_open())
+            throw std::invalid_argument("cannot open file\n");
         json j = json::parse(ifs);
         ServerConfig serv;
 
@@ -47,6 +49,12 @@ json or wrong architecture");
     int test_file(const std::string& path)
     {
         std::ifstream ifs(path);
+        if (!ifs.is_open())
+        {
+            std::clog << "Provided file invalid: cannot open file\n";
+            return 1;
+        }
+
         json j = json::parse(ifs);
 
         if (j.size() == 0)
