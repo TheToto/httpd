@@ -20,6 +20,35 @@ using json = nlohmann::json;
 
 namespace http
 {
+    static void parse_vhost(nlohmann::basic_json<>& i, ServerConfig& serv)
+    {
+        std::string ip = i["ip"];
+        int port = i["port"];
+        std::string server_name = i["server_name"];
+        std::string root = i["root"];
+        std::string default_file;
+        try
+        {
+            default_file = i["default_file"];
+        }
+        catch (const std::exception& e)
+        {
+            default_file = "index.html";
+        }
+
+        if (ip.empty() || port <= 0 || server_name.empty() || root.empty())
+            throw std::invalid_argument("invalid JSON file: a mandatory \
+argument is missing");
+        if (i.size() == 5)
+        {
+            serv.VHosts_.push_back(VHostConfig(ip, std::to_string(port),
+                server_name, root, default_file));
+        }
+        else
+            serv.VHosts_.push_back(VHostConfig(ip, std::to_string(port),
+                server_name, root));
+    }
+
     ServerConfig parse_configuration(const std::string& path)
     {
         std::ifstream ifs(path);
@@ -28,20 +57,15 @@ namespace http
         json j = json::parse(ifs);
         ServerConfig serv;
 
-        for (auto i : j)
+        auto ctn = j["vhosts"];
+
+        for (auto i : ctn)
         {
             json tmp(i);
-            if (tmp.size() != 4)
+            if (tmp.size() != 4 && tmp.size() != 5)
                 throw std::invalid_argument("invalid json file: not a \
 json or wrong architecture");
-            std::string ip = tmp[0].get<std::string>();
-            int int_port = tmp[1].get<int>();
-            if (int_port < 0)
-                throw std::invalid_argument("invalid port value");
-            std::string port = std::to_string(int_port);
-            std::string name = tmp[2].get<std::string>();
-            std::string root = tmp[3].get<std::string>();
-            serv.VHosts_.push_back(VHostConfig(ip, port, name, root));
+            parse_vhost(tmp, serv);
         }
         return serv;
     }
@@ -71,15 +95,17 @@ json or wrong architecture");
                 std::clog << "Provided file invalid: wrong configuration\n";
                 return 1;
             }
-            std::string ip = tmp[0].get<std::string>();
+            std::string test = tmp[0].get<std::string>();
             int int_port = tmp[1].get<int>();
             if (int_port < 0)
             {
                 std::clog << "Provided file invalid: invalid port\n";
                 return 1;
             }
-            std::string name = tmp[2].get<std::string>();
-            std::string root = tmp[3].get<std::string>();
+            test = tmp[2].get<std::string>();
+            test = tmp[3].get<std::string>();
+            if (tmp.size() == 5)
+                test = tmp[4].get<std::string>();
         }
         return 0;
 

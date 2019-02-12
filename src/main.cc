@@ -45,7 +45,14 @@ static int handle_two(char *argv[])
         std::clog << "Usage: spider [-t] file.JSON\n";
         return 2;
     }
-    throw http::NotImplemented();
+    http::ServerConfig serv = http::parse_configuration(argv[1]);
+    std::cout << "IP: " << serv.VHosts_[0].ip_ << '\n'
+                << "PORT: " << serv.VHosts_[0].port_ << '\n'
+                << "SERVER_NAME: " << serv.VHosts_[0].server_name_ << '\n'
+                << "ROOT: " << serv.VHosts_[0].root_ << '\n'
+                << "DEFAULT_FILE: " << serv.VHosts_[0].default_file_ << '\n';
+
+    //throw http::NotImplemented();
     return 1;
 }
 
