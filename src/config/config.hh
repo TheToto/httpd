@@ -23,8 +23,9 @@ namespace http
         VHostConfig() = default;
 
         VHostConfig(std::string ip, std::string port, std::string server_name,
-            std::string root): ip_(ip), port_(port), server_name_(server_name),
-            root_(root)
+            std::string root, std::string def = "index.html"):
+                ip_(ip), port_(port), server_name_(server_name), root_(root),
+                default_file_(def)
         {}
 
         VHostConfig(const VHostConfig&) = default;
