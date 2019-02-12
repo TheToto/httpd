@@ -38,6 +38,7 @@ libspider_la_SOURCES = \
                        src/events/events.cc \
                        src/events/events.hh \
                        src/events/listener.hh \
+                       src/events/server.hh \
                        src/events/register.hh \
                        src/events/register.hxx \
                        src/misc/addrinfo/addrinfo-error.cc \
