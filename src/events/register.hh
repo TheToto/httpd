@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <optional>
+#include <stdexcept>
 #include <unordered_map>
 
 #include "events/event-loop.hh"
@@ -57,7 +58,15 @@ namespace http
          * \param watcher EventWatcher* to unregister.
          * \return If the operation was successful.
          */
-        bool unregister_ew(EventWatcher*);
+        bool unregister_ew(EventWatcher* ew)
+        {
+            auto it = loop_.find(ew);
+            if (it == loop_.end())
+                return false;
+            loop_.unregister_watcher(ew);
+            loop_.erase(it);
+            return true;
+        }
 
         /**
          * \brief Access EventWatcher in the map.
@@ -65,7 +74,17 @@ namespace http
          * \param watcher EventWatcher* key to the events_ map.
          * \return The found EventWatcher otherwise std::nullopt.
          */
-        std::optional<std::shared_ptr<EventWatcher>> at(EventWatcher*);
+        std::optional<std::shared_ptr<EventWatcher>> at(EventWatcher* elem)
+        {
+            try
+            {
+                return events_.at(elem);
+            }
+            catch (const std::out_of_range&)
+            {
+                return std::nullopt;
+            }
+        }
 
         const EventLoop& loop_get() const noexcept
         {
