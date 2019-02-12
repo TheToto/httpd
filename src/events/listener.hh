@@ -20,12 +20,39 @@ namespace http
         /**
          * \brief Create a ListenerEW from a listener socket.
          */
-        explicit ListenerEW(shared_socket socket);
+        explicit ListenerEW(shared_socket socket)
+            : sock_(socket)
+            , EventWatcher(socket.fd_get(), EV_READ)
+        {
+            /*struct sockaddr_in sin;
+            socklen_t len = sizeof(sin);
+            if (getsockname(socket, (struct sockaddr*)&sin, &len) != -1)
+                port_ = ntohs(sin.sin_port);*/
+        }
 
         /**
          * \brief Start accepting connections on listener socket.
          */
-        void operator()() final;
+        void operator()() final
+        {
+            std::string str;
+            printf("[r]");
+            int n = sock_->recv(str, 100, 0);
+            if (n <= 0)
+            {
+                if (0 == n)
+                {
+                    // Disconnect
+                    event_register.unregister_ew(&watcher_);
+                }
+                else
+                {
+                    throw std::runtime_error;
+                }
+                return;
+            }
+            printf("socket client said: %s", str);
+        }
 
     private:
         /**
