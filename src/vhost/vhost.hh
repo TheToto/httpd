@@ -5,7 +5,6 @@
 
 #pragma once
 
-
 #include "config/config.hh"
 #include "error/not-implemented.hh"
 #include "request/request.hh"
@@ -27,7 +26,9 @@ namespace http
          *
          * \param conf VHostConfig virtual host configuration.
          */
-        explicit VHost(const VHostConfig&);
+        explicit VHost(const VHostConfig& conf)
+            : conf_(conf)
+        {}
 
         VHost() = delete;
         VHost(const VHost&) = delete;

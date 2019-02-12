@@ -28,7 +28,9 @@ namespace http
          *
          * \param config VHostConfig virtual host configuration.
          */
-        explicit VHostStaticFile(const VHostConfig&);
+        explicit VHostStaticFile(const VHostConfig& conf)
+            : VHost(conf)
+        {}
 
     public:
         /**
@@ -42,6 +44,7 @@ namespace http
          * Note that these iterators will only be useful starting from SRPS.
          */
         void respond(const Request&, Connection, remaining_iterator,
-                     remaining_iterator) final;
+                     remaining_iterator) final
+        {}
     };
 } // namespace http
