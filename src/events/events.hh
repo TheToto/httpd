@@ -30,12 +30,7 @@ namespace http
          * \param fd int socket fd.
          * \param flags int initialization flags.
          */
-        EventWatcher(int fd, int flags)
-        {
-            watcher_ = ev_io();
-            ev_init(&watcher_, event_callback);
-            ev_io_set(&watcher_, fd, flags);
-        }
+        EventWatcher(int fd, int flags);
 
         EventWatcher(const EventWatcher&) = delete;
         EventWatcher& operator=(const EventWatcher&) = delete;
@@ -66,10 +61,7 @@ namespace http
          *
          * \param watcher ev_io* which received an event.
          */
-        static void event_callback(struct ev_loop* loop, ev_io* w, int revents)
-        {
-            std::cout << "plop";
-        }
+        static void event_callback(struct ev_loop* loop, ev_io* w, int revents);
 
         /**
          * \brief Libev's io watcher.

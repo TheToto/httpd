@@ -60,11 +60,11 @@ namespace http
          */
         bool unregister_ew(EventWatcher* ew)
         {
-            auto it = loop_.find(ew);
-            if (it == loop_.end())
+            auto it = events_.find(ew);
+            if (it == events_.end())
                 return false;
             loop_.unregister_watcher(ew);
-            loop_.erase(it);
+            events_.erase(it);
             return true;
         }
 

@@ -34,7 +34,7 @@ namespace http
          *
          * \param loop ev_loop* custom ev_loop.
          */
-        explicit EventLoop(struct ev_loop*)
+        explicit EventLoop(struct ev_loop* ev_loop)
         {
             loop = ev_loop;
         }
@@ -70,7 +70,7 @@ namespace http
          *
          * \param watcher EventWatcher* to unregister in the loop.
          */
-        void unregister_watcher(EventWatcher*)
+        void unregister_watcher(EventWatcher* ev)
         {
             ev_io_stop(loop, &ev->watcher_get());
         }
@@ -82,7 +82,7 @@ namespace http
          */
         void register_sigint_watcher(ev_signal* sig) const
         {
-            ev_signals_start(loop, sig);
+            ev_signal_start(loop, sig);
         }
 
         /**
