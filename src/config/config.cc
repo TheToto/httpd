@@ -32,12 +32,36 @@ namespace http
                 throw std::invalid_argument("invalid json file: not a \
 json or wrong architecture");
             std::string ip = tmp[0].get<std::string>();
-            std::string port = std::to_string(tmp[1].get<int>());
+            int int_port = tmp[1].get<int>();
+            if (int_port < 0)
+                throw std::invalid_argument("invalid port value");
+            std::string port = std::to_string(int_port);
             std::string name = tmp[2].get<std::string>();
             std::string root = tmp[3].get<std::string>();
             serv.VHosts_.push_back(VHostConfig(ip, port, name, root));
         }
         return serv;
+    }
+
+    bool test_file(const std::string& path)
+    {
+        std::ifstream ifs(path);
+        json j = json::parse(ifs);
+
+        for (auto i : j)
+        {
+            json tmp(i);
+            if (tmp.size() != 4 && tmp.size() != 5)
+                return false;
+            std::string ip = tmp[0].get<std::string>();
+            int int_port = tmp[1].get<int>();
+            if (int_port < 0)
+                throw std::invalid_argument("invalid port value");
+            std::string name = tmp[2].get<std::string>();
+            std::string root = tmp[3].get<std::string>();
+        }
+        return true;
+
     }
     // FIXME
 } // namespace http
