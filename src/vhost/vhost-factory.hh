@@ -25,13 +25,13 @@ namespace http
         {
             auto vhost = shared_vhost(new VHostStaticFile(conf));
 
-            auto sock = shared_socket(new DefaultSocket(AF_UNIX, SOCK_STREAM, 0));
+            auto sock = shared_socket(new DefaultSocket(AF_INET, SOCK_STREAM, 0));
             // bind
-            struct sockaddr_in server;
+            sockaddr_in server;
             server.sin_family = AF_INET;
             server.sin_addr.s_addr = INADDR_ANY;
             server.sin_port = htons(/*conf.port_*/8000);
-            sock->bind((struct sockaddr*)&server, sizeof(server));
+            sock->bind((sockaddr*)&server, sizeof(server));
             // listen
             sock->listen(3);
             event_register.register_ew<ServerEW>(sock);
