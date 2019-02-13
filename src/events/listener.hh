@@ -6,8 +6,10 @@
 #pragma once
 
 #include <iostream>
+#include <exception>
 
 #include "events/events.hh"
+#include "events/register.hh"
 #include "socket/socket.hh"
 
 namespace http
@@ -23,11 +25,11 @@ namespace http
          * \brief Create a ListenerEW from a listener socket.
          */
         explicit ListenerEW(shared_socket socket)
-            : sock_(socket)
-            , EventWatcher(socket.fd_get(), EV_READ)
+            : EventWatcher(socket->fd_get()->fd_, EV_READ)
         {
+            sock_ = socket;
             // Set socket non block
-            int tmpfd = socket.fd_get().fd_;
+            int tmpfd = socket->fd_get()->fd_;
             int flags = fcntl(tmpfd, F_GETFL);
             flags |= O_NONBLOCK;
             fcntl(tmpfd, F_SETFL, flags);
@@ -43,23 +45,23 @@ namespace http
          */
         void operator()() final
         {
-            std::string str;
+            char *str_c[1000];
             std::cout << "[r]";
-            int n = sock_->recv(str, 100, 0);
+            int n = sock_->recv(str_c, 1000);
             if (n <= 0)
             {
                 if (0 == n)
                 {
                     // Disconnect
-                    event_register.unregister_ew(&watcher_);
+                    event_register.unregister_ew(this);
                 }
                 else
                 {
-                    throw std::runtime_error;
+                    throw std::runtime_error("Wtf");
                 }
                 return;
             }
-            std::cout << "socket client said: " << str;
+            std::cout << "socket client said: " << str_c;
             //response;
         }
 

@@ -6,6 +6,7 @@
 #pragma once
 
 #include "events/events.hh"
+#include "events/listener.hh"
 #include "events/register.hh"
 #include "socket/socket.hh"
 
@@ -22,11 +23,11 @@ namespace http
          * \brief Create a ServerEW from a listener socket.
          */
         explicit ServerEW(shared_socket socket)
-            : EventWatcher(socket->fd_get().get(), EV_READ)
+            : EventWatcher(socket->fd_get()->fd_, EV_READ)
         {
             sock_ = socket;
             // Set socket non block
-            int tmpfd = socket.fd_get().fd_;
+            int tmpfd = socket->fd_get()->fd_;
             int flags = fcntl(tmpfd, F_GETFL);
             flags |= O_NONBLOCK;
             fcntl(tmpfd, F_SETFL, flags);
@@ -44,17 +45,16 @@ namespace http
         {
             while (1)
             {
-                client_sock = sock_.accept(NULL, NULL);
+                auto client_sock = sock_->accept(NULL, NULL);
                 if (client_sock->fd_get())
                 {
                     if (errno != EAGAIN && errno != EWOULDBLOCK)
                     {
-                        throw std::runtime_error;
+                        throw std::runtime_error("Cannot accept sockets");
                     }
                     break;
                 }
-                auto ew = ListenerEW(client_sock);
-                event_register.register_ew(ew);
+                event_register.register_ew<ListenerEW>(client_sock);
             }
         }
 

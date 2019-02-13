@@ -27,7 +27,10 @@ namespace misc
             : fd_{fd}
         {}
 
-        ~FileDescriptor();
+        ~FileDescriptor()
+        {
+            close(fd_);
+        }
 
         FileDescriptor(const FileDescriptor&) = delete;
         FileDescriptor& operator=(const FileDescriptor&) = delete;

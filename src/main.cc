@@ -3,7 +3,16 @@
 #include "error/not-implemented.hh"
 #include "vhost/vhost-factory.hh"
 #include "config/config.hh"
+#include "events/register.hh"
+#include "events/server.hh"
+#include "events/event-loop.hh"
 #include "request/response.hh"
+
+namespace http
+{
+    EventWatcherRegistry event_register = EventWatcherRegistry();
+    Dispatcher dispatcher = Dispatcher();
+}
 
 static int handle_t(char *argv[])
 {
@@ -58,9 +67,9 @@ static int handle_two(char *argv[])
     std::cout << a() << '\n';
 
     //throw http::NotImplemented();
-    auto vhost = VHostFactory::Create(serv);
+    auto vhost = http::VHostFactory::Create(serv.VHosts_[0]);
 
-    event_register.loop_get()();
+    http::event_register.loop_get()();
     return 1;
 }
 
