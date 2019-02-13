@@ -46,14 +46,11 @@ namespace http
             while (1)
             {
                 auto client_sock = sock_->accept(NULL, NULL);
-                if (client_sock->fd_get())
+                if (*(client_sock->fd_get()) == -1)
                 {
-                    if (errno != EAGAIN && errno != EWOULDBLOCK)
-                    {
-                        throw std::runtime_error("Cannot accept sockets");
-                    }
                     break;
                 }
+                std::clog << "Accept a new socket\n";
                 event_register.register_ew<ListenerEW>(client_sock);
             }
         }
