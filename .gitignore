@@ -2,3 +2,9 @@
 .dirstamp
 *.lo
 *.o
+*.pdf
+*
+!src/[a-zA-Z]
+!TODO
+!README
+.gitignore
