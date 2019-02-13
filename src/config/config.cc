@@ -78,35 +78,43 @@ json or wrong architecture");
             std::clog << "Provided file invalid: cannot open file\n";
             return 1;
         }
-
         json j = json::parse(ifs);
+        ServerConfig serv;
 
-        if (j.size() == 0)
-        {
-            std::clog << "Provided file invalid: empty file\n";
-            return 1;
-        }
+        auto ctn = j["vhosts"];
 
-        for (auto i : j)
+        for (auto i : ctn)
         {
             json tmp(i);
             if (tmp.size() != 4 && tmp.size() != 5)
             {
-                std::clog << "Provided file invalid: wrong configuration\n";
+                std::clog << ("invalid json file: not a \
+                        json or wrong architecture\n");
                 return 1;
             }
-            std::string test = tmp[0].get<std::string>();
-            int int_port = tmp[1].get<int>();
-            if (int_port < 0)
+            std::string ip = tmp["ip"];
+            int port = tmp["port"];
+            std::string server_name = tmp["server_name"];
+            std::string root = tmp["root"];
+            std::string default_file;
+            try
             {
-                std::clog << "Provided file invalid: invalid port\n";
+                default_file = tmp["default_file"];
+            }
+            catch (const std::exception& e)
+            {
+                default_file = "index.html";
+            }
+
+            if (ip.empty() || port <= 0 || server_name.empty() || root.empty())
+            {
+                std::clog << ("invalid JSON file: a mandatory \
+                        argument is missing\n");
                 return 1;
             }
-            test = tmp[2].get<std::string>();
-            test = tmp[3].get<std::string>();
-            if (tmp.size() == 5)
-                test = tmp[4].get<std::string>();
+
         }
+
         return 0;
 
     }
