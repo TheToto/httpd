@@ -30,7 +30,9 @@ namespace http
          */
         explicit VHostStaticFile(const VHostConfig& conf)
             : VHost(conf)
-        {}
+        {
+
+        }
 
     public:
         /**

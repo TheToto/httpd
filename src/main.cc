@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include "error/not-implemented.hh"
+#include "vhost/vhost-factory.hh"
 #include "config/config.hh"
 #include "request/response.hh"
 
@@ -57,6 +58,9 @@ static int handle_two(char *argv[])
     std::cout << a() << '\n';
 
     //throw http::NotImplemented();
+    auto vhost = VHostFactory::Create(serv);
+
+    event_register.loop_get()();
     return 1;
 }
 

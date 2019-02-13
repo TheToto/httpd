@@ -60,7 +60,7 @@ namespace http
                 return;
             }
             std::cout << "socket client said: " << str;
-            ;
+            //response;
         }
 
     private:

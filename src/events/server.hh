@@ -22,9 +22,9 @@ namespace http
          * \brief Create a ServerEW from a listener socket.
          */
         explicit ServerEW(shared_socket socket)
-            : sock_(socket)
-            , EventWatcher(socket.fd_get(), EV_READ)
+            : EventWatcher(socket->fd_get().get(), EV_READ)
         {
+            sock_ = socket;
             // Set socket non block
             int tmpfd = socket.fd_get().fd_;
             int flags = fcntl(tmpfd, F_GETFL);
@@ -45,7 +45,7 @@ namespace http
             while (1)
             {
                 client_sock = sock_.accept(NULL, NULL);
-                if (client_sock.fd_get())
+                if (client_sock->fd_get())
                 {
                     if (errno != EAGAIN && errno != EWOULDBLOCK)
                     {

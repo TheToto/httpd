@@ -5,6 +5,7 @@
 
 #include "vhost/vhost-static-file.hh"
 #include "vhost/vhost.hh"
+#include "events/server.hh"
 namespace http
 {
     /**
@@ -19,7 +20,13 @@ namespace http
          */
         static shared_vhost Create(VHostConfig conf)
         {
-            return std::shared_ptr<VHost>(new VHostStaticFile(conf));
+            auto vhost = shared_vhost(new VHostStaticFile(conf));
+
+            auto sock = shared_socket(new DefaultSocket(AF_UNIX, SOCK_STREAM, 0));
+            auto ew = ServerEW(sock);
+            event_register.register_ew(ew);
+
+            dispatcher.register_vhost(vhost);
         }
     };
 } // namespace http
