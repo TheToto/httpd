@@ -9,6 +9,14 @@
 
 namespace http
 {
+
+    enum REQUEST_MODE : uint8_t
+    {
+        GET,
+        POST,
+        HEAD
+    };
+
     /**
      * \struct Request
      * \brief Value object representing a request.
@@ -21,6 +29,9 @@ namespace http
         Request(Request&&) = default;
         Request& operator=(Request&&) = default;
         ~Request() = default;
-        // FIXME: Add members to store the information relative to a request.
+    private:
+        REQUEST_MODE mode;
+        std::string uri;
+        std::string host;
     };
 } // namespace http

@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <ctime>
+
 #include "request/request.hh"
 #include "request/types.hh"
 
@@ -25,6 +27,8 @@ namespace http
         Response(Response&&) = default;
         Response& operator=(Response&&) = default;
         ~Response() = default;
-        // FIXME: Add members to store the information relative to a response.
+    private:
+        STATUS_CODE status;
+        std::time_t date;
     };
 } // namespace http
