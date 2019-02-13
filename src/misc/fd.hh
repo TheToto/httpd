@@ -30,7 +30,8 @@ namespace misc
 
         ~FileDescriptor()
         {
-            sys::close(fd_);
+            if (*this)
+                sys::close(fd_);
         }
 
         FileDescriptor(const FileDescriptor&) = delete;

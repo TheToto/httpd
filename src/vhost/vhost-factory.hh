@@ -29,8 +29,12 @@ namespace http
             // bind
             sockaddr_in server;
             server.sin_family = AF_INET;
-            server.sin_addr.s_addr = INADDR_ANY;
+
+            // Ues AF_INET6 for IPv6
+            inet_pton(AF_INET, conf.ip_.c_str(), &(server.sin_addr));
+            // FIXME : Use conf.port_
             server.sin_port = htons(/*conf.port_*/8000);
+
             sock->bind((sockaddr*)&server, sizeof(server));
             // listen
             sock->listen(3);
