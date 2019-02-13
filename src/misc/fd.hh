@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "misc/sys-wrapper.hh"
+#include "misc/unistd.hh"
 
 namespace misc
 {
@@ -29,7 +30,7 @@ namespace misc
 
         ~FileDescriptor()
         {
-            close(fd_);
+            sys::close(fd_);
         }
 
         FileDescriptor(const FileDescriptor&) = delete;

@@ -34,5 +34,5 @@ namespace sys
      * Since open is a variadic syscall we need to call a helper with a
      * fixed number of parameters to create a wrapper out of it.
      */
-    inline auto open = make_wrapper<misc::FileDescriptor>(open_wrapper);
+    inline auto open = make_wrapper<int>(open_wrapper);
 } // namespace sys

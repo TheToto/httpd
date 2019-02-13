@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include <iostream>
 #include <exception>
+#include <iostream>
 
 #include "events/events.hh"
 #include "events/register.hh"
@@ -45,7 +45,7 @@ namespace http
          */
         void operator()() final
         {
-            char *str_c[1000];
+            char* str_c[1000];
             std::cout << "[r]";
             int n = sock_->recv(str_c, 1000);
             if (n <= 0)
@@ -53,6 +53,7 @@ namespace http
                 if (0 == n)
                 {
                     // Disconnect
+                    std::clog << "A socked has disconnect\n";
                     event_register.unregister_ew(this);
                 }
                 else
@@ -62,7 +63,7 @@ namespace http
                 return;
             }
             std::cout << "socket client said: " << str_c;
-            //response;
+            // response;
         }
 
     private:
