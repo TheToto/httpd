@@ -19,12 +19,18 @@ namespace http
     {
     public:
         /**
-         * \brief Create a ListenerEW from a listener socket.
+         * \brief Create a ServerEW from a listener socket.
          */
         explicit ServerEW(shared_socket socket)
             : sock_(socket)
             , EventWatcher(socket.fd_get(), EV_READ)
         {
+            // Set socket non block
+            int tmpfd = socket.fd_get().fd_;
+            int flags = fcntl(tmpfd, F_GETFL);
+            flags |= O_NONBLOCK;
+            fcntl(tmpfd, F_SETFL, flags);
+
             /*struct sockaddr_in sin;
             socklen_t len = sizeof(sin);
             if (getsockname(socket, (struct sockaddr*)&sin, &len) != -1)
@@ -47,7 +53,8 @@ namespace http
                     }
                     break;
                 }
-                event_register.register_ew(client_sock);
+                auto ew = ListenerEW(client_sock);
+                event_register.register_ew(ew);
             }
         }
 
