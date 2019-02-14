@@ -4,6 +4,9 @@
 *.o
 *.pdf
 
+#spider
+spider
+
 #emacs shit
 *~
 *#
