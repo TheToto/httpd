@@ -27,12 +27,10 @@ namespace http
         {
             vhosts_.push_back(vhost);
         }
+        shared_vhost operator()(Request& r);
 
     private:
         std::vector<shared_vhost> vhosts_;
-        /* FIXME: Add members to store the information relative to the
-        ** Dispatcher.
-        */
     };
 
     /**
