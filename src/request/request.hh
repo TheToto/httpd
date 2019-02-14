@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <map>
+
 #include "request/types.hh"
 
 namespace http
@@ -31,9 +33,9 @@ namespace http
         {
             uri = uri_;
         }
-        void set_host(std::string host_)
+        void set_header(std::string name, std::string value)
         {
-            host = host_;
+            headers[name] = value;
         }
 
         const std::string& get_mode()
@@ -44,17 +46,17 @@ namespace http
         {
             return uri;
         }
-        const std::string& get_host()
+        const std::string& get_header(const std::string& name)
         {
-            return host;
+            return headers[name];
         }
     private:
         std::string mode;
         std::string uri;
-        std::string host;
+        std::map<std::string, std::string> headers;
     };
 
     int get_mode_str(Request& r, const std::string& asked, int& cur);
-    int get_host_str(Request& r, const std::string& asked, int& cur);
+    int get_headers_str(Request& r, const std::string& asked, int& cur);
 #include "request.hxx"
 } // namespace http
