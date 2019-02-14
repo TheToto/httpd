@@ -63,16 +63,27 @@ namespace http
             }
             std::cout << "socket client said: \n" << str_c << std::endl;
             // response;
-            //Resquest req(str_c);
-            //Connection con(sock_);
-            //dispatcher.dispatch(res, con);
+            Resquest req(str_c);
+            Connection con(sock_);
+            shared_vhost v = dispatcher(req);
+            if (v)
+            {
+                v.respond(req, con, 0, 0); /* FIXME : Iterators */
+            }
+            else
+            {
+                auto resp = error::bad_request();
+                send_response(con, resp());
+            }
         }
+        ²
 
-    private:
-        /**
-         * \brief Listener socket.
-         */
-        shared_socket sock_;
+            private
+            :
+            /**
+             * \brief Listener socket.
+             */
+            shared_socket sock_;
         /**
          * \brief Port on which the socket is listening.
          */

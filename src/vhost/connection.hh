@@ -20,6 +20,9 @@ namespace http
      */
     struct Connection
     {
+        Connection(shared_socket sock)
+            : sock_(sock)
+        {}
         Connection() = default;
         Connection(const Connection&) = default;
         Connection& operator=(const Connection&) = default;
@@ -27,6 +30,7 @@ namespace http
         Connection& operator=(Connection&&) = default;
         ~Connection() = default;
 
+        shared_socket sock_;
         /* FIXME: Add members to store the information relative to the
         ** connection.
         */
