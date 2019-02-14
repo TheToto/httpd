@@ -28,6 +28,9 @@ namespace http
         Response(Response&&) = default;
         Response& operator=(Response&&) = default;
         ~Response() = default;
+        
+        const std::string& operator()() const;
+
     private:
         STATUS_CODE status;
         std::time_t date;

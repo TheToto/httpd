@@ -51,9 +51,10 @@ static int handle_two(char *argv[])
                 << "PORT: " << serv.VHosts_[0].port_ << '\n'
                 << "SERVER_NAME: " << serv.VHosts_[0].server_name_ << '\n'
                 << "ROOT: " << serv.VHosts_[0].root_ << '\n'
-                << "DEFAULT_FILE: " << serv.VHosts_[0].default_file_ << '\n';
-    http::Response a(200);
-    std::cout << a.response_ << '\n';
+                << "DEFAULT_FILE: " << serv.VHosts_[0].default_file_ << '\n'
+                << '\n';
+    http::Response a(http::OK);
+    std::cout << a() << '\n';
 
     //throw http::NotImplemented();
     return 1;

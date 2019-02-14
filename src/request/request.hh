@@ -46,7 +46,7 @@ namespace http
         {
             return uri;
         }
-        const std::string& get_version()
+        const std::string& get_version() const
         {
             return version;
         }
