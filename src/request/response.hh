@@ -19,8 +19,12 @@ namespace http
     struct Response
     {
         explicit Response(const STATUS_CODE&);
-
+        
         Response(const Request&, const STATUS_CODE& = STATUS_CODE::OK);
+        Response(const Request&, const std::string&, const STATUS_CODE& = STATUS_CODE::OK);
+    //get the body of the response and its length
+
+
 
         Response() = default;
         Response(const Response&) = default;

@@ -5,6 +5,7 @@
 *.pdf
 *
 !src/[a-zA-Z]
+!*.hxx
 !TODO
 !README
 .gitignore
