@@ -19,6 +19,7 @@ namespace http
     struct Response
     {
         explicit Response(const STATUS_CODE&);
+
         Response(const Request&, const STATUS_CODE& = STATUS_CODE::OK);
 
         Response() = default;
@@ -30,5 +31,9 @@ namespace http
     private:
         STATUS_CODE status;
         std::time_t date;
+        std::string version_;
+
+        std::string response_;
     };
+#include "response.hxx"
 } // namespace http

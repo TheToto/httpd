@@ -2,6 +2,7 @@
 #include <cstring>
 #include "error/not-implemented.hh"
 #include "config/config.hh"
+#include "request/response.hh"
 
 static int handle_t(char *argv[])
 {
@@ -51,6 +52,8 @@ static int handle_two(char *argv[])
                 << "SERVER_NAME: " << serv.VHosts_[0].server_name_ << '\n'
                 << "ROOT: " << serv.VHosts_[0].root_ << '\n'
                 << "DEFAULT_FILE: " << serv.VHosts_[0].default_file_ << '\n';
+    http::Response a(200);
+    std::cout << a.response_ << '\n';
 
     //throw http::NotImplemented();
     return 1;
