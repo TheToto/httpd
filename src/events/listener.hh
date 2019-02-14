@@ -45,9 +45,8 @@ namespace http
          */
         void operator()() final
         {
-            char* str_c[1000];
-            std::cout << "[r]";
-            int n = sock_->recv(str_c, 1000);
+            char str_c[10000];
+            int n = sock_->recv(str_c, 10000);
             if (n <= 0)
             {
                 if (0 == n)
@@ -58,12 +57,15 @@ namespace http
                 }
                 else
                 {
-                    throw std::runtime_error("Wtf");
+                    throw std::runtime_error("Invalid recv");
                 }
                 return;
             }
-            std::cout << "socket client said: " << str_c;
+            std::cout << "socket client said: \n" << str_c << std::endl;
             // response;
+            //Resquest req(str_c);
+            //Connection con(sock_);
+            //dispatcher.dispatch(res, con);
         }
 
     private:
