@@ -26,7 +26,7 @@ namespace http
         path += request.get_uri();
         if (*(path.rbegin()) == '/')
             path += this->conf_get().default_file_;
-        int fd;
+        int fd = -1;
         try
         {
             fd = sys::open(path.c_str(), O_RDONLY);
@@ -43,6 +43,7 @@ namespace http
                 auto resp = error::forbidden(request)();
                 send_response(conn, resp);
             }
+            return;
         }
         auto stream = std::make_shared<misc::FileDescriptor>(fd);
         struct stat buffer;
