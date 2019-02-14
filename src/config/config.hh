@@ -22,11 +22,18 @@ namespace http
     {
         VHostConfig() = default;
 
-        VHostConfig(std::string ip, std::string port, std::string server_name,
+        VHostConfig(std::string ip, int port, std::string server_name,
             std::string root, std::string def = "index.html"):
-                ip_(ip), port_(port), server_name_(server_name), root_(root),
-                default_file_(def)
-        {}
+                ip_(ip), port_(port), server_name_(server_name),
+                root_(root), default_file_(def)
+        {
+            std::string i = server_name_port_;
+            i.append(std::to_string(port));
+            std::string j = ip_port_;
+            j.append(std::to_string(port));
+            ip_port_ = j;
+            server_name_port_ = i;
+        }
 
         VHostConfig(const VHostConfig&) = default;
         VHostConfig& operator=(const VHostConfig&) = default;
@@ -35,12 +42,15 @@ namespace http
 
         ~VHostConfig() = default;
 
-        std::string ip_;
-        std::string port_;
-        std::string server_name_;
-        std::string root_;
-        std::string default_file_ = "index.html";
-        // FIXME: Add members to store the information relative to a vhost.
+        const std::string ip_;
+        const int port_;
+        const std::string server_name_;
+
+        std::string server_name_port_;
+        std::string ip_port_;
+
+        const std::string root_;
+        const std::string default_file_ = "index.html";
     };
 
     /**
@@ -61,8 +71,6 @@ namespace http
         ~ServerConfig() = default;
 
         std::vector<VHostConfig> VHosts_;
-/* FIXME: Add members to store the information relative to the
-           configuration of the server. */
     };
 
     /**

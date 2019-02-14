@@ -41,11 +41,11 @@ namespace http
 argument is missing");
         if (i.size() == 5)
         {
-            serv.VHosts_.push_back(VHostConfig(ip, std::to_string(port),
+            serv.VHosts_.push_back(VHostConfig(ip, port,
                 server_name, root, default_file));
         }
         else
-            serv.VHosts_.push_back(VHostConfig(ip, std::to_string(port),
+            serv.VHosts_.push_back(VHostConfig(ip, port,
                 server_name, root));
     }
 
