@@ -5,7 +5,7 @@ namespace http
     {
         const std::string& host = r.get_header("Host");
         auto cur = vhosts_.begin();
-        for(; cur != vhosts_.end(); cur++)
+        for (; cur != vhosts_.end(); cur++)
         {
             auto conf = (*cur)->conf_get();
             if (conf.ip_ == host)
@@ -20,8 +20,8 @@ namespace http
         if (cur == vhosts_.end())
         {
             r.set_mode("ERROR");
-            return null_ptr;
+            return nullptr;
         }
         return *cur;
     }
-}
+} // namespace http

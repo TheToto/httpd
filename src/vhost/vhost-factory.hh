@@ -3,12 +3,13 @@
  * \brief VHostFactory
  */
 
-#include "vhost/vhost-static-file.hh"
-#include "vhost/vhost.hh"
+#include <arpa/inet.h>
+
+#include "events/server.hh"
 #include "socket/default-socket.hh"
 #include "vhost/dispatcher.hh"
-#include "events/server.hh"
-#include <arpa/inet.h>
+#include "vhost/vhost-static-file.hh"
+#include "vhost/vhost.hh"
 namespace http
 {
     /**
@@ -25,7 +26,8 @@ namespace http
         {
             auto vhost = shared_vhost(new VHostStaticFile(conf));
 
-            auto sock = shared_socket(new DefaultSocket(AF_INET, SOCK_STREAM, 0));
+            auto sock =
+                shared_socket(new DefaultSocket(AF_INET, SOCK_STREAM, 0));
             // bind
             sockaddr_in server;
             server.sin_family = AF_INET;
@@ -33,7 +35,7 @@ namespace http
             // Ues AF_INET6 for IPv6
             inet_pton(AF_INET, conf.ip_.c_str(), &(server.sin_addr));
             // FIXME : Use conf.port_
-            server.sin_port = htons(/*conf.port_*/8000);
+            server.sin_port = htons(conf.port_);
 
             sock->bind((sockaddr*)&server, sizeof(server));
             // listen

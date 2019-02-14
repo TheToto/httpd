@@ -23,16 +23,15 @@ namespace http
         VHostConfig() = default;
 
         VHostConfig(std::string ip, int port, std::string server_name,
-            std::string root, std::string def = "index.html"):
-                ip_(ip), port_(port), server_name_(server_name),
-                root_(root), default_file_(def)
+                    std::string root, std::string def = "index.html")
+            : ip_(ip)
+            , port_(port)
+            , server_name_(server_name)
+            , root_(root)
+            , default_file_(def)
         {
-            std::string i = server_name_port_;
-            i.append(std::to_string(port));
-            std::string j = ip_port_;
-            j.append(std::to_string(port));
-            ip_port_ = j;
-            server_name_port_ = i;
+            server_name_port_ = server_name_ + ":" + std::to_string(port_);
+            ip_port_ = ip_ + ":" + std::to_string(port_);
         }
 
         VHostConfig(const VHostConfig&) = default;

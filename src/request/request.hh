@@ -38,11 +38,11 @@ namespace http
             headers[name] = value;
         }
 
-        const std::string& get_mode()
+        const std::string& get_mode() const
         {
             return mode;
         }
-        const std::string& get_uri()
+        const std::string& get_uri() const
         {
             return uri;
         }
@@ -54,6 +54,7 @@ namespace http
         {
             return headers[name];
         }
+
     private:
         std::string mode;
         std::string uri;
@@ -63,5 +64,4 @@ namespace http
 
     int get_mode_str(Request& r, const std::string& asked, int& cur);
     int get_headers_str(Request& r, const std::string& asked, int& cur);
-#include "request.hxx"
 } // namespace http

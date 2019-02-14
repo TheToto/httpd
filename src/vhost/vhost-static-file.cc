@@ -1,51 +1,58 @@
 #include "vhost/vhost-static-file.hh"
+
+#include <system_error>
+
+#include "misc/fd.hh"
 #include "request/error.hh"
 
 namespace http
 {
     static inline void send_response(Connection& conn, std::string& response)
     {
-        send(conn.sock_.send(response, response.length()); 
+        conn.sock_->send(response.c_str(), response.length());
     }
 
-    void VHostStaticFile::respond(const Request& request, Connection& conn, remaining_iterator begin,
-                     remaining_iterator end)
+    void VHostStaticFile::respond(const Request& request, Connection& conn,
+                                  remaining_iterator, remaining_iterator)
     {
-        //
         if (request.get_mode() == "ERROR")
         {
-            auto resp = error::bad_request();
-            send_response(conn, resp());
+            auto resp = error::bad_request()();
+            send_response(conn, resp);
             return;
         }
-        
+
         std::string path = this->conf_get().root_;
         path += request.get_uri();
-        auto stream = sys::open(path.c_str(), O_RDONLY);
-
-        if (stream == -1)
+        if (*(path.rbegin()) == '/')
+            path += this->conf_get().default_file_;
+        int fd;
+        try
         {
-            if (errno == ENOENT)
+            fd = sys::open(path.c_str(), O_RDONLY);
+        }
+        catch (const std::system_error& e)
+        {
+            if (e.code() == std::errc::no_such_file_or_directory)
             {
-                auto resp = error::not_found(request);
-                send_response(conn, resp());
+                auto resp = error::not_found(request)();
+                send_response(conn, resp);
             }
             else
             {
-                auto resp = error::forbidden(request);
-                send_response(conn, resp());
+                auto resp = error::forbidden(request)();
+                send_response(conn, resp);
             }
         }
-        else
-        {
-            struct stat buffer;
-            auto stat = sys::fstat(stream, &buffer);
-            size_t size = buffer.st_size;
-            auto resp(request, size);
-            std::string body = resp();
-            conn.sock_.send(body, body.length());
-            conn.sock_.sendfile(stream, 0, size);
-            conn.sock_.send(http_crlf, 2);
-        }
+        auto stream = std::make_shared<misc::FileDescriptor>(fd);
+        struct stat buffer;
+        sys::fstat(*stream, &buffer);
+        size_t size = buffer.st_size;
+        Response resp(request, size);
+        std::string body = resp();
+        conn.sock_->send(body.c_str(), body.length());
+        off_t off = 0;
+        conn.sock_->sendfile(stream, off, size);
+        conn.sock_->send(http_crlf, 2);
     }
-}
+} // namespace http

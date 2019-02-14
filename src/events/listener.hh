@@ -10,7 +10,13 @@
 
 #include "events/events.hh"
 #include "events/register.hh"
+#include "misc/socket.hh"
+#include "request/error.hh"
+#include "request/request.hh"
 #include "socket/socket.hh"
+#include "vhost/connection.hh"
+#include "vhost/dispatcher.hh"
+#include "vhost/vhost.hh"
 
 namespace http
 {
@@ -63,27 +69,25 @@ namespace http
             }
             std::cout << "socket client said: \n" << str_c << std::endl;
             // response;
-            Resquest req(str_c);
+            Request req(str_c);
             Connection con(sock_);
             shared_vhost v = dispatcher(req);
             if (v)
             {
-                v.respond(req, con, 0, 0); /* FIXME : Iterators */
+                v->respond(req, con, 0, 0); /* FIXME : Iterators */
             }
             else
             {
-                auto resp = error::bad_request();
-                send_response(con, resp());
+                std::string resp = error::bad_request()();
+                con.sock_->send(resp.c_str(), resp.length());
             }
         }
-        ²
 
-            private
-            :
-            /**
-             * \brief Listener socket.
-             */
-            shared_socket sock_;
+    private:
+        /**
+         * \brief Listener socket.
+         */
+        shared_socket sock_;
         /**
          * \brief Port on which the socket is listening.
          */

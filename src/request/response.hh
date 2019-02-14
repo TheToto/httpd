@@ -14,7 +14,7 @@ namespace http
 {
     /**
      * \struct Response
-     * \brief Value object representing a response.
+qsd     * \brief Value object representing a response.
      */
     struct Response
     {
@@ -22,10 +22,8 @@ namespace http
 
         Response(const Request&, const STATUS_CODE& = STATUS_CODE::OK);
         Response(const Request&, size_t& size,
-                const STATUS_CODE& = STATUS_CODE::OK);
-    //get the body of the response and its length
-
-
+                 const STATUS_CODE& = STATUS_CODE::OK);
+        // get the body of the response and its length
 
         Response() = default;
         Response(const Response&) = default;
@@ -43,5 +41,4 @@ namespace http
 
         std::string response_;
     };
-#include "response.hxx"
 } // namespace http
