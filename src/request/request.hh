@@ -46,6 +46,10 @@ namespace http
         {
             return uri;
         }
+        const std::string& get_version()
+        {
+            return version;
+        }
         const std::string& get_header(const std::string& name)
         {
             return headers[name];
@@ -53,6 +57,7 @@ namespace http
     private:
         std::string mode;
         std::string uri;
+        std::string version;
         std::map<std::string, std::string> headers;
     };
 

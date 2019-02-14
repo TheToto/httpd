@@ -59,5 +59,8 @@ Request::Request(std::string asked)
     cur = asked.find_first_not_of(' ', cur);
     int n_cur = asked.find_first_of(' ', cur);
     uri = asked.substr(cur, n_cur - cur);
+    cur = asked.find_first_not_of(' ', n_cur);
+    n_cur = asked.find_first_of('\n', cur);
+    version = asked.substr(cur, n_cur - cur);
     get_headers_str(*this, asked, cur);
 }
