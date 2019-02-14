@@ -9,15 +9,6 @@
 
 namespace http
 {
-
-    enum REQUEST_MODE : uint8_t
-    {
-        GET = 1,
-        POST = 2,
-        HEAD = 3,
-        ERROR = 0
-    };
-
     /**
      * \struct Request
      * \brief Value object representing a request.
@@ -32,7 +23,7 @@ namespace http
         Request& operator=(Request&&) = default;
         ~Request() = default;
 
-        void set_mode(REQUEST_MODE mode_)
+        void set_mode(std::string mode_)
         {
             mode = mode_;
         }
@@ -45,20 +36,20 @@ namespace http
             host = host_;
         }
 
-        REQUEST_MODE get_mode()
+        const std::string& get_mode()
         {
             return mode;
         }
-        std::string get_uri()
+        const std::string& get_uri()
         {
             return uri;
         }
-        std::string get_host()
+        const std::string& get_host()
         {
             return host;
         }
     private:
-        REQUEST_MODE mode;
+        std::string mode;
         std::string uri;
         std::string host;
     };
