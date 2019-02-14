@@ -15,7 +15,8 @@ namespace http
     void VHostStaticFile::respond(const Request& request, Connection& conn,
                                   remaining_iterator, remaining_iterator)
     {
-        if (request.get_mode() == "ERROR")
+        auto mode = request.get_mode();
+        if ( mode == "ERROR")
         {
             auto resp = error::bad_request()();
             send_response(conn, resp);
@@ -45,15 +46,18 @@ namespace http
             }
             return;
         }
+
         auto stream = std::make_shared<misc::FileDescriptor>(fd);
         struct stat buffer;
         sys::fstat(*stream, &buffer);
         size_t size = buffer.st_size;
         Response resp(request, size);
         std::string body = resp();
+
         conn.sock_->send(body.c_str(), body.length());
         off_t off = 0;
-        conn.sock_->sendfile(stream, off, size);
+        if (mode == "GET" || mode == "POST")
+            conn.sock_->sendfile(stream, off, size);
         conn.sock_->send(http_crlf, 2);
     }
 } // namespace http
