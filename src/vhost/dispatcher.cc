@@ -20,7 +20,7 @@ namespace http
         if (cur == vhosts_.end())
         {
             r.set_mode("ERROR");
-            return NULL;
+            return null_ptr;
         }
         return *cur;
     }
