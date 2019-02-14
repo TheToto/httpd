@@ -65,6 +65,7 @@ libspider_la_SOURCES = \
                        src/vhost/dispatcher.cc \
                        src/vhost/vhost-factory.hh \
                        src/vhost/vhost-static-file.hh \
+                       src/vhost/vhost-static-file.cc \
                        src/vhost/vhost.hh \
                        $(NULL)
 

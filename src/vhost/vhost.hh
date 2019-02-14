@@ -45,7 +45,7 @@ namespace http
          * \param begin remaining_iterator of received data.
          * \param end remaining_iterator of received data.
          */
-        virtual void respond(const Request&, Connection, remaining_iterator,
+        virtual void respond(const Request&, Connection&, remaining_iterator,
                              remaining_iterator) = 0;
 
         inline const VHostConfig& conf_get() const noexcept

@@ -57,13 +57,16 @@ static int handle_two(char *argv[])
         return 2;
     }
     http::ServerConfig serv = http::parse_configuration(argv[1]);
-    std::cout << "IP: " << serv.VHosts_[0].ip_ << '\n'
-                << "PORT: " << serv.VHosts_[0].port_ << '\n'
-                << "SERVER_NAME: " << serv.VHosts_[0].server_name_ << '\n'
-                << "ROOT: " << serv.VHosts_[0].root_ << '\n'
-                << "DEFAULT_FILE: " << serv.VHosts_[0].default_file_ << '\n'
-                << '\n';
-    http::Response a(http::OK);
+    for (auto i : serv.VHosts_)
+    {
+        std::cout << "IP: " << i.ip_ << '\n'
+                    << "PORT: " << i.port_ << '\n'
+                    << "SERVER_NAME: " << i.server_name_ << '\n'
+                    << "ROOT: " << i.root_ << '\n'
+                    << "DEFAULT_FILE: " << i.default_file_ << '\n'
+                    << '\n';
+    }
+    http::Response a(http::NOT_FOUND);
     std::cout << a() << '\n';
 
     //throw http::NotImplemented();
