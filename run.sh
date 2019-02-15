@@ -1,7 +1,10 @@
 #!/bin/sh
 shopt -s dotglob
 
-if test ! -d build; then
+if test ! -d build | test ! -f build/Makefile \
+       | test ! -f build/aclocal.m4 | test ! -f build/libtool \
+       | test ! -f build/config.h | test ! -f build/Makefile.in \
+       | test ! -f build/libspider.la | test ! -f build/stamp-h1 ; then
     mkdir build
     ./autogen.sh
     ./configure
