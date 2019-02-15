@@ -34,7 +34,7 @@ namespace http
         while (cur > 0)
         {
             cur = asked.find_first_of('\n', cur) + 1;
-            if (cur == 0)
+            if (cur == 0 || asked.substr(cur, 1) == "\r")
                 break;
             int len_cur = asked.find_first_of(':', cur) - cur;
             if (len_cur == 4 && asked.substr(cur, 6) == "Host: ")
@@ -54,7 +54,6 @@ namespace http
         }
         return cur;
     }
-
     Request::Request(std::string asked)
     {
         int cur = 0;
