@@ -39,6 +39,9 @@ namespace http
         response_ += std::string(get_time(tab));
         response_ += http_crlf;
 
+        response_ += "Connection: close";
+        response_ += http_crlf;
+
         response_ += http_crlf;
     }
 
