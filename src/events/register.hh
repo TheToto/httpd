@@ -35,7 +35,10 @@ namespace http
         EventWatcherRegistry(EventWatcherRegistry&&) = delete;
         EventWatcherRegistry& operator=(EventWatcherRegistry&&) = delete;
 
-        ~EventWatcherRegistry() = default;
+        ~EventWatcherRegistry()
+        {
+            loop_.~EventLoop();
+        }
 
         /**
          * \brief Register a given event watcher.

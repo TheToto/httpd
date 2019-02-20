@@ -14,6 +14,11 @@ namespace http
     Dispatcher dispatcher = Dispatcher();
 }
 
+static void stop_server(struct ev_loop* loop, ev_signal*, int)
+{
+    ev_break (loop, EVBREAK_ALL);
+}
+
 static int handle_t(char *argv[])
 {
     if (strcmp(argv[1], "-t") == 0)
@@ -66,13 +71,17 @@ static int handle_two(char *argv[])
                     << "DEFAULT_FILE: " << i.default_file_ << '\n'
                     << '\n';
     }
-    http::Response a(http::NOT_FOUND);
-    std::cout << a() << '\n';
+    //http::Response a(http::NOT_FOUND);
+    //std::cout << a() << '\n';
 
-    //throw http::NotImplemented();
     auto vhost = http::VHostFactory::Create(serv.VHosts_[0]);
 
-    http::event_register.loop_get()();
+    auto loop = http::event_register.loop_get();
+    ev_signal sigint_watcher;
+    ev_signal_init (&sigint_watcher, stop_server, SIGINT);
+    loop.register_sigint_watcher(&sigint_watcher);
+
+    loop();
     return 1;
 }
 
