@@ -62,17 +62,6 @@ static int handle_two(char *argv[])
         return 1;
     }
     http::ServerConfig serv = http::parse_configuration(argv[1]);
-    for (auto i : serv.VHosts_)
-    {
-        std::cout << "IP: " << i.ip_ << '\n'
-                    << "PORT: " << i.port_ << '\n'
-                    << "SERVER_NAME: " << i.server_name_ << '\n'
-                    << "ROOT: " << i.root_ << '\n'
-                    << "DEFAULT_FILE: " << i.default_file_ << '\n'
-                    << '\n';
-    }
-    //http::Response a(http::NOT_FOUND);
-    //std::cout << a() << '\n';
 
     auto vhost = http::VHostFactory::Create(serv.VHosts_[0]);
 

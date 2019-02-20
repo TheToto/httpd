@@ -67,8 +67,6 @@ namespace http
                 }
                 return;
             }
-            std::cout << "socket client said: \n" << str_c << std::endl;
-            // response;
             Request req(str_c);
             Connection con(sock_);
             shared_vhost v = dispatcher(req);
