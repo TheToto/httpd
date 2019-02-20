@@ -33,8 +33,8 @@ namespace http
             server.sin_family = AF_INET;
 
             // Ues AF_INET6 for IPv6
-            inet_pton(AF_INET, conf.ip_.c_str(), &(server.sin_addr));
-            // FIXME : Use conf.port_
+            if (inet_pton(AF_INET, conf.ip_.c_str(), &(server.sin_addr)) != 0)
+                inet_pton(AF_INET6, conf.ip_.c_str(), &(server.sin_addr));
             server.sin_port = htons(conf.port_);
 
             sock->bind((sockaddr*)&server, sizeof(server));
