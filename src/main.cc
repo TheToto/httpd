@@ -50,7 +50,7 @@ static int handle_t(char *argv[])
     else
     {
         std::clog << "Usage: spider [-t] file.JSON\n";
-        return 2;
+        return 1;
     }
 }
 
@@ -59,7 +59,7 @@ static int handle_two(char *argv[])
     if (strcmp(argv[1], "-t") == 0)
     {
         std::clog << "Usage: spider [-t] file.JSON\n";
-        return 2;
+        return 1;
     }
     http::ServerConfig serv = http::parse_configuration(argv[1]);
     for (auto i : serv.VHosts_)
@@ -82,7 +82,7 @@ static int handle_two(char *argv[])
     loop.register_sigint_watcher(&sigint_watcher);
 
     loop();
-    return 1;
+    return 0;
 }
 
 int main(int argc, char *argv[])
@@ -91,14 +91,14 @@ int main(int argc, char *argv[])
     {
         case 1:
             std::clog << "Usage: spider [-t] file.JSON\n";
-            return 2;
+            return 1;
         case 2:
              return handle_two(argv);
         case 3:
             return handle_t(argv);
         default:
             std::clog << "Usage: spider [-t] file.JSON\n";
-            return 2;
+            return 1;
     }
 }
 
