@@ -114,6 +114,43 @@ namespace http
         }
         return cur;
     }
+
+    static int check_length(Request& r)
+    {
+        auto len_str = r.get_header("Content-Length");
+        if (len_str.empty())
+            return 1;
+
+        int len;
+        try
+        {
+            len = stoi(len_str);
+        }
+        catch (const std::exception&)
+        {
+            r.set_mode("ERROR");
+            r.set_erroring(1);
+            return -1;
+        }
+        if (len < 0)
+        {
+            r.set_mode("ERROR");
+            r.set_erroring(1);
+            return -1;
+        }
+        r.set_length(len);
+        if (r.is_erroring())
+            return 1;
+
+        if (r.get_mode() != "POST" && len != 0)
+        {
+            r.set_mode("ERROR");
+            r.set_erroring(1);
+            return -1;
+        }
+        return 1;
+    }
+
     Request::Request(std::string asked)
     {
         int cur = 0;
@@ -130,6 +167,8 @@ namespace http
         n_cur = asked.find_first_of('\r', cur);
         version = asked.substr(cur, n_cur - cur);
         get_headers_str(*this, asked, cur);
+        if ((check_length(*this)) < 0)
+            return;
     }
 
 } // namespace http

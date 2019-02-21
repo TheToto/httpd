@@ -62,6 +62,14 @@ namespace http
         {
             erroring = i;
         }
+        const size_t& get_length() const
+        {
+            return length;
+        }
+        void set_length(const int& i)
+        {
+            length = i;
+        }
 
     private:
         std::string mode;
@@ -69,6 +77,7 @@ namespace http
         std::string version;
         std::map<std::string, std::string> headers;
         int erroring = 0;
+        size_t length = 0;
     };
 
     int get_mode_str(Request& r, const std::string& asked, int& cur);
