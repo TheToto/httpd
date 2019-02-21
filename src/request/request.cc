@@ -31,17 +31,8 @@ namespace http
 
     static int get_http_version(Request& r, const std::string& asked, int& cur)
     {
-        size_t pos;
-        try
-        {
-            pos = asked.find("/", cur);
-        }
-        catch(const std::exception&)
-        {
-            r.set_mode("ERROR");
-            r.set_erroring(1);
-            return -1;
-        }
+
+        auto pos = asked.find("/", cur);
         if (pos == std::string::npos)
         {
             r.set_mode("ERROR");
@@ -49,17 +40,7 @@ namespace http
             return -1;
         }
 
-        size_t pos2;
-        try
-        {
-            pos2 = asked.find("HTTP", cur);
-        }
-        catch(const std::exception&)
-        {
-            r.set_mode("ERROR");
-            r.set_erroring(1);
-            return -1;
-        }
+        auto pos2 = asked.find("HTTP", cur);
         if (pos2 == std::string::npos || pos++ >= pos2)
         {
             r.set_mode("ERROR");
@@ -76,17 +57,8 @@ namespace http
                 return -1;
             }
         }
-        std::string version;
-        try
-        {
-            version = asked.substr(pos2, pos2 + 8);
-        }
-        catch (const std::exception&)
-        {
-                r.set_mode("ERROR");
-                r.set_erroring(1);
-                return -1;
-        }
+
+        auto version = asked.substr(pos2, pos2 + 8);
         if (version == "HTTP/1.1")
             return 1;
 
