@@ -76,7 +76,13 @@ namespace http
             }
             else
             {
-                std::string resp = error::bad_request()();
+                auto mod = req.get_mode();
+                std::string resp;
+                if (mod == "ERROR METHOD")
+                    resp = error::method_not_allowed(req)();
+                else
+                    resp = error::bad_request()();
+
                 con.sock_->send(resp.c_str(), resp.length());
             }
         }

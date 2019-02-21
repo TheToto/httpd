@@ -19,7 +19,8 @@ namespace http
         }
         if (cur == vhosts_.end())
         {
-            r.set_mode("ERROR");
+            if (!r.is_erroring())
+                r.set_mode("ERROR");
             return nullptr;
         }
         return *cur;

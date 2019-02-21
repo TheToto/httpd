@@ -22,7 +22,8 @@ namespace http
         }
         else
         {
-            r.set_mode("ERROR");
+            r.set_mode("ERROR METHOD");
+            r.set_erroring(1);
             cur = -1;
         }
         return cur;

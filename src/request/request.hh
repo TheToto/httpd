@@ -54,12 +54,21 @@ namespace http
         {
             return headers[name];
         }
+        const int& is_erroring() const
+        {
+            return erroring;
+        }
+        void set_erroring(const int& i)
+        {
+            erroring = i;
+        }
 
     private:
         std::string mode;
         std::string uri;
         std::string version;
         std::map<std::string, std::string> headers;
+        int erroring = 0;
     };
 
     int get_mode_str(Request& r, const std::string& asked, int& cur);

@@ -4,7 +4,7 @@
 
 #include "misc/fd.hh"
 #include "request/error.hh"
-
+#include <iostream>
 namespace http
 {
     static inline void send_response(Connection& conn, std::string& response)
@@ -16,9 +16,15 @@ namespace http
                                   remaining_iterator, remaining_iterator)
     {
         auto mode = request.get_mode();
-        if ( mode == "ERROR")
+        if (mode == "ERROR")
         {
             auto resp = error::bad_request()();
+            send_response(conn, resp);
+            return;
+        }
+        else if (mode == "ERROR METHOD")
+        {
+            auto resp = error::method_not_allowed(request)();
             send_response(conn, resp);
             return;
         }
