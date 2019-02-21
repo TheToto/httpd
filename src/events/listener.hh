@@ -80,6 +80,10 @@ namespace http
                 std::string resp;
                 if (mod == "ERROR METHOD")
                     resp = error::method_not_allowed(req)();
+                else if (mod == "OBSOLETE")
+                    resp = error::http_version_not_supported(req)();
+                else if (mod == "UPGRADE")
+                    resp = error::upgrade_required(req)();
                 else
                     resp = error::bad_request()();
 
