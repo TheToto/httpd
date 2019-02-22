@@ -87,6 +87,25 @@ namespace http
         return 1;
     }
 
+    void format_header_val(std::string& h_val)
+    {
+        int cur_g = 0;
+        while (true)
+        {
+            int beg_sp = h_val.find_first_of(' ', cur_g);
+            if (beg_sp < 0)
+                return;
+            int end_sp = h_val.find_first_not_of(' ', beg_sp);
+            if (end_sp < 0)
+            {
+                h_val.erase(beg_sp);
+                return;
+            }
+            h_val.erase(beg_sp + 1, end_sp - beg_sp - 1);
+            cur_g = h_val.find_first_not_of(' ', beg_sp);
+        }
+    }
+
     int get_headers_str(Request& r, const std::string& asked, int& cur)
     {
         bool found = 0;
@@ -100,11 +119,14 @@ namespace http
                 found = 1;
             int beg_v = asked.find_first_not_of(' ', cur + len_cur + 1);
             int len_v = asked.find_first_of('\r', beg_v) - beg_v;
+            std::string name = asked.substr(cur, len_cur);
+            std::string val = "";
             if (len_v > 0)
-                r.set_header(asked.substr(cur, len_cur),
-                             asked.substr(beg_v, len_v));
+                val = asked.substr(beg_v, len_v);
             else
-                r.set_header(asked.substr(cur, len_cur), asked.substr(beg_v));
+                val = asked.substr(beg_v);
+            format_header_val(val);
+            r.set_header(name, val);
         }
         if (!found)
         {

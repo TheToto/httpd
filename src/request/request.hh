@@ -82,4 +82,5 @@ namespace http
 
     int get_mode_str(Request& r, const std::string& asked, int& cur);
     int get_headers_str(Request& r, const std::string& asked, int& cur);
+    void format_header_val(std::string& h_val);
 } // namespace http
