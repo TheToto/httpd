@@ -119,8 +119,15 @@ namespace http
     {
         auto len_str = r.get_header("Content-Length");
         if (len_str.empty())
+        {
+            if (r.get_mode() == "POST")
+            {
+                r.set_mode("ERROR");
+                r.set_erroring(1);
+                return -1;
+            }
             return 1;
-
+        }
         int len;
         try
         {
