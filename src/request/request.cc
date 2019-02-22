@@ -212,6 +212,21 @@ namespace http
             return;
         if ((check_length(*this)) < 0)
             return;
+        try
+        {
+            body = asked.substr(cur + 2, length);
+        }
+        catch (const std::exception&)
+        {
+            this->set_mode("ERROR");
+            this->set_erroring(1);
+            return;
+        }
+        if (body.length() != length)
+        {
+            this->set_mode("ERROR");
+            this->set_erroring(1);
+        }
     }
 
 } // namespace http

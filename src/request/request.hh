@@ -75,6 +75,7 @@ namespace http
         std::string mode;
         std::string uri;
         std::string version;
+        std::string body = "";
         std::map<std::string, std::string> headers;
         int erroring = 0;
         size_t length = 0;
