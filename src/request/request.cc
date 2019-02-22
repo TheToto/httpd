@@ -180,6 +180,18 @@ namespace http
         return 1;
     }
 
+    static int check_httptwo(Request& r)
+    {
+        std::string prospect = r.get_header("HTTP2-Settings");
+        if (!prospect.empty())
+        {
+            r.set_mode("OBSOLETE");
+            r.set_erroring(1);
+            return -1;
+        }
+        return 1;
+    }
+
     Request::Request(std::string asked)
     {
         int cur = 0;
@@ -196,6 +208,8 @@ namespace http
         n_cur = asked.find_first_of('\r', cur);
         version = asked.substr(cur, n_cur - cur);
         get_headers_str(*this, asked, cur);
+        if ((check_httptwo(*this)) < 0)
+            return;
         if ((check_length(*this)) < 0)
             return;
     }

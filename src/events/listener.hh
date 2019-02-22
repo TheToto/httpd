@@ -70,7 +70,7 @@ namespace http
             Request req(str_c);
             Connection con(sock_);
             shared_vhost v = dispatcher(req);
-            if (v)
+            if (v && !req.is_erroring())
             {
                 v->respond(req, con, 0, 0); /* FIXME : Iterators */
             }
