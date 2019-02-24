@@ -64,6 +64,5 @@ namespace http
         off_t off = 0;
         if (mode == "GET" || mode == "POST")
             conn.sock_->sendfile(stream, off, size);
-        conn.sock_->send(http_crlf, 2);
     }
 } // namespace http

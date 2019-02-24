@@ -85,7 +85,7 @@ namespace http
         response_ += pcode.second;
         response_ += http_crlf;
         response_ += "Content-Length: ";
-        response_ += std::to_string(size + 2);
+        response_ += std::to_string(size);
         response_ += http_crlf;
         response_ += "Date: ";
         char tab[80] = {0};

@@ -39,7 +39,7 @@ namespace http
 
             sock->bind((sockaddr*)&server, sizeof(server));
             // listen
-            sock->listen(3);
+            sock->listen(128);
             event_register.register_ew<ServerEW>(sock);
 
             dispatcher.register_vhost(vhost);
