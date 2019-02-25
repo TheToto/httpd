@@ -24,13 +24,16 @@ AM_LDFLAGS = \
              -lev \
              -lssl \
              -lcrypto \
-             -Wno-unused-command-line-argument \
              $(NULL)
+
+AM_LDFLAGS += \
+              -Wno-unused-command-line-argument \
+              $(NULL)
 
 bin_PROGRAMS = spider
 lib_LTLIBRARIES = libspider.la
 
-libspider_la_SOURCES = \
+SOURCES = \
                        src/config/config.cc \
                        src/config/config.hh \
                        src/error/not-implemented.hh \
@@ -71,8 +74,14 @@ libspider_la_SOURCES = \
                        src/vhost/vhost.hh \
                        $(NULL)
 
+
 spider_SOURCES = \
+                 $(SOURCES) \
                  src/main.cc \
                  $(NULL)
 
-spider_LDADD = libspider.la
+spider_CXXFLAGS = $(AM_CXXFLAGS)
+
+libspider_la_SOURCES = \
+                       $(SOURCES) \
+                       $(NULL)
