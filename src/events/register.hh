@@ -37,6 +37,11 @@ namespace http
 
         ~EventWatcherRegistry()
         {
+            for (auto el : events_)
+            {
+                loop_.unregister_watcher(el.first);
+                el.second = nullptr;
+            }
             loop_.~EventLoop();
         }
 
