@@ -2,92 +2,92 @@
 
 namespace http
 {
-    int get_mode_str(Request& r, const std::string& asked, int& cur)
+    int Request::get_mode_str(const std::string& asked, int& cur)
     {
         size_t len = asked.size();
         if (len >= 4 && asked.substr(0, 4) == "GET ")
         {
-            r.set_mode("GET");
+            set_mode("GET");
             cur = 3;
         }
         else if (len >= 5 && asked.substr(0, 5) == "POST ")
         {
-            r.set_mode("POST");
+            set_mode("POST");
             cur = 4;
         }
         else if (len >= 5 && asked.substr(0, 5) == "HEAD ")
         {
-            r.set_mode("HEAD");
+            set_mode("HEAD");
             cur = 4;
         }
         else
         {
-            r.set_mode("ERROR METHOD");
-            r.set_erroring(1);
+            set_mode("ERROR METHOD");
+            set_erroring(1);
             cur = -1;
         }
         return cur;
     }
 
-    static int get_http_version(Request& r, const std::string& asked, int& cur)
+    char Request::get_http_version(const std::string& asked, int& cur)
     {
 
         auto pos = asked.find("/", cur);
         if (pos == std::string::npos)
         {
-            r.set_mode("ERROR");
-            r.set_erroring(1);
-            return -1;
+            set_mode("ERROR");
+            set_erroring(1);
+            return 0;
         }
 
         auto pos2 = asked.find("HTTP", cur);
         if (pos2 == std::string::npos || pos++ >= pos2)
         {
-            r.set_mode("ERROR");
-            r.set_erroring(1);
-            return -1;
+            set_mode("ERROR");
+            set_erroring(1);
+            return 0;
         }
 
         while (pos < pos2)
         {
             if (asked[pos++] != ' ')
             {
-                r.set_mode("ERROR");
-                r.set_erroring(1);
-                return -1;
+                set_mode("ERROR");
+                set_erroring(1);
+                return 0;
             }
         }
 
-        auto version = asked.substr(pos2, pos2 + 8);
-        if (version == "HTTP/1.1")
+        auto p_version = asked.substr(pos2, pos2 + 8);
+        if (p_version == "HTTP/1.1")
             return 1;
 
-        if ((version[5] <= '0' && version[5] > '9') || (version[5] <= '0'
-                    && version[7] > '9'))
+        if ((p_version[5] <= '0' && p_version[5] > '9') || (p_version[5] <= '0'
+                    && p_version[7] > '9'))
         {
-            r.set_mode("ERROR");
-            r.set_erroring(1);
-            return -1;
+            set_mode("ERROR");
+            set_erroring(1);
+            return 0;
         }
 
-        if (version[5] == '0' || version[7] == '0')
+        if (p_version[5] == '0' || p_version[7] == '0')
         {
-            r.set_mode("UPGRADE");
-            r.set_erroring(1);
-            return -1;
+            set_mode("UPGRADE");
+            set_erroring(1);
+            return 0;
         }
 
-        if (version[5] > '1' || version[7] > '1')
+        if (p_version[5] > '1' || p_version[7] > '1')
         {
-            r.set_mode("OBSOLETE");
-            r.set_erroring(1);
-            return -1;
+            set_mode("OBSOLETE");
+            set_erroring(1);
+            return 0;
         }
 
         return 1;
     }
 
-    void format_header_val(std::string& h_val)
+    void Request::format_header_val(std::string& h_val)
     {
         int cur_g = 0;
         while (true)
@@ -106,7 +106,7 @@ namespace http
         }
     }
 
-    int get_headers_str(Request& r, const std::string& asked, int& cur)
+    int Request::get_headers_str(const std::string& asked, int& cur)
     {
         bool found = 0;
         while (cur > 0)
@@ -126,27 +126,27 @@ namespace http
             else
                 val = asked.substr(beg_v);
             format_header_val(val);
-            r.set_header(name, val);
+            set_header(name, val);
         }
         if (!found)
         {
-            if (!r.is_erroring())
-                r.set_mode("ERROR");
+            if (!is_erroring())
+                set_mode("ERROR");
             return -1;
         }
         return cur;
     }
 
-    static int check_length(Request& r)
+    char Request::check_length()
     {
-        auto len_str = r.get_header("Content-Length");
+        auto len_str = get_header("Content-Length");
         if (len_str.empty())
         {
-            if (r.get_mode() == "POST")
+            if (get_mode() == "POST")
             {
-                r.set_mode("ERROR");
-                r.set_erroring(1);
-                return -1;
+                set_mode("ERROR");
+                set_erroring(1);
+                return 0;
             }
             return 1;
         }
@@ -157,37 +157,37 @@ namespace http
         }
         catch (const std::exception&)
         {
-            r.set_mode("ERROR");
-            r.set_erroring(1);
-            return -1;
+            set_mode("ERROR");
+            set_erroring(1);
+            return 0;
         }
         if (len < 0)
         {
-            r.set_mode("ERROR");
-            r.set_erroring(1);
-            return -1;
+            set_mode("ERROR");
+            set_erroring(1);
+            return 0;
         }
-        r.set_length(len);
-        if (r.is_erroring())
+        set_length(len);
+        if (is_erroring())
             return 1;
 
-        if (r.get_mode() != "POST" && len != 0)
+        if (get_mode() != "POST" && len != 0)
         {
-            r.set_mode("ERROR");
-            r.set_erroring(1);
-            return -1;
+            set_mode("ERROR");
+            set_erroring(1);
+            return 0;
         }
         return 1;
     }
 
-    static int check_httptwo(Request& r)
+    char Request::check_httptwo()
     {
-        std::string prospect = r.get_header("HTTP2-Settings");
+        std::string prospect = get_header("HTTP2-Settings");
         if (!prospect.empty())
         {
-            r.set_mode("OBSOLETE");
-            r.set_erroring(1);
-            return -1;
+            set_mode("OBSOLETE");
+            set_erroring(1);
+            return 0;
         }
         return 1;
     }
@@ -195,10 +195,10 @@ namespace http
     Request::Request(std::string asked)
     {
         int cur = 0;
-        if (get_mode_str(*this, asked, cur) < 0)
+        if (get_mode_str(asked, cur) < 0)
             return;
 
-        if (get_http_version(*this, asked, cur) < 0)
+        if (get_http_version(asked, cur) < 0)
             return;
 
         cur = asked.find_first_not_of(' ', cur);
@@ -207,10 +207,10 @@ namespace http
         cur = asked.find_first_not_of(' ', n_cur);
         n_cur = asked.find_first_of('\r', cur);
         version = asked.substr(cur, n_cur - cur);
-        get_headers_str(*this, asked, cur);
-        if ((check_httptwo(*this)) < 0)
+        get_headers_str(asked, cur);
+        if ((check_httptwo()) == 0)
             return;
-        if ((check_length(*this)) < 0)
+        if ((check_length()) == 0)
             return;
         try
         {
