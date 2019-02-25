@@ -78,7 +78,7 @@ namespace http
                 v->respond(req, con, 0, 0); /* FIXME : Iterators */
             else
             {
-                std::clog << "No vhost found for this request...\n"
+                std::clog << "No vhost found for this request...\n";
                 /* FIXME : send bad request (create trash vhost ?) */
             }
         }
