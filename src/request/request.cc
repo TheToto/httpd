@@ -31,31 +31,12 @@ namespace http
 
     char Request::get_http_version(const std::string& asked, int& cur)
     {
-
-        auto pos = asked.find("/", cur);
-        if (pos == std::string::npos)
-        {
-            set_mode("ERROR");
-            set_erroring(1);
-            return 0;
-        }
-
         auto pos2 = asked.find("HTTP", cur);
-        if (pos2 == std::string::npos || pos++ >= pos2)
+        if (pos2 == std::string::npos)
         {
             set_mode("ERROR");
             set_erroring(1);
             return 0;
-        }
-
-        while (pos < pos2)
-        {
-            if (asked[pos++] != ' ')
-            {
-                set_mode("ERROR");
-                set_erroring(1);
-                return 0;
-            }
         }
 
         auto p_version = asked.substr(pos2, pos2 + 8);
@@ -172,6 +153,7 @@ namespace http
             return 1;
 
         if (get_mode() != "POST" && len != 0)
+
         {
             set_mode("ERROR");
             set_erroring(1);
