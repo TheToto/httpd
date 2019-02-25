@@ -25,7 +25,11 @@ static int launch_server(char* path)
 {
     http::ServerConfig serv = http::parse_configuration(path);
 
-    auto vhost = http::VHostFactory::Create(serv.VHosts_[0]);
+    for (auto conf : serv.VHosts_)
+    {
+        std::clog << "Setup " << conf.server_name_ << " vhost.\n";
+        http::VHostFactory::Create(conf);
+    }
 
     auto loop = http::event_register.loop_get();
     ev_signal sigint_watcher;
