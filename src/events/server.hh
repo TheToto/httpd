@@ -5,8 +5,8 @@
 
 #pragma once
 
+#include "events/client.hh"
 #include "events/events.hh"
-#include "events/listener.hh"
 #include "events/register.hh"
 #include "socket/socket.hh"
 
@@ -14,13 +14,13 @@ namespace http
 {
     /**
      * \class ServerEW
-     * \brief Workflow for listener socket.
+     * \brief Workflow for server socket.
      */
     class ServerEW : public EventWatcher
     {
     public:
         /**
-         * \brief Create a ServerEW from a listener socket.
+         * \brief Create a ServerEW from a server socket.
          */
         explicit ServerEW(shared_socket socket)
             : EventWatcher(socket->fd_get()->fd_, EV_READ)
@@ -37,7 +37,7 @@ namespace http
         }
 
         /**
-         * \brief Start accepting connections on listener socket.
+         * \brief Start accepting connections on server socket.
          */
         void operator()() final
         {
@@ -48,14 +48,14 @@ namespace http
                 {
                     break;
                 }
-                std::clog << "Accept a new socket\n";
-                event_register.register_ew<ListenerEW>(client_sock);
+                std::clog << "Accept a new socket !\n";
+                event_register.register_ew<ClientEW>(client_sock);
             }
         }
 
     private:
         /**
-         * \brief Listener socket.
+         * \brief server socket.
          */
         shared_socket sock_;
         /**

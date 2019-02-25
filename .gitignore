@@ -6,9 +6,15 @@
 
 #spider
 spider
+config.json
+index.html
 
 #emacs shit
 *~
 *#
 
 build/
+
+#other
+.vscode
+

@@ -40,7 +40,7 @@ SOURCES = \
                        src/events/event-loop.hh \
                        src/events/events.cc \
                        src/events/events.hh \
-                       src/events/listener.hh \
+                       src/events/client.hh \
                        src/events/server.hh \
                        src/events/register.hh \
                        src/events/register.hxx \
@@ -72,6 +72,7 @@ SOURCES = \
                        src/vhost/vhost-static-file.hh \
                        src/vhost/vhost-static-file.cc \
                        src/vhost/vhost.hh \
+		       src/events/send.hh \
                        $(NULL)
 
 

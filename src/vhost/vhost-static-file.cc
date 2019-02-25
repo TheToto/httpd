@@ -1,20 +1,39 @@
 #include "vhost/vhost-static-file.hh"
 
+#include <iostream>
 #include <system_error>
 
 #include "misc/fd.hh"
 #include "request/error.hh"
-#include <iostream>
+#include "events/register.hh"
+#include "events/send.hh"
 namespace http
 {
     static inline void send_response(Connection& conn, std::string& response)
     {
-        conn.sock_->send(response.c_str(), response.length());
+        event_register.register_ew<SendResponseEW>(conn.sock_,
+                response.c_str(), nullptr, 0);
     }
 
     void VHostStaticFile::respond(const Request& request, Connection& conn,
                                   remaining_iterator, remaining_iterator)
     {
+        if (request.is_erroring())
+        {
+            auto mod = request.get_mode();
+            std::string resp;
+            if (mod == "ERROR METHOD")
+                resp = error::method_not_allowed(request)();
+            else if (mod == "OBSOLETE")
+                resp = error::http_version_not_supported(request)();
+            else if (mod == "UPGRADE")
+                resp = error::upgrade_required(request)();
+            else
+                resp = error::bad_request()();
+            send_response(conn, resp);
+            return;
+        }
+
         auto mode = request.get_mode();
         if (mode == "ERROR")
         {
@@ -58,11 +77,9 @@ namespace http
         sys::fstat(*stream, &buffer);
         size_t size = buffer.st_size;
         Response resp(request, size);
-        std::string body = resp();
-
-        conn.sock_->send(body.c_str(), body.length());
-        off_t off = 0;
-        if (mode == "GET" || mode == "POST")
-            conn.sock_->sendfile(stream, off, size);
+        std::string head = resp();
+        if (mode == "HEAD")
+            stream = nullptr;
+        event_register.register_ew<SendResponseEW>(conn.sock_, head, stream, size);
     }
 } // namespace http

@@ -1,6 +1,6 @@
 /**
- * \file events/listener.hh
- * \brief ListenerEW declaration.
+ * \file events/client.hh
+ * \brief ClientEW declaration.
  */
 
 #pragma once
@@ -21,16 +21,16 @@
 namespace http
 {
     /**
-     * \class ListenerEW
-     * \brief Workflow for listener socket.
+     * \class ClientEW
+     * \brief Workflow for client socket.
      */
-    class ListenerEW : public EventWatcher
+    class ClientEW : public EventWatcher
     {
     public:
         /**
-         * \brief Create a ListenerEW from a listener socket.
+         * \brief Create a ClientEW from a Client socket.
          */
-        explicit ListenerEW(shared_socket socket)
+        explicit ClientEW(shared_socket socket)
             : EventWatcher(socket->fd_get()->fd_, EV_READ)
         {
             sock_ = socket;
@@ -47,7 +47,7 @@ namespace http
         }
 
         /**
-         * \brief Start accepting connections on listener socket.
+         * \brief Start accepting connections on Client socket.
          */
         void operator()() final
         {
@@ -67,33 +67,25 @@ namespace http
                 }
                 return;
             }
+
             Request req(str_c);
+            // IF IS FULL... stop listening for data
+            std::clog << "We have a request ! \n" << str_c << std::endl;
+            event_register.unregister_ew(this);
             Connection con(sock_);
             shared_vhost v = dispatcher(req);
-            if (v && !req.is_erroring())
-            {
+            if (v)
                 v->respond(req, con, 0, 0); /* FIXME : Iterators */
-            }
             else
             {
-                auto mod = req.get_mode();
-                std::string resp;
-                if (mod == "ERROR METHOD")
-                    resp = error::method_not_allowed(req)();
-                else if (mod == "OBSOLETE")
-                    resp = error::http_version_not_supported(req)();
-                else if (mod == "UPGRADE")
-                    resp = error::upgrade_required(req)();
-                else
-                    resp = error::bad_request()();
-
-                con.sock_->send(resp.c_str(), resp.length());
+                std::clog << "No vhost found for this request...\n"
+                /* FIXME : send bad request (create trash vhost ?) */
             }
         }
 
     private:
         /**
-         * \brief Listener socket.
+         * \brief Client socket.
          */
         shared_socket sock_;
         /**
