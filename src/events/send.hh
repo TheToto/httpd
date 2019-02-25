@@ -40,6 +40,7 @@ namespace http
             to_send_ = to_send;
             file_ = file;
             file_size_ = file_size;
+            sended_header_ = false;
         }
 
         /**
@@ -47,24 +48,33 @@ namespace http
          */
         void operator()() final
         {
-            std::clog << "Sending response...\n";
-            sock_->send(to_send_.c_str(), to_send_.size());
+            std::clog << "Sending response... currently " << sended_
+                    << " of " << file_size_ << "\n";
+            // oof, the header can be send in one send plz...
+            if (!sended_header_)
+            {
+                sock_->send(to_send_.c_str(), to_send_.size());
+                sended_header_ = true;
+            }
             if (file_)
             {
-                off_t off = 0;
-                sock_->sendfile(file_, off, file_size_);
+                sock_->sendfile(file_, sended_, file_size_ - sended_);
             }
-            // FIXME : IF EVERYTHING SEND
             // Unregister response, and register a normal listener
-            event_register.unregister_ew(this);
-            event_register.register_ew<ClientEW>(sock_);
-            std::clog << "Response sent ! Listening for other request...\n";
+            size_t sended = sended_;
+            if (sended >= file_size_)
+            {
+                event_register.unregister_ew(this);
+                event_register.register_ew<ClientEW>(sock_);
+                std::clog << "Response sent ! Listening for other request...\n";
+            }
         }
 
     private:
         /**
          * \brief SendResponse socket.
          */
+        bool sended_header_;
         shared_socket sock_;
         std::string to_send_;
         misc::shared_fd file_;
