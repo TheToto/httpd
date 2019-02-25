@@ -53,12 +53,30 @@ namespace http
             // oof, the header can be send in one send plz...
             if (!sended_header_)
             {
-                sock_->send(to_send_.c_str(), to_send_.size());
+                try
+                {
+                    sock_->send(to_send_.c_str(), to_send_.size());
+                }
+                catch (const std::exception&)
+                {
+                    std::clog << "Connection aborded !\n";
+                    event_register.unregister_ew(this);
+                    return;
+                }
                 sended_header_ = true;
             }
             if (file_)
             {
-                sock_->sendfile(file_, sended_, file_size_ - sended_);
+                try
+                {
+                    sock_->sendfile(file_, sended_, file_size_ - sended_);
+                }
+                catch (const std::exception&)
+                {
+                    std::clog << "Connection aborded !\n";
+                    event_register.unregister_ew(this);
+                    return;
+                }
             }
             // Unregister response, and register a normal listener
             size_t sended = sended_;
