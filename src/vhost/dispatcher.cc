@@ -8,9 +8,9 @@ namespace http
         for (; cur != vhosts_.end(); cur++)
         {
             auto conf = (*cur)->conf_get();
-            if (conf.ip_ == host)
+            if (conf.ip_ == host && conf.port_ == 80)
                 break;
-            else if (conf.server_name_ == host)
+            else if (conf.server_name_ == host && conf.port_ == 80)
                 break;
             else if (conf.ip_port_ == host)
                 break;
