@@ -10,6 +10,7 @@
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost-static-file.hh"
 #include "vhost/vhost.hh"
+#include "vhost/vhost-fail.hh"
 namespace http
 {
     /**
@@ -22,6 +23,13 @@ namespace http
         /**
          * \brief Create a VHost object from a given VHostConfig.
          */
+        static shared_vhost Fail()
+        {
+            auto conf = VHostConfig();
+            auto vhost = new VHostFail(conf);
+            return shared_vhost(vhost);
+        }
+
         static shared_vhost Create(VHostConfig conf)
         {
             auto vhost = shared_vhost(new VHostStaticFile(conf));

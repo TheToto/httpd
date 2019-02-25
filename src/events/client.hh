@@ -74,13 +74,7 @@ namespace http
             event_register.unregister_ew(this);
             Connection con(sock_);
             shared_vhost v = dispatcher(req);
-            if (v)
-                v->respond(req, con, 0, 0); /* FIXME : Iterators */
-            else
-            {
-                std::clog << "No vhost found for this request...\n";
-                /* FIXME : send bad request (create trash vhost ?) */
-            }
+            v->respond(req, con, 0, 0); /* FIXME : Iterators */
         }
 
     private:

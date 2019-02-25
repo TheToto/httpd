@@ -20,7 +20,12 @@ namespace http
      */
     struct VHostConfig
     {
-        VHostConfig() = default;
+        VHostConfig()
+            : ip_("")
+            , port_(0)
+            , server_name_("")
+            , root_("")
+        {}
 
         VHostConfig(std::string ip, int port, std::string server_name,
                     std::string root, std::string def = "index.html")

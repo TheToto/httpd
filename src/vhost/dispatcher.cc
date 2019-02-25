@@ -1,4 +1,6 @@
+#include <iostream>
 #include "dispatcher.hh"
+#include "vhost-factory.hh"
 namespace http
 {
     shared_vhost Dispatcher::operator()(Request& r)
@@ -21,7 +23,8 @@ namespace http
         {
             if (!r.is_erroring())
                 r.set_mode("ERROR");
-            return nullptr;
+            std::clog << "No vhost found for this request...\n";
+            return VHostFactory::Fail();
         }
         return *cur;
     }

@@ -41,6 +41,7 @@ SOURCES = \
                        src/events/events.cc \
                        src/events/events.hh \
                        src/events/client.hh \
+                       src/events/send.hh \
                        src/events/server.hh \
                        src/events/register.hh \
                        src/events/register.hxx \
@@ -71,8 +72,8 @@ SOURCES = \
                        src/vhost/vhost-factory.hh \
                        src/vhost/vhost-static-file.hh \
                        src/vhost/vhost-static-file.cc \
+                       src/vhost/vhost-fail.cc \
                        src/vhost/vhost.hh \
-		       src/events/send.hh \
                        $(NULL)
 
 
