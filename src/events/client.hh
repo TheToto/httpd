@@ -34,6 +34,7 @@ namespace http
             : EventWatcher(socket->fd_get()->fd_, EV_READ)
         {
             sock_ = socket;
+            req = {};
             // Set socket non block
             int tmpfd = socket->fd_get()->fd_;
             int flags = fcntl(tmpfd, F_GETFL);
@@ -51,6 +52,8 @@ namespace http
          */
         void operator()() final
         {
+            if (req)
+                req = Request();
             char str_c[10000];
             int n = sock_->recv(str_c, 10000);
             if (n <= 0)
@@ -67,14 +70,30 @@ namespace http
                 }
                 return;
             }
-
-            Request req(str_c);
+            /*
+            // Return true if request is complete or ERROR. Return false if the request is not complete
+            bool is_complete = req.continue_parsing(str_c);
+            if (is_complete)
+            {
+                std::clog << "We have a request ! \n" << str_c << std::endl;
+                event_register.unregister_ew(this);
+                Connection con(sock_);
+                shared_vhost v = dispatcher(req);
+                v->respond(req, con, 0, 0); // FIXME : Iterators
+            }
+            else
+            {
+                std::clog << "Current request is not complete...\n"
+            }
+            */
+            // DELETE FOLLOWING
+            Request req_old(str_c);
             // IF IS FULL... stop listening for data
             std::clog << "We have a request ! \n" << str_c << std::endl;
             event_register.unregister_ew(this);
             Connection con(sock_);
-            shared_vhost v = dispatcher(req);
-            v->respond(req, con, 0, 0); /* FIXME : Iterators */
+            shared_vhost v = dispatcher(req_old);
+            v->respond(req_old, con, 0, 0); /* FIXME : Iterators */
         }
 
     private:
@@ -82,6 +101,7 @@ namespace http
          * \brief Client socket.
          */
         shared_socket sock_;
+        std::optional<Request> req;
         /**
          * \brief Port on which the socket is listening.
          */
