@@ -66,7 +66,8 @@ namespace http
                 }
                 else
                 {
-                    throw std::runtime_error("Invalid recv");
+                    std::clog << "Invalid recv\n";
+                    event_register.unregister_ew(this);
                 }
                 return;
             }
