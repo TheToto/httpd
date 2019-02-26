@@ -11,8 +11,17 @@ namespace http
     void VHostFail::respond(const Request&, Connection& conn,
                                   remaining_iterator, remaining_iterator)
     {
-        auto resp = error::bad_request()();
-        event_register.register_ew<SendResponseEW>(conn.sock_,
+            auto mod = request.get_mode();
+            std::string resp;
+            if (mod == "ERROR METHOD")
+                resp = error::method_not_allowed(request)();
+            else if (mod == "OBSOLETE")
+                resp = error::http_version_not_supported(request)();
+            else if (mod == "UPGRADE")
+                resp = error::upgrade_required(request)();
+            else
+                resp = error::bad_request()();
+            event_register.register_ew<SendResponseEW>(conn.sock_,
             resp.c_str(), nullptr, 0);
     }
 } // namespace http
