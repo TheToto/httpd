@@ -13,6 +13,7 @@ namespace http
 {
     EventWatcherRegistry event_register = EventWatcherRegistry();
     Dispatcher dispatcher = Dispatcher();
+
 } // namespace http
 
 static void stop_server(struct ev_loop* loop, ev_signal*, int)
@@ -24,7 +25,6 @@ static void stop_server(struct ev_loop* loop, ev_signal*, int)
 static int launch_server(char* path)
 {
     http::ServerConfig serv = http::parse_configuration(path);
-
     for (auto conf : serv.VHosts_)
     {
         std::clog << "Setup " << conf.server_name_ << " vhost.\n";

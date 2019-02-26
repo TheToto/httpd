@@ -77,18 +77,19 @@ namespace http
         int get_headers_str(const std::string& asked, int& cur);
         char check_length();
         char check_httptwo();
-        static std::pair<bool, Request> check_integrity(const std::string& str);
-
+        bool operator()(const char *str, size_t n);
 
     private:
-        std::string mode;
-        std::string uri;
-        std::string version;
+        std::string mode = "";
+        std::string uri = "";
+        std::string version = "";
         std::string body = "";
         std::map<std::string, std::string> headers;
         int erroring = 0;
         size_t length = 0;
-    };
+        bool headed = false;
+        std::string head = "";
+            };
 
     int get_mode_str(Request& r, const std::string& asked, int& cur);
     int get_headers_str(Request& r, const std::string& asked, int& cur);

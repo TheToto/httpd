@@ -47,7 +47,7 @@ namespace http
          */
         void operator()() final
         {
-            if (req)
+            if (!req)
                 req = Request();
             char str_c[10000];
             int n = sock_->recv(str_c, 10000);
@@ -66,30 +66,21 @@ namespace http
                 }
                 return;
             }
-            /*
+
             // Return true if request is complete or ERROR. Return false if the request is not complete
-            bool is_complete = req.continue_parsing(str_c, n);
+            bool is_complete = req.value()(str_c, n);
             if (is_complete)
             {
                 std::clog << "We have a request ! \n" << str_c << std::endl;
                 event_register.unregister_ew(this);
                 Connection con(sock_);
-                shared_vhost v = dispatcher(req);
-                v->respond(req, con, 0, 0); // FIXME : Iterators
+                shared_vhost v = dispatcher(req.value());
+                v->respond(req.value(), con, 0, 0); // FIXME : Iterators
             }
             else
             {
-                std::clog << "Current request is not complete...\n"
+                std::clog << "Current request is not complete...\n";
             }
-            */
-            // DELETE FOLLOWING
-            Request req_old(str_c);
-            // IF IS FULL... stop listening for data
-            std::clog << "We have a request ! \n" << str_c << std::endl;
-            event_register.unregister_ew(this);
-            Connection con(sock_);
-            shared_vhost v = dispatcher(req_old);
-            v->respond(req_old, con, 0, 0); /* FIXME : Iterators */
         }
 
     private:

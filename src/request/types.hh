@@ -12,6 +12,7 @@
 namespace http
 {
     constexpr auto http_crlf = "\r\n";
+    constexpr auto http_crlfx2 = "\r\n\r\n";
 
     enum STATUS_CODE : uint16_t
     {

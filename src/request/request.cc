@@ -174,59 +174,48 @@ namespace http
         return 1;
     }
 
-    Request::Request(std::string asked)
+    bool Request::operator()(const char *str, size_t n)
     {
-        int cur = 0;
-        if (get_mode_str(asked, cur) < 0)
-            return;
+        std::string prospect(str, n);
+        if (headed)
+        {
+            body += prospect;
+            if (length < body.size())
+                return false;
+            if (length > body.size())
+            {
+                mode = "ERROR";
+                erroring = 1;
+            }
+            return true;
+        }
+        else
+        {
+            head += prospect;
+            if (prospect.find(std::string(http_crlfx2)) != std::string::npos)
+            {
+                int cur = 0;
+                if (get_mode_str(head, cur) < 0)
+                    return true;
 
-        if (get_http_version(asked, cur) < 0)
-            return;
+                if (get_http_version(head, cur) == 0)
+                    return true;
 
-        cur = asked.find_first_not_of(' ', cur);
-        int n_cur = asked.find_first_of(' ', cur);
-        uri = asked.substr(cur, n_cur - cur);
-        cur = asked.find_first_not_of(' ', n_cur);
-        n_cur = asked.find_first_of('\r', cur);
-        version = asked.substr(cur, n_cur - cur);
-        get_headers_str(asked, cur);
-        if ((check_httptwo()) == 0)
-            return;
-        if ((check_length()) == 0)
-            return;
-        try
-        {
-            body = asked.substr(cur + 2, length);
-        }
-        catch (const std::exception&)
-        {
-            this->set_mode("ERROR");
-            this->set_erroring(1);
-            return;
-        }
-        if (body.length() < length)
-        {
-            this->set_mode("ERROR LENGTH");
-        }
-        else if (body.length() > length)
-        {
-            this->set_mode("ERROR");
-            this->set_erroring(1);
+                cur = head.find_first_not_of(' ', cur);
+                int n_cur = head.find_first_of(' ', cur);
+                uri = head.substr(cur, n_cur - cur);
+                cur = head.find_first_not_of(' ', n_cur);
+                n_cur = head.find_first_of('\r', cur);
+                version = head.substr(cur, n_cur - cur);
+                get_headers_str(head, cur);
+                if ((check_httptwo()) == 0)
+                    return true;
+                if ((check_length()) == 0)
+                    return true;
+                if (mode == "GET" || mode == "HEAD")
+                    return true;
+            }
+            return false;
         }
     }
-
-    std::pair<bool, Request> Request::check_integrity(const std::string& str)
-    {
-        std::string headed = str.find(http_crlf + http_crlf);
-        if (headed == std::string::npos)
-            return std::make_pair(false, nullptr);
-        Request test(str);
-        if (test.get_mode() == "ERROR LENGTH")
-        {
-            test.set_mode("");
-            return std::make_pair(false, test);
-        }
-        return std::make_pair(true, test);
-    }
-
 } // namespace http
