@@ -22,6 +22,9 @@ static void stop_server(struct ev_loop* loop, ev_signal*, int)
     std::clog << "Closing server..." << std::endl;
 }
 
+static void continue_server(struct ev_loop*, ev_signal*, int)
+{}
+
 static int launch_server(char* path)
 {
     http::ServerConfig serv = http::parse_configuration(path);
@@ -35,6 +38,10 @@ static int launch_server(char* path)
     ev_signal sigint_watcher;
     ev_signal_init(&sigint_watcher, stop_server, SIGINT);
     loop.register_sigint_watcher(&sigint_watcher);
+
+    ev_signal sigpipe_watcher;
+    ev_signal_init(&sigpipe_watcher, continue_server, SIGPIPE);
+    loop.register_sigint_watcher(&sigpipe_watcher);
 
     loop();
     return 0;

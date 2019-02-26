@@ -44,6 +44,7 @@ namespace http
             {
                 sock =
                     shared_socket(new DefaultSocket(AF_INET, SOCK_STREAM, 0));
+                sock->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
                 sock->bind((sockaddr*)&ipv4, sizeof(sockaddr_in));
             }
             else
@@ -57,6 +58,7 @@ namespace http
                     vhost->set_ipv6(true);
                     sock = shared_socket(
                         new DefaultSocket(AF_INET6, SOCK_STREAM, 0));
+                    sock->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
                     sock->bind((sockaddr*)&ipv6, sizeof(sockaddr_in6));
                 }
                 else
@@ -65,7 +67,6 @@ namespace http
                                                  + conf.ip_);
                 }
             }
-            sock->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
             // listen
             sock->listen(128);
             event_register.register_ew<ServerEW>(sock);
