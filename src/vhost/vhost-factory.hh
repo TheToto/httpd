@@ -42,8 +42,8 @@ namespace http
             ipv4.sin_port = htons(conf.port_);
             if (inet_pton(AF_INET, conf.ip_.c_str(), &(ipv4.sin_addr)) > 0)
             {
-                sock = shared_socket(
-                    new DefaultSocket(AF_INET, SOCK_STREAM, 0));
+                sock =
+                    shared_socket(new DefaultSocket(AF_INET, SOCK_STREAM, 0));
                 sock->bind((sockaddr*)&ipv4, sizeof(sockaddr_in));
             }
             else
@@ -65,7 +65,7 @@ namespace http
                                                  + conf.ip_);
                 }
             }
-
+            sock->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
             // listen
             sock->listen(128);
             event_register.register_ew<ServerEW>(sock);
