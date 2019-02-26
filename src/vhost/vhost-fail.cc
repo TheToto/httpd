@@ -8,17 +8,17 @@
 #include "events/send.hh"
 namespace http
 {
-    void VHostFail::respond(const Request&, Connection& conn,
+    void VHostFail::respond(const Request& r, Connection& conn,
                                   remaining_iterator, remaining_iterator)
     {
-            auto mod = request.get_mode();
+            auto mod = r.get_mode();
             std::string resp;
             if (mod == "ERROR METHOD")
-                resp = error::method_not_allowed(request)();
+                resp = error::method_not_allowed(r)();
             else if (mod == "OBSOLETE")
-                resp = error::http_version_not_supported(request)();
+                resp = error::http_version_not_supported(r)();
             else if (mod == "UPGRADE")
-                resp = error::upgrade_required(request)();
+                resp = error::upgrade_required(r)();
             else
                 resp = error::bad_request()();
             event_register.register_ew<SendResponseEW>(conn.sock_,
