@@ -24,6 +24,11 @@ namespace sys
      */
     inline auto fstat = make_wrapper<int>(::fstat);
 
+    /**
+     * \brief stat(2).
+     */
+    inline auto stat = make_wrapper<int>(::stat);
+
     static int open_wrapper(const char* path, int flags)
     {
         return ::open(path, flags);

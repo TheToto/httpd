@@ -29,11 +29,6 @@ namespace http
             // Set socket non block
             int tmpfd = socket->fd_get()->fd_;
             sys::fcntl_wrapper(tmpfd, O_NONBLOCK);
-
-            /*struct sockaddr_in sin;
-            socklen_t len = sizeof(sin);
-            if (getsockname(socket, (struct sockaddr*)&sin, &len) != -1)
-                port_ = ntohs(sin.sin_port);*/
         }
 
         /**

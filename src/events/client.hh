@@ -40,11 +40,6 @@ namespace http
             int flags = fcntl(tmpfd, F_GETFL);
             flags |= O_NONBLOCK;
             fcntl(tmpfd, F_SETFL, flags);
-
-            /*struct sockaddr_in sin;
-            socklen_t len = sizeof(sin);
-            if (getsockname(socket, (struct sockaddr*)&sin, &len) != -1)
-                port_ = ntohs(sin.sin_port);*/
         }
 
         /**
@@ -73,7 +68,7 @@ namespace http
             }
             /*
             // Return true if request is complete or ERROR. Return false if the request is not complete
-            bool is_complete = req.continue_parsing(str_c);
+            bool is_complete = req.continue_parsing(str_c, n);
             if (is_complete)
             {
                 std::clog << "We have a request ! \n" << str_c << std::endl;

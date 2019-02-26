@@ -15,6 +15,20 @@ namespace http
                 response.c_str(), nullptr, 0);
     }
 
+    static inline bool is_dir(std::string& path)
+    {
+        struct stat buf;
+        try
+        {
+            sys::stat(path.c_str(), &buf);
+        }
+        catch(const std::exception& e)
+        {
+            return false;
+        }
+        return S_ISDIR(buf.st_mode);
+    }
+
     void VHostStaticFile::respond(const Request& request, Connection& conn,
                                   remaining_iterator, remaining_iterator)
     {
@@ -34,24 +48,12 @@ namespace http
             return;
         }
 
-        auto mode = request.get_mode();
-        if (mode == "ERROR")
-        {
-            auto resp = error::bad_request()();
-            send_response(conn, resp);
-            return;
-        }
-        else if (mode == "ERROR METHOD")
-        {
-            auto resp = error::method_not_allowed(request)();
-            send_response(conn, resp);
-            return;
-        }
-
         std::string path = this->conf_get().root_;
         path += request.get_uri();
         if (*(path.rbegin()) == '/')
             path += this->conf_get().default_file_;
+        else if (is_dir(path))
+            path += '/' + this->conf_get().default_file_;
         int fd = -1;
         try
         {
@@ -78,7 +80,7 @@ namespace http
         size_t size = buffer.st_size;
         Response resp(request, size);
         std::string head = resp();
-        if (mode == "HEAD")
+        if (request.get_mode() == "HEAD")
             stream = nullptr;
         event_register.register_ew<SendResponseEW>(conn.sock_, head, stream, size);
     }
