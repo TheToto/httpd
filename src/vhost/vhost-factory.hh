@@ -35,31 +35,28 @@ namespace http
             auto vhost = shared_vhost(new VHostStaticFile(conf));
 
             // Detect ip_protocol
-            sockaddr server;
             shared_socket sock;
-            auto ip_protocol = AF_INET;
 
             sockaddr_in ipv4;
-            ipv4.sin_family = ip_protocol;
+            ipv4.sin_family = AF_INET;
             ipv4.sin_port = htons(conf.port_);
-            if (inet_pton(ip_protocol, conf.ip_.c_str(), &(ipv4.sin_addr)) > 0)
+            if (inet_pton(AF_INET, conf.ip_.c_str(), &(ipv4.sin_addr)) > 0)
             {
                 sock = shared_socket(
-                    new DefaultSocket(ip_protocol, SOCK_STREAM, 0));
-                sock->bind((sockaddr*)&ipv4, sizeof(server));
+                    new DefaultSocket(AF_INET, SOCK_STREAM, 0));
+                sock->bind((sockaddr*)&ipv4, sizeof(sockaddr_in));
             }
             else
             {
                 sockaddr_in6 ipv6;
-                ip_protocol = AF_INET6;
-                ipv6.sin6_family = ip_protocol;
+                ipv6.sin6_family = AF_INET6;
                 ipv6.sin6_port = htons(conf.port_);
-                if (inet_pton(ip_protocol, conf.ip_.c_str(), &(ipv6.sin6_addr))
+                if (inet_pton(AF_INET6, conf.ip_.c_str(), &(ipv6.sin6_addr))
                     > 0)
                 {
                     sock = shared_socket(
-                        new DefaultSocket(ip_protocol, SOCK_STREAM, 0));
-                    sock->bind((sockaddr*)&ipv6, sizeof(server));
+                        new DefaultSocket(AF_INET6, SOCK_STREAM, 0));
+                    sock->bind((sockaddr*)&ipv6, sizeof(sockaddr_in6));
                 }
                 else
                 {
