@@ -54,6 +54,7 @@ namespace http
                 if (inet_pton(AF_INET6, conf.ip_.c_str(), &(ipv6.sin6_addr))
                     > 0)
                 {
+                    vhost->set_ipv6(true);
                     sock = shared_socket(
                         new DefaultSocket(AF_INET6, SOCK_STREAM, 0));
                     sock->bind((sockaddr*)&ipv6, sizeof(sockaddr_in6));

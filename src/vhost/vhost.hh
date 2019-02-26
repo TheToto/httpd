@@ -53,6 +53,11 @@ namespace http
             return conf_;
         }
 
+        inline void set_ipv6(bool b)
+        {
+            conf_.is_ipv6_ = b;
+        }
+
     private:
         /**
          *  \brief VHost configuration.

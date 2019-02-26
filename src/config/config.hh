@@ -35,8 +35,11 @@ namespace http
             , root_(root)
             , default_file_(def)
         {
+            is_ipv6_ = false;
+            ipv6_ = "[" + ip_ + "]";
             server_name_port_ = server_name_ + ":" + std::to_string(port_);
             ip_port_ = ip_ + ":" + std::to_string(port_);
+            ipv6_port_ = ipv6_ + ":" + std::to_string(port_);
         }
 
         VHostConfig(const VHostConfig&) = default;
@@ -50,8 +53,11 @@ namespace http
         const int port_;
         const std::string server_name_;
 
+        bool is_ipv6_ = false;
+        std::string ipv6_;
         std::string server_name_port_;
         std::string ip_port_;
+        std::string ipv6_port_;
 
         const std::string root_;
         const std::string default_file_ = "index.html";
