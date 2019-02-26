@@ -33,7 +33,7 @@ namespace http
     {
         auto i = uri.find_first_of('?');
         if (i > 0)
-            return uri.substr(0, i - 1);
+            return uri.substr(0, i);
         return uri;
     }
 
