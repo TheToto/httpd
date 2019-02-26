@@ -77,6 +77,7 @@ namespace http
         int get_headers_str(const std::string& asked, int& cur);
         char check_length();
         char check_httptwo();
+        static std::pair<bool, Request> check_integrity(const std::string& str);
 
 
     private:

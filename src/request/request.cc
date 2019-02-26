@@ -204,11 +204,29 @@ namespace http
             this->set_erroring(1);
             return;
         }
-        if (body.length() != length)
+        if (body.length() < length)
+        {
+            this->set_mode("ERROR LENGTH");
+        }
+        else if (body.length() > length)
         {
             this->set_mode("ERROR");
             this->set_erroring(1);
         }
+    }
+
+    std::pair<bool, Request> Request::check_integrity(const std::string& str)
+    {
+        std::string headed = str.find(http_crlf + http_crlf);
+        if (headed == std::string::npos)
+            return std::make_pair(false, nullptr);
+        Request test(str);
+        if (test.get_mode() == "ERROR LENGTH")
+        {
+            test.set_mode("");
+            return std::make_pair(false, test);
+        }
+        return std::make_pair(true, test);
     }
 
 } // namespace http
