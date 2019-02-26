@@ -181,18 +181,23 @@ namespace http
         {
             body += prospect;
             if (length < body.size())
-                return false;
+            {
+                mode = "ERROR DOUBLE REQUEST FAILED";
+                erroring = 1;
+                return true;
+            }//eventually add extra treatment for multiple request
+
             if (length > body.size())
             {
-                mode = "ERROR";
-                erroring = 1;
+                return false;
             }
             return true;
         }
         else
         {
             head += prospect;
-            if (prospect.find(std::string(http_crlfx2)) != std::string::npos)
+            auto split = prospect.find(std::string(http_crlfx2));
+            if (split != std::string::npos)
             {
                 int cur = 0;
                 if (get_mode_str(head, cur) < 0)
@@ -214,6 +219,22 @@ namespace http
                     return true;
                 if (mode == "GET" || mode == "HEAD")
                     return true;
+
+///////////        get extra body                      ////////
+                body = prospect.substr(split + 4, std::string::npos);
+                //npos is for all char til' the end
+                if (length < body.size())
+                {
+                    mode = "ERROR DOUBLE REQUEST FAILED";
+                        erroring = 1;
+                    return true;//eventually add traitment for multiple request
+                }
+                if (length > body.size())
+                {
+                    return false;
+                }
+                return true;
+///////////////////////////////////////////////////////////////
             }
             return false;
         }
