@@ -34,21 +34,40 @@ namespace http
         {
             auto vhost = shared_vhost(new VHostStaticFile(conf));
 
-            auto sock =
-                shared_socket(new DefaultSocket(AF_INET, SOCK_STREAM, 0));
-            // bind
-            sockaddr_in server;
-            server.sin_family = AF_INET;
+            // Detect ip_protocol
+            sockaddr server;
+            shared_socket sock;
+            auto ip_protocol = AF_INET;
 
-            // Ues AF_INET6 for IPv6
-            if (inet_pton(AF_INET6, conf.ip_.c_str(), &(server.sin_addr)) == 0
-                && inet_pton(AF_INET, conf.ip_.c_str(), &(server.sin_addr))
-                    == 0)
-                throw new std::runtime_error("Can't assign this ip : "
-                                             + conf.ip_);
-            server.sin_port = htons(conf.port_);
+            sockaddr_in ipv4;
+            ipv4.sin_family = ip_protocol;
+            ipv4.sin_port = htons(conf.port_);
+            if (inet_pton(ip_protocol, conf.ip_.c_str(), &(ipv4.sin_addr)) > 0)
+            {
+                sock = shared_socket(
+                    new DefaultSocket(ip_protocol, SOCK_STREAM, 0));
+                sock->bind((sockaddr*)&ipv4, sizeof(server));
+            }
+            else
+            {
+                sockaddr_in6 ipv6;
+                ip_protocol = AF_INET6;
+                ipv6.sin6_family = ip_protocol;
+                ipv6.sin6_port = htons(conf.port_);
+                if (inet_pton(ip_protocol, conf.ip_.c_str(), &(ipv6.sin6_addr))
+                    > 0)
+                {
+                    sock = shared_socket(
+                        new DefaultSocket(ip_protocol, SOCK_STREAM, 0));
+                    sock->bind((sockaddr*)&ipv6, sizeof(server));
+                }
+                else
+                {
+                    throw new std::runtime_error("Can't assign this ip : "
+                                                 + conf.ip_);
+                }
+            }
 
-            sock->bind((sockaddr*)&server, sizeof(server));
             // listen
             sock->listen(128);
             event_register.register_ew<ServerEW>(sock);
