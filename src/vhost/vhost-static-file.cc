@@ -3,16 +3,16 @@
 #include <iostream>
 #include <system_error>
 
-#include "misc/fd.hh"
-#include "request/error.hh"
 #include "events/register.hh"
 #include "events/send.hh"
+#include "misc/fd.hh"
+#include "request/error.hh"
 namespace http
 {
     static inline void send_response(Connection& conn, std::string& response)
     {
-        event_register.register_ew<SendResponseEW>(conn.sock_,
-                response.c_str(), nullptr, 0);
+        event_register.register_ew<SendResponseEW>(conn.sock_, response.c_str(),
+                                                   nullptr, 0);
     }
 
     static inline bool is_dir(std::string& path)
@@ -22,11 +22,19 @@ namespace http
         {
             sys::stat(path.c_str(), &buf);
         }
-        catch(const std::exception& e)
+        catch (const std::exception& e)
         {
             return false;
         }
         return S_ISDIR(buf.st_mode);
+    }
+
+    static inline std::string clean_uri(std::string uri)
+    {
+        auto i = uri.find_first_of('?');
+        if (i > 0)
+            return uri.substr(0, i - 1);
+        return uri;
     }
 
     void VHostStaticFile::respond(const Request& request, Connection& conn,
@@ -49,7 +57,8 @@ namespace http
         }
 
         std::string path = this->conf_get().root_;
-        path += request.get_uri();
+
+        path += clean_uri(request.get_uri());
         if (*(path.rbegin()) == '/')
             path += this->conf_get().default_file_;
         else if (is_dir(path))
@@ -82,6 +91,7 @@ namespace http
         std::string head = resp();
         if (request.get_mode() == "HEAD")
             stream = nullptr;
-        event_register.register_ew<SendResponseEW>(conn.sock_, head, stream, size);
+        event_register.register_ew<SendResponseEW>(conn.sock_, head, stream,
+                                                   size);
     }
 } // namespace http
