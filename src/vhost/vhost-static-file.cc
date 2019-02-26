@@ -51,6 +51,20 @@ namespace http
         return S_ISDIR(buf.st_mode);
     }
 
+    static inline bool is_dir(std::string& path)
+    {
+        struct stat buf;
+        try
+        {
+            sys::stat(path.c_str(), &buf);
+        }
+        catch(const std::exception& e)
+        {
+            return false;
+        }
+        return S_ISDIR(buf.st_mode);
+    }
+
     void VHostStaticFile::respond(const Request& request, Connection& conn,
                                   remaining_iterator, remaining_iterator)
     {
