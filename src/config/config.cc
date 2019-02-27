@@ -7,13 +7,13 @@
 #pragma GCC diagnostic ignored "-Wswitch-default"
 #pragma GCC diagnostic ignored "-Winline"
 #ifdef __clang__
-#pragma GCC diagnostic ignored "-Wlogical-op-parentheses"
+#    pragma GCC diagnostic ignored "-Wlogical-op-parentheses"
 #endif
+#include <fstream> //ifstream
+#include <iostream> //clog
 #include <json.hpp>
-#include <iostream>//clog
-#include <stdexcept>//invalid_argument
-#include <string>//to_string
-#include <fstream>//ifstream
+#include <stdexcept> //invalid_argument
+#include <string> //to_string
 #pragma GCC diagnostic pop
 
 using json = nlohmann::json;
@@ -41,12 +41,11 @@ namespace http
 argument is missing");
         if (i.size() == 5)
         {
-            serv.VHosts_.push_back(VHostConfig(ip, port,
-                server_name, root, default_file));
+            serv.VHosts_.push_back(
+                VHostConfig(ip, port, server_name, root, default_file));
         }
         else
-            serv.VHosts_.push_back(VHostConfig(ip, port,
-                server_name, root));
+            serv.VHosts_.push_back(VHostConfig(ip, port, server_name, root));
     }
 
     ServerConfig parse_configuration(const std::string& path)
@@ -112,11 +111,8 @@ json or wrong architecture");
                         argument is missing\n");
                 return 1;
             }
-
         }
 
         return 0;
-
     }
-    // FIXME
 } // namespace http

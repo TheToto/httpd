@@ -78,7 +78,7 @@ namespace http
         int get_headers_str(const std::string& asked, int& cur);
         char check_length();
         char check_httptwo();
-        bool operator()(const char *str, size_t n);
+        bool operator()(const char* str, size_t n);
 
     private:
         std::string mode = "";
@@ -92,7 +92,7 @@ namespace http
         size_t length = 0;
         bool headed = false;
         std::string head = "";
-            };
+    };
 
     int get_mode_str(Request& r, const std::string& asked, int& cur);
     int get_headers_str(Request& r, const std::string& asked, int& cur);

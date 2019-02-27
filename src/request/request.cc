@@ -1,7 +1,7 @@
-#include <sstream>
-#include <iostream>
-
 #include "request/request.hh"
+
+#include <iostream>
+#include <sstream>
 
 namespace http
 {
@@ -46,8 +46,8 @@ namespace http
         if (p_version == "HTTP/1.1")
             return 1;
 
-        if ((p_version[5] <= '0' && p_version[5] > '9') || (p_version[5] <= '0'
-                    && p_version[7] > '9'))
+        if ((p_version[5] <= '0' && p_version[5] > '9')
+            || (p_version[5] <= '0' && p_version[7] > '9'))
         {
             set_mode("ERROR");
             set_erroring(1);
@@ -224,7 +224,7 @@ namespace http
         return 1;
     }
 
-    bool Request::operator()(const char *str, size_t n)
+    bool Request::operator()(const char* str, size_t n)
     {
         std::string prospect(str, n);
         if (headed)
@@ -235,7 +235,7 @@ namespace http
                 mode = "ERROR DOUBLE REQUEST FAILED";
                 erroring = 1;
                 return true;
-            }//eventually add extra treatment for multiple request
+            } // eventually add extra treatment for multiple request
 
             if (length > body.size())
             {
@@ -271,21 +271,22 @@ namespace http
                 if (mode == "GET" || mode == "HEAD")
                     return true;
 
-///////////        get extra body                      ////////
+                ///////////        get extra body                      ////////
                 body = prospect.substr(split + 4, std::string::npos);
-                //npos is for all char til' the end
+                // npos is for all char til' the end
                 if (length < body.size())
                 {
                     mode = "ERROR DOUBLE REQUEST FAILED";
-                        erroring = 1;
-                    return true;//eventually add traitment for multiple request
+                    erroring = 1;
+                    return true; // eventually add traitment for multiple
+                                 // request
                 }
                 if (length > body.size())
                 {
                     return false;
                 }
                 return true;
-///////////////////////////////////////////////////////////////
+                ///////////////////////////////////////////////////////////////
             }
             return false;
         }

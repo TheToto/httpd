@@ -67,7 +67,8 @@ namespace http
                 return;
             }
 
-            // Return true if request is complete or ERROR. Return false if the request is not complete
+            // Return true if request is complete or ERROR. Return false if the
+            // request is not complete
             bool is_complete = req.value()(str_c, n);
             if (is_complete)
             {

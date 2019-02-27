@@ -4,7 +4,6 @@
 
 namespace misc
 {
-
     FileDescriptor& FileDescriptor::operator=(FileDescriptor&& fileDescriptor)
     {
         if (fd_ != -1)

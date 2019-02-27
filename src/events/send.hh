@@ -8,9 +8,10 @@
 #include <exception>
 #include <iostream>
 
-#include "events/events.hh"
 #include "events/client.hh"
+#include "events/events.hh"
 #include "events/register.hh"
+#include "misc/fd.hh"
 #include "misc/socket.hh"
 #include "request/error.hh"
 #include "request/request.hh"
@@ -18,7 +19,6 @@
 #include "vhost/connection.hh"
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost.hh"
-#include "misc/fd.hh"
 
 namespace http
 {
@@ -32,7 +32,8 @@ namespace http
         /**
          * \brief Create a SendResponseEW from a SendResponse socket.
          */
-        explicit SendResponseEW(shared_socket socket, std::string to_send, misc::shared_fd file, size_t file_size)
+        explicit SendResponseEW(shared_socket socket, std::string to_send,
+                                misc::shared_fd file, size_t file_size)
             : EventWatcher(socket->fd_get()->fd_, EV_WRITE)
         {
             sock_ = socket;
@@ -48,8 +49,8 @@ namespace http
          */
         void operator()() final
         {
-            std::clog << "Sending response... currently " << sended_
-                    << " of " << file_size_ << "\n";
+            std::clog << "Sending response... currently " << sended_ << " of "
+                      << file_size_ << "\n";
             // oof, the header can be send in one send plz...
             if (!sended_header_)
             {

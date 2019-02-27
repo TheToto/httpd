@@ -1,5 +1,7 @@
-#include <iostream>
 #include "dispatcher.hh"
+
+#include <iostream>
+
 #include "vhost-factory.hh"
 namespace http
 {

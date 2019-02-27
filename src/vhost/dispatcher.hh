@@ -6,6 +6,7 @@
 #pragma once
 
 #include <vector>
+
 #include "vhost/vhost.hh"
 
 namespace http

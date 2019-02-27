@@ -1,8 +1,9 @@
 #include "socket/default-socket.hh"
 
-#include "misc/socket.hh"
-#include "misc/fd.hh"
 #include <memory>
+
+#include "misc/fd.hh"
+#include "misc/socket.hh"
 
 namespace http
 {
@@ -12,7 +13,7 @@ namespace http
 
     DefaultSocket::DefaultSocket(int domain, int type, int protocol)
         : Socket{std::make_shared<misc::FileDescriptor>(
-                sys::socket(domain, type, protocol))}
+              sys::socket(domain, type, protocol))}
     {}
 
     ssize_t DefaultSocket::recv(void* dst, size_t len)
@@ -25,7 +26,8 @@ namespace http
         return sys::send(*fd_, src, len, 0);
     }
 
-    ssize_t DefaultSocket::sendfile(misc::shared_fd& fd, off_t& offset, size_t len)
+    ssize_t DefaultSocket::sendfile(misc::shared_fd& fd, off_t& offset,
+                                    size_t len)
     {
         return sys::sendfile(*fd_, *fd, &offset, len);
     }
@@ -47,7 +49,8 @@ namespace http
 
     shared_socket DefaultSocket::accept(sockaddr* addr, socklen_t* addrlen)
     {
-        auto fd = std::make_shared<misc::FileDescriptor>(sys::accept(*fd_, addr, addrlen));
+        auto fd = std::make_shared<misc::FileDescriptor>(
+            sys::accept(*fd_, addr, addrlen));
         auto s = new DefaultSocket(fd);
         return shared_socket(s);
     }
