@@ -9,20 +9,21 @@
 
 #include "request/request.hh"
 #include "request/types.hh"
+#include "misc/fd.hh"
 
 namespace http
 {
     /**
      * \struct Response
-qsd     * \brief Value object representing a response.
+     * \brief Value object representing a response.
      */
     struct Response
     {
         explicit Response(const STATUS_CODE&);
 
-        Response(const Request&, const STATUS_CODE& = STATUS_CODE::OK);
-        Response(const Request&, size_t& size,
-                 const STATUS_CODE& = STATUS_CODE::OK);
+        Response(misc::shared_fd file, const STATUS_CODE& = STATUS_CODE::OK);
+        Response(const Request, misc::shared_fd file, const STATUS_CODE& = STATUS_CODE::OK);
+        Response(const Request, const STATUS_CODE& = STATUS_CODE::OK);
         // get the body of the response and its length
 
         Response() = default;
@@ -34,10 +35,11 @@ qsd     * \brief Value object representing a response.
 
         const std::string& operator()() const;
 
+        misc::shared_fd file_ = nullptr;
+        size_t file_size_ = 0;
+
     private:
         STATUS_CODE status;
-        std::time_t date;
-        std::string version_;
 
         std::string response_;
     };
