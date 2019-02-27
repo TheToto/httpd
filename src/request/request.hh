@@ -73,6 +73,7 @@ namespace http
 
         int get_mode_str(const std::string& asked, int& cur);
         char get_http_version(const std::string& asked, int& cur);
+        void parse_uri(std::string full_uri);
         void format_header_val(std::string& h_val);
         int get_headers_str(const std::string& asked, int& cur);
         char check_length();
@@ -81,7 +82,9 @@ namespace http
 
     private:
         std::string mode = "";
+        std::string src = "";
         std::string uri = "";
+        std::string query = "";
         std::string version = "";
         std::string body = "";
         std::map<std::string, std::string> headers;

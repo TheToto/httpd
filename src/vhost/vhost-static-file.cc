@@ -29,14 +29,6 @@ namespace http
         return S_ISDIR(buf.st_mode);
     }
 
-    static inline std::string clean_uri(std::string uri)
-    {
-        auto i = uri.find_first_of('?');
-        if (i > 0)
-            return uri.substr(0, i);
-        return uri;
-    }
-
     void VHostStaticFile::respond(const Request& request, Connection& conn,
                                   remaining_iterator, remaining_iterator)
     {
@@ -58,7 +50,7 @@ namespace http
 
         std::string path = this->conf_get().root_;
 
-        path += clean_uri(request.get_uri());
+        path += request.get_uri();
         if (*(path.rbegin()) == '/')
             path += this->conf_get().default_file_;
         else if (is_dir(path))

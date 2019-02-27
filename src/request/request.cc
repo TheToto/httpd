@@ -118,6 +118,25 @@ namespace http
         return cur;
     }
 
+   void Request::parse_uri(std::string full_uri)
+   {
+        int begin_uri = 0;
+        int mid_src = full_uri.find("://");
+        if (mid_src >= 0)
+        {
+            begin_uri = full_uri.find_first_of('/', mid_src + 3);
+            src = full_uri.substr(0, begin_uri);
+        }
+        int begin_query = full_uri.find_first_of('?');
+        if (begin_query < 0)
+            uri = full_uri.substr(begin_uri);
+        else
+        {
+            uri = full_uri.substr(begin_uri, begin_query - begin_uri);
+            query = full_uri.substr(begin_query);
+        }
+   }
+
     char Request::check_length()
     {
         auto len_str = get_header("Content-Length");
@@ -208,7 +227,7 @@ namespace http
 
                 cur = head.find_first_not_of(' ', cur);
                 int n_cur = head.find_first_of(' ', cur);
-                uri = head.substr(cur, n_cur - cur);
+                parse_uri(head.substr(cur, n_cur - cur));
                 cur = head.find_first_not_of(' ', n_cur);
                 n_cur = head.find_first_of('\r', cur);
                 version = head.substr(cur, n_cur - cur);
