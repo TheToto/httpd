@@ -9,7 +9,8 @@
 #include "request/error.hh"
 namespace http
 {
-    static inline void send_response(Connection& conn, Response resp, bool is_head = false)
+    static inline void send_response(Connection& conn, Response resp,
+                                     bool is_head = false)
     {
         event_register.register_ew<SendResponseEW>(conn.sock_, resp, is_head);
     }
