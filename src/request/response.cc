@@ -1,4 +1,5 @@
 #include "request/response.hh"
+#include "misc/html.hh"
 
 #include <ctime>
 
@@ -79,8 +80,8 @@ namespace http
 
     std::string Response::sup_body()
     {
-        if (status == STATUS_CODE::NOT_FOUND)
-            return "<h1>404 NOT FOUND</h1>";
+        if (status != STATUS_CODE::OK)
+            return misc::Html::generate_error(status);
         return "";
     }
 } // namespace http

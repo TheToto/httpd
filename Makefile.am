@@ -55,6 +55,7 @@ SOURCES = \
                        src/misc/socket.hh \
                        src/misc/sys-wrapper.hh \
                        src/misc/unistd.hh \
+                       src/misc/html.hh \
                        src/request/error.cc \
                        src/request/error.hh \
                        src/request/request.hh \
