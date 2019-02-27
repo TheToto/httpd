@@ -32,8 +32,7 @@ namespace http
         // Osef request ?
     }
 
-    Response::Response(const Request,
-                       const STATUS_CODE& code)
+    Response::Response(const Request, const STATUS_CODE& code)
         : Response(nullptr, code)
     {}
 
@@ -41,12 +40,16 @@ namespace http
         : Response(nullptr, code)
     {}
 
-    Response::Response(misc::shared_fd file,
-                       const STATUS_CODE& code)
-        : status(code)
+    Response::Response(misc::shared_fd file, const STATUS_CODE& code)
+        : file_(file)
+        , status(code)
     {
-        file_ = file;
-        file_size_ = get_size(file);
+        auto add_body = sup_body();
+        if (file != nullptr)
+            file_size_ = get_size(file);
+        else
+            file_size_ = add_body.size();
+
         auto pcode = statusCode(code);
 
         response_ = "HTTP/1.1 ";
@@ -66,5 +69,18 @@ namespace http
         response_ += http_crlf;
 
         response_ += http_crlf;
+
+        if (file == nullptr)
+        {
+            response_ += add_body;
+            file_size_ = 0;
+        }
+    }
+
+    std::string Response::sup_body()
+    {
+        if (status == STATUS_CODE::NOT_FOUND)
+            return "<h1>404 NOT FOUND</h1>";
+        return "";
     }
 } // namespace http

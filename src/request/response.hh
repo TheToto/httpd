@@ -7,9 +7,9 @@
 
 #include <ctime>
 
+#include "misc/fd.hh"
 #include "request/request.hh"
 #include "request/types.hh"
-#include "misc/fd.hh"
 
 namespace http
 {
@@ -22,7 +22,8 @@ namespace http
         explicit Response(const STATUS_CODE&);
 
         Response(misc::shared_fd file, const STATUS_CODE& = STATUS_CODE::OK);
-        Response(const Request, misc::shared_fd file, const STATUS_CODE& = STATUS_CODE::OK);
+        Response(const Request, misc::shared_fd file,
+                 const STATUS_CODE& = STATUS_CODE::OK);
         Response(const Request, const STATUS_CODE& = STATUS_CODE::OK);
         // get the body of the response and its length
 
@@ -34,6 +35,7 @@ namespace http
         ~Response() = default;
 
         const std::string& operator()() const;
+        std::string sup_body();
 
         misc::shared_fd file_ = nullptr;
         size_t file_size_ = 0;
