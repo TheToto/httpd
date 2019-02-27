@@ -1,3 +1,6 @@
+#include <sstream>
+#include <iostream>
+
 #include "request/request.hh"
 
 namespace http
@@ -118,8 +121,35 @@ namespace http
         return cur;
     }
 
-   void Request::parse_uri(std::string full_uri)
-   {
+    bool Request::parse_uri(std::string full_uri)
+    {
+        size_t i = full_uri.find_first_of('%', 0);
+        while (i != std::string::npos)
+        {
+            if (i + 2 < full_uri.size())
+            {
+                auto hex = full_uri.substr(i + 1, 2);
+
+                try
+                {
+                    std::string x(1, std::stol(hex, nullptr, 16));
+                    full_uri.replace(i, 3, x);
+                    i = full_uri.find_first_of('%', i + 1);
+                }
+                catch (std::invalid_argument&)
+                {
+                    mode = "ERROR";
+                    erroring = 1;
+                    return false;
+                }
+            }
+            else
+            {
+                mode = "ERROR";
+                erroring = 1;
+                return false;
+            }
+        }
         int begin_uri = 0;
         int mid_src = full_uri.find("://");
         if (mid_src >= 0)
@@ -135,7 +165,8 @@ namespace http
             uri = full_uri.substr(begin_uri, begin_query - begin_uri);
             query = full_uri.substr(begin_query);
         }
-   }
+        return true;
+    }
 
     char Request::check_length()
     {
@@ -227,7 +258,8 @@ namespace http
 
                 cur = head.find_first_not_of(' ', cur);
                 int n_cur = head.find_first_of(' ', cur);
-                parse_uri(head.substr(cur, n_cur - cur));
+                if (!parse_uri(head.substr(cur, n_cur - cur)))
+                    return true;
                 cur = head.find_first_not_of(' ', n_cur);
                 n_cur = head.find_first_of('\r', cur);
                 version = head.substr(cur, n_cur - cur);
