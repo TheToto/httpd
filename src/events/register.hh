@@ -29,7 +29,9 @@ namespace http
     class EventWatcherRegistry
     {
     public:
-        EventWatcherRegistry() = default;
+        EventWatcherRegistry()
+            : loop_(EventLoop(ev_loop_new(EVFLAG_AUTO)))
+        {}
         EventWatcherRegistry(const EventWatcherRegistry&) = delete;
         EventWatcherRegistry& operator=(const EventWatcherRegistry&) = delete;
         EventWatcherRegistry(EventWatcherRegistry&&) = delete;
@@ -42,7 +44,7 @@ namespace http
                 loop_.unregister_watcher(el.first);
                 el.second = nullptr;
             }
-            loop_.~EventLoop();
+            ev_loop_destroy(loop_.loop);
         }
 
         /**

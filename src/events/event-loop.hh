@@ -24,10 +24,7 @@ namespace http
         /**
          * \brief Create a default EventLoop based on a default ev_loop.
          */
-        EventLoop()
-        {
-            loop = ev_default_loop();
-        }
+        EventLoop() = delete;
 
         /**
          * \brief Create an EventLoop from an existing ev_loop.
@@ -47,11 +44,7 @@ namespace http
         /**
          * \brief Destroy the ev_loop.
          */
-        ~EventLoop()
-        {
-            if (!ev_is_default_loop(loop))
-                ev_loop_destroy(loop);
-        }
+        ~EventLoop() = default;
 
         /**
          * \brief Activate the given ev_io.
