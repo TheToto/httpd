@@ -3,7 +3,7 @@
 if test ! -d env ; then
     python -m venv env
     source env/bin/activate
-    pip install -r requirements.txt
+    pip install -r tests/requirements.txt
 else
     source env/bin/activate
 fi
