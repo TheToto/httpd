@@ -16,6 +16,10 @@ index.html
 *~
 *#
 
+#tests
+env/
+__*
+
 build/
 
 #other
