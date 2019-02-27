@@ -9,10 +9,9 @@
 #include "request/error.hh"
 namespace http
 {
-    static inline void send_response(Connection& conn, std::string& response)
+    static inline void send_response(Connection& conn, Response resp, bool is_head = false)
     {
-        event_register.register_ew<SendResponseEW>(conn.sock_, response.c_str(),
-                                                   nullptr, 0);
+        event_register.register_ew<SendResponseEW>(conn.sock_, resp, is_head);
     }
 
     static inline bool is_dir(std::string& path)
@@ -35,16 +34,14 @@ namespace http
         if (request.is_erroring())
         {
             auto mod = request.get_mode();
-            std::string resp;
             if (mod == "ERROR METHOD")
-                resp = error::method_not_allowed(request)();
+                send_response(conn, error::method_not_allowed(request));
             else if (mod == "OBSOLETE")
-                resp = error::http_version_not_supported(request)();
+                send_response(conn, error::http_version_not_supported(request));
             else if (mod == "UPGRADE")
-                resp = error::upgrade_required(request)();
+                send_response(conn, error::upgrade_required(request));
             else
-                resp = error::bad_request()();
-            send_response(conn, resp);
+                send_response(conn, error::bad_request());
             return;
         }
 
@@ -63,27 +60,16 @@ namespace http
         catch (const std::system_error& e)
         {
             if (errno == ENOENT)
-            {
-                auto resp = error::not_found(request)();
-                send_response(conn, resp);
-            }
+                send_response(conn, error::not_found(request));
             else
-            {
-                auto resp = error::forbidden(request)();
-                send_response(conn, resp);
-            }
+                send_response(conn, error::forbidden(request));
             return;
         }
 
         auto stream = std::make_shared<misc::FileDescriptor>(fd);
-        struct stat buffer;
-        sys::fstat(*stream, &buffer);
-        size_t size = buffer.st_size;
-        Response resp(request, size);
-        std::string head = resp();
-        if (request.get_mode() == "HEAD")
-            stream = nullptr;
-        event_register.register_ew<SendResponseEW>(conn.sock_, head, stream,
-                                                   size);
+
+        Response resp(stream);
+
+        send_response(conn, resp, request.get_mode() == "HEAD");
     }
 } // namespace http

@@ -32,15 +32,23 @@ namespace http
         /**
          * \brief Create a SendResponseEW from a SendResponse socket.
          */
-        explicit SendResponseEW(shared_socket socket, std::string to_send,
-                                misc::shared_fd file, size_t file_size)
+        explicit SendResponseEW(shared_socket socket, Response resp, bool is_head = false)
             : EventWatcher(socket->fd_get()->fd_, EV_WRITE)
         {
             sock_ = socket;
             sended_ = 0;
-            to_send_ = to_send;
-            file_ = file;
-            file_size_ = file_size;
+            to_send_ = resp();
+            if (!is_head)
+            {
+                file_ = resp.file_;
+                file_size_ = resp.file_size_;
+            }
+            else
+            {
+                file_ = nullptr;
+                file_size_ = 0;
+            }
+
             sended_header_ = false;
         }
 
