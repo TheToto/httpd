@@ -62,7 +62,7 @@ namespace http
         }
         catch (const std::system_error& e)
         {
-            if (e.code() == std::errc::no_such_file_or_directory)
+            if (errno == ENOENT)
             {
                 auto resp = error::not_found(request)();
                 send_response(conn, resp);
