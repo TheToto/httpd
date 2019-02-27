@@ -11,6 +11,8 @@
 #include "vhost/vhost-fail.hh"
 #include "vhost/vhost-static-file.hh"
 #include "vhost/vhost.hh"
+#include "misc/addrinfo/addrinfo.hh"
+
 namespace http
 {
     /**
@@ -33,42 +35,30 @@ namespace http
         static shared_vhost Create(VHostConfig conf)
         {
             auto vhost = shared_vhost(new VHostStaticFile(conf));
-
-            // Detect ip_protocol
+            
             shared_socket sock;
 
-            sockaddr_in ipv4;
-            ipv4.sin_family = AF_INET;
-            ipv4.sin_port = htons(conf.port_);
-            if (inet_pton(AF_INET, conf.ip_.c_str(), &(ipv4.sin_addr)) > 0)
+            misc::AddrInfoHint hints;
+            hints.family(AF_UNSPEC).socktype(SOCK_STREAM);
+            misc::AddrInfo res = misc::getaddrinfo(conf.ip_.c_str(),
+                std::to_string(conf.port_).c_str(), hints);
+            for (auto it = res.begin(); it != res.end(); it++)
             {
-                sock =
-                    shared_socket(new DefaultSocket(AF_INET, SOCK_STREAM, 0));
+                sock = shared_socket(new DefaultSocket(
+                    it->ai_family, it->ai_socktype, it->ai_protocol));
+                if (sock->fd_get()->fd_ == -1)
+                    continue;
+
                 sock->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
-                sock->bind((sockaddr*)&ipv4, sizeof(sockaddr_in));
-            }
-            else
-            {
-                sockaddr_in6 ipv6;
-                ipv6.sin6_family = AF_INET6;
-                ipv6.sin6_port = htons(conf.port_);
-                ipv6.sin6_flowinfo = 0;
-                ipv6.sin6_scope_id = 0;
-                if (inet_pton(AF_INET6, conf.ip_.c_str(), &(ipv6.sin6_addr))
-                    > 0)
+                try
                 {
-                    vhost->set_ipv6(true);
-                    sock = shared_socket(
-                        new DefaultSocket(AF_INET6, SOCK_STREAM, 0));
-                    sock->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
-                    sock->bind((sockaddr*)&ipv6, sizeof(sockaddr_in6));
+                    sock->bind(it->ai_addr, it->ai_addrlen);
+                    break;
                 }
-                else
-                {
-                    throw new std::runtime_error("Can't assign this ip : "
-                                                 + conf.ip_);
-                }
+                catch (std::system_error&)
+                {}
             }
+
             // listen
             sock->listen(128);
             event_register.register_ew<ServerEW>(sock);

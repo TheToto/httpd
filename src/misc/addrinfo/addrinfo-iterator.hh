@@ -60,7 +60,7 @@ namespace misc
          */
         void increment()
         {
-            throw http::NotImplemented();
+            m_node = m_node->ai_next;
         }
 
         /**
