@@ -29,7 +29,11 @@ fi
 if [ "$1" = "clean" ]; then
     make clean
 else
-    make CXXFLAGS+='-O0 -g' -j9
+    if [ "$1" = "check" ]; then
+        make check
+    else
+        make CXXFLAGS+='-O0 -g' -j9
+    fi
 fi
 
 move_back

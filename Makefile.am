@@ -87,3 +87,6 @@ spider_CXXFLAGS = $(AM_CXXFLAGS)
 libspider_la_SOURCES = \
                        $(SOURCES) \
                        $(NULL)
+
+check:
+	tests/tests_run.sh
