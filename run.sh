@@ -1,16 +1,35 @@
 #!/bin/sh
+
+trap move_back SIGINT
+
+function set_up()
+{
+    mkdir build
+    ./autogen.sh
+    ./configure
+}
+
+function move_back()
+{
+    mv -f config.h.in~ .libs/ libspider.la Makefile aclocal.m4 autom4te.cache build-aux config.h config.h.in config.log config.status configure libtool m4 Makefile.in stamp-h1 build/ &> /dev/null
+    exit
+}
+
 shopt -s dotglob
 
 if test ! -d build | test ! -f build/Makefile \
        | test ! -f build/aclocal.m4 | test ! -f build/libtool \
        | test ! -f build/config.h | test ! -f build/Makefile.in \
        | test ! -f build/libspider.la | test ! -f build/stamp-h1 ; then
-    mkdir build
-    ./autogen.sh
-    ./configure
+    set_up
 else
     mv -f build/* . &> /dev/null
 fi
 
-make CXXFLAGS+='-O0 -g' -j9
-mv -f config.h.in~ .libs/ libspider.la Makefile aclocal.m4 autom4te.cache build-aux config.h config.h.in config.log config.status configure libtool m4 Makefile.in stamp-h1 build/ &> /dev/null
+if [ "$1" = "clean" ]; then
+    make clean
+else
+    make CXXFLAGS+='-O0 -g' -j9
+fi
+
+move_back
