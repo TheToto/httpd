@@ -52,6 +52,8 @@ namespace http
                 sockaddr_in6 ipv6;
                 ipv6.sin6_family = AF_INET6;
                 ipv6.sin6_port = htons(conf.port_);
+                ipv6.sin6_flowinfo = 0;
+                ipv6.sin6_scope_id = 0;
                 if (inet_pton(AF_INET6, conf.ip_.c_str(), &(ipv6.sin6_addr))
                     > 0)
                 {
