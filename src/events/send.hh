@@ -32,7 +32,8 @@ namespace http
         /**
          * \brief Create a SendResponseEW from a SendResponse socket.
          */
-        explicit SendResponseEW(shared_socket socket, Response resp, bool is_head = false)
+        explicit SendResponseEW(shared_socket socket, Response resp,
+                                bool is_head = false)
             : EventWatcher(socket->fd_get()->fd_, EV_WRITE)
         {
             sock_ = socket;
@@ -48,8 +49,7 @@ namespace http
                 file_ = nullptr;
                 file_size_ = 0;
             }
-
-            sended_header_ = false;
+            sended_header_ = 0;
         }
 
         /**
@@ -57,14 +57,17 @@ namespace http
          */
         void operator()() final
         {
-            std::clog << "Sending response... currently " << sended_ << " of "
-                      << file_size_ << "\n";
-            // oof, the header can be send in one send plz...
-            if (!sended_header_)
+            std::clog << "Sending response... currently "
+                      << sended_ + sended_header_ << " of "
+                      << file_size_ + to_send_.size() << "\n";
+            if (sended_header_ < to_send_.size())
             {
                 try
                 {
-                    sock_->send(to_send_.c_str(), to_send_.size());
+                    sended_header_ +=
+                        sock_->send(to_send_.c_str(), to_send_.size());
+                    if (sended_header_ < to_send_.size())
+                        return;
                 }
                 catch (const std::exception&)
                 {
@@ -101,7 +104,7 @@ namespace http
         /**
          * \brief SendResponse socket.
          */
-        bool sended_header_;
+        size_t sended_header_;
         shared_socket sock_;
         std::string to_send_;
         misc::shared_fd file_;
