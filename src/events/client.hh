@@ -58,12 +58,14 @@ namespace http
                 {
                     std::clog << "A socked has disconnect\n";
                     event_register.unregister_ew(this);
+                    return;
                 }
             }
             catch(const std::exception& e)
             {
                 std::clog << "A socked has disconnect\n";
                 event_register.unregister_ew(this);
+                return;
             }
 
             // Return true if request is complete or ERROR. Return false if the
