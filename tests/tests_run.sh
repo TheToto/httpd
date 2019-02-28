@@ -11,3 +11,5 @@ fi
 pytest -vv
 
 deactivate
+
+killall spider
