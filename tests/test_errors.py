@@ -21,8 +21,6 @@ def test_404():
     assert(requ2.status_code == 404)
     assert(requ3.status_code == 404)
 
-    assert(requ2.headers['content-length'] == "0")
-
     assert(requ4.status_code == 405)  # Method not Allowed
 
     os.killpg(os.getpgid(serverProc.pid), signal.SIGINT)
@@ -43,8 +41,6 @@ def test_403():
     assert(requ1.status_code == 403)
     assert(requ2.status_code == 403)
     assert(requ3.status_code == 403)
-
-    assert(requ2.headers['content-length'] == "0")
 
     assert(requ4.status_code == 405)  # Method not Allowed
 

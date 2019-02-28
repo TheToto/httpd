@@ -44,9 +44,7 @@ namespace http
         , status(code)
     {
         auto add_body = sup_body();
-        if (is_head)
-            file_size_ = 0;
-        else if (file != nullptr)
+        if (file != nullptr)
             file_size_ = get_size(file);
         else
             file_size_ = add_body.size();
@@ -76,6 +74,8 @@ namespace http
             response_ += add_body;
             file_size_ = 0;
         }
+        else if (is_head)
+            file_size_ = 0;
     }
 
     std::string Response::sup_body()
