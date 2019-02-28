@@ -16,13 +16,10 @@ namespace http
                 break;
             if (conf.server_name_port_ == host)
                 break;
-            if (conf.is_ipv6_)
-            {
-                if (conf.ipv6_ == host && conf.port_ == 80)
-                    break;
-                if (conf.ipv6_port_ == host)
-                    break;
-            }
+            if (conf.ipv6_ == host && conf.port_ == 80)
+                break;
+            if (conf.ipv6_port_ == host)
+                break;
             if (conf.ip_ == host && conf.port_ == 80)
                 break;
             if (conf.ip_port_ == host)
