@@ -1,0 +1,5 @@
+GET / HTTP/0.9
+Host: 127.0.0.1:8000
+User-Agent: curl/7.64.0
+Accept: */*
+
