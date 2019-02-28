@@ -8,19 +8,15 @@ import subprocess
 import os
 import signal
 import time
-
+from spider_misc import *
 
 # must be present in a function "test_*" ; You can write multiple functions
 def test_simple():
 
     # this is the server process
     #              change json location here ->
-    serverProc = subprocess.Popen(["./spider tests/json/test1.json"],
-                                  shell=True, preexec_fn=os.setsid,
-                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    # Wait server to be launched
-    while serverProc.stderr.readline().decode("utf-8") != "Server launched !\n" :
-        continue;
+    serverProc = launch_server()
+    assert(serverProc != None)
     # for example, a simple get request to tests/test.page
     # you can do way more varied tests with the Requests library
 
@@ -33,4 +29,4 @@ def test_simple():
     assert(requ.headers['content-length'] == str(len(expectedStr)))
 
     # use this command to kill the server
-    os.killpg(os.getpgid(serverProc.pid), signal.SIGINT)
+    kill_server(serverProc)
