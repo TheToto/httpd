@@ -6,6 +6,8 @@ import subprocess
 import os
 import signal
 import time
+import socket
+import http.client
 
 def launch_server():
     os.system("killall spider")
@@ -24,3 +26,13 @@ def launch_server():
 
 def kill_server(serverProc):
     os.killpg(os.getpgid(serverProc.pid), signal.SIGINT)
+
+def custom_request(path):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(("127.0.0.1", 8000))
+    file_content = open(path, "rb").read()
+    sock.send(file_content)
+    time.sleep(0.2)
+    resp = http.client.HTTPResponse(sock)
+    resp.begin()
+    return resp

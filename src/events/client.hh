@@ -50,7 +50,7 @@ namespace http
             if (!req)
                 req = Request();
             char str_c[10000];
-            int n;
+            int n = 0;
             try
             {
                 n = sock_->recv(str_c, 10000);
