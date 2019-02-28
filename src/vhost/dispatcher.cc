@@ -12,17 +12,17 @@ namespace http
         for (; cur != vhosts_.end(); cur++)
         {
             auto conf = (*cur)->conf_get();
-            if (conf.server_name_ == host && conf.port_ == 80)
+            if (conf.server_name_ == host)
                 break;
             if (conf.server_name_port_ == host)
                 break;
-            if (conf.ipv6_ == host && conf.port_ == 80)
+            if (conf.ipv6_ == host)
                 break;
             if (conf.ipv6_port_ == host)
                 break;
-            if (conf.ip_ == host && conf.port_ == 80)
-                break;
             if (conf.ip_port_ == host)
+                break;
+            if (conf.ip_ == host)
                 break;
         }
         if (cur == vhosts_.end())
