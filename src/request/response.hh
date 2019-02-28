@@ -21,7 +21,7 @@ namespace http
     {
         explicit Response(const STATUS_CODE&);
 
-        Response(misc::shared_fd file, const STATUS_CODE& = STATUS_CODE::OK);
+        Response(misc::shared_fd file, const STATUS_CODE& = STATUS_CODE::OK, bool is_head = false);
         Response(const Request, misc::shared_fd file,
                  const STATUS_CODE& = STATUS_CODE::OK);
         Response(const Request, const STATUS_CODE& = STATUS_CODE::OK);

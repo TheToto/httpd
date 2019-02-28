@@ -26,27 +26,27 @@ namespace http
         return buffer.st_size;
     }
 
-    Response::Response(const Request, misc::shared_fd file,
+    Response::Response(const Request r, misc::shared_fd file,
                        const STATUS_CODE& code)
-        : Response(file, code)
-    {
-        // Osef request ?
-    }
+        : Response(file, code, r.is_head_)
+    {}
 
-    Response::Response(const Request, const STATUS_CODE& code)
-        : Response(nullptr, code)
+    Response::Response(const Request r, const STATUS_CODE& code)
+        : Response(nullptr, code, r.is_head_)
     {}
 
     Response::Response(const STATUS_CODE& code)
         : Response(nullptr, code)
     {}
 
-    Response::Response(misc::shared_fd file, const STATUS_CODE& code)
+    Response::Response(misc::shared_fd file, const STATUS_CODE& code, bool is_head)
         : file_(file)
         , status(code)
     {
         auto add_body = sup_body();
-        if (file != nullptr)
+        if (is_head)
+            file_size_ = 0;
+        else if (file != nullptr)
             file_size_ = get_size(file);
         else
             file_size_ = add_body.size();
@@ -71,7 +71,7 @@ namespace http
 
         response_ += http_crlf;
 
-        if (file == nullptr)
+        if (file == nullptr && !is_head)
         {
             response_ += add_body;
             file_size_ = 0;
