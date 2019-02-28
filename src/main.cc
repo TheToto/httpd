@@ -43,6 +43,7 @@ static int launch_server(char* path)
     ev_signal_init(&sigpipe_watcher, continue_server, SIGPIPE);
     loop.register_sigint_watcher(&sigpipe_watcher);
 
+    std::clog << "Server launched !" << std::endl;
     loop();
     return 0;
 }
