@@ -8,6 +8,7 @@ import signal
 import time
 
 def launch_server():
+    os.system("killall spider")
     timeout = time.time() + 2 # 2 seconds
     serverProc = subprocess.Popen(["./spider tests/json/test1.json"],
                                   shell=True, preexec_fn=os.setsid,
