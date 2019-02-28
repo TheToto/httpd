@@ -65,7 +65,8 @@ namespace http
                 try
                 {
                     sended_header_ +=
-                        sock_->send(to_send_.c_str(), to_send_.size());
+                        sock_->send(to_send_.c_str() + sended_header_,
+                                    to_send_.size() - sended_header_);
                     if (sended_header_ < to_send_.size())
                         return;
                 }
@@ -75,7 +76,6 @@ namespace http
                     event_register.unregister_ew(this);
                     return;
                 }
-                sended_header_ = true;
             }
             if (file_)
             {

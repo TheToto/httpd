@@ -71,6 +71,6 @@ namespace http
 
         Response resp(request, stream);
 
-        send_response(conn, resp, request.get_mode() == "HEAD");
+        send_response(conn, resp, request.is_head_);
     }
 } // namespace http
