@@ -50,21 +50,20 @@ namespace http
             if (!req)
                 req = Request();
             char str_c[10000];
-            int n = sock_->recv(str_c, 10000);
-            if (n <= 0)
+            int n;
+            try
             {
-                if (0 == n)
+                n = sock_->recv(str_c, 10000);
+                if (n <= 0)
                 {
-                    // Disconnect
                     std::clog << "A socked has disconnect\n";
                     event_register.unregister_ew(this);
                 }
-                else
-                {
-                    std::clog << "Invalid recv\n";
-                    event_register.unregister_ew(this);
-                }
-                return;
+            }
+            catch(const std::exception& e)
+            {
+                std::clog << "A socked has disconnect\n";
+                event_register.unregister_ew(this);
             }
 
             // Return true if request is complete or ERROR. Return false if the
