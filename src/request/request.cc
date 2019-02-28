@@ -21,6 +21,7 @@ namespace http
         else if (len >= 5 && asked.substr(0, 5) == "HEAD ")
         {
             set_mode("HEAD");
+            is_head_ = true;
             cur = 4;
         }
         else

@@ -69,7 +69,7 @@ namespace http
 
         auto stream = std::make_shared<misc::FileDescriptor>(fd);
 
-        Response resp(stream);
+        Response resp(request, stream);
 
         send_response(conn, resp, request.get_mode() == "HEAD");
     }

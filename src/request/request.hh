@@ -80,6 +80,8 @@ namespace http
         char check_httptwo();
         bool operator()(const char* str, size_t n);
 
+        bool is_head_ = false;
+
     private:
         std::string mode = "";
         std::string src = "";
