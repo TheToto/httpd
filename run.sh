@@ -30,7 +30,7 @@ if [ "$1" = "clean" ]; then
     make clean
 else
     if [ "$1" = "check" ]; then
-        make check
+        make -j9 check
     else
         make CXXFLAGS+='-O0 -g' -j9
     fi
