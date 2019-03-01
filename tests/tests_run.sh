@@ -13,3 +13,4 @@ pytest -vv
 deactivate
 
 killall spider
+exit 0
