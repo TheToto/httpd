@@ -1,6 +1,6 @@
-GET / HTTP/1.1
+POST / HTTP/1.1
 Host: 127.0.0.1:8000
-Content-Legth: 5
+Content-Length: 5
 User-Agent: curl/7.64.0
 Accept: */*
 

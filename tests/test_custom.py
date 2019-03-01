@@ -71,3 +71,19 @@ def test_valid_body_frag():
     assert(resp.status == 200)
     assert(resp.read().decode("utf-8") == open("tests/index.html", "r").read())
     kill_server(serverProc)
+
+def test_0x0_body():
+    serverProc = launch_server("tests/json/test2.json")
+    assert(serverProc != None)
+    resp = custom_request("tests/custom/0x0_body.txt")
+    assert(resp.status == 200)
+    assert(resp.read() == open("tests/index.html", "rb").read())
+    kill_server(serverProc)
+
+def test_0x0_head():
+    serverProc = launch_server("tests/json/test2.json")
+    assert(serverProc != None)
+    resp = custom_request("tests/custom/0x0_head.txt")
+    assert(resp.status == 200)
+    assert(resp.read() == open("tests/index.html", "rb").read())
+    kill_server(serverProc)
