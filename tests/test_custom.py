@@ -26,7 +26,11 @@ def test_http10_frag():
 def test_grabage():
     serverProc = launch_server()
     assert(serverProc != None)
-    resp = custom_request("tests/custom/grab.txt")
+    resp = custom_request("tests/custom/grab1.txt")
+    assert(resp.status == 400)
+    resp = custom_request("tests/custom/grab2.txt")
+    assert(resp.status == 400)
+    resp = custom_request("tests/custom/grab3.txt")
     assert(resp.status == 400)
     kill_server(serverProc)
 
