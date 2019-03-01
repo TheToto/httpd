@@ -49,11 +49,11 @@ namespace http
         {
             if (!req)
                 req = Request();
-            char str_c[10000];
+            char str_c[8192];
             int n = 0;
             try
             {
-                n = sock_->recv(str_c, 10000);
+                n = sock_->recv(str_c, 8192);
                 if (n <= 0)
                 {
                     std::clog << "A socked has disconnect\n";

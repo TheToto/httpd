@@ -28,7 +28,7 @@ namespace http
         if (cur == vhosts_.end())
         {
             if (!r.is_erroring())
-                r.set_mode("ERROR");
+                r.set_mode(MOD::ERROR);
             std::clog << "No vhost found for this request...\n";
             return VHostFactory::Fail();
         }

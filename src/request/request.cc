@@ -10,23 +10,23 @@ namespace http
         size_t len = asked.size();
         if (len >= 4 && asked.substr(0, 4) == "GET ")
         {
-            set_mode("GET");
+            set_mode(MOD::GET);
             cur = 3;
         }
         else if (len >= 5 && asked.substr(0, 5) == "POST ")
         {
-            set_mode("POST");
+            set_mode(MOD::POST);
             cur = 4;
         }
         else if (len >= 5 && asked.substr(0, 5) == "HEAD ")
         {
-            set_mode("HEAD");
+            set_mode(MOD::HEAD);
             is_head_ = true;
             cur = 4;
         }
         else
         {
-            set_mode("ERROR METHOD");
+            set_mode(MOD::ERROR_METHOD);
             set_erroring(1);
             cur = -1;
         }
@@ -38,7 +38,7 @@ namespace http
         auto pos2 = asked.find("HTTP", cur);
         if (pos2 == std::string::npos)
         {
-            set_mode("ERROR");
+            set_mode(MOD::ERROR);
             set_erroring(1);
             return 0;
         }
@@ -50,21 +50,21 @@ namespace http
         if ((p_version[5] <= '0' && p_version[5] > '9')
             || (p_version[5] <= '0' && p_version[7] > '9'))
         {
-            set_mode("ERROR");
+            set_mode(MOD::ERROR);
             set_erroring(1);
             return 0;
         }
 
         if (p_version[5] == '0' || p_version[7] == '0')
         {
-            set_mode("UPGRADE");
+            set_mode(MOD::UPGRADE);
             set_erroring(1);
             return 0;
         }
 
         if (p_version[5] > '1' || p_version[7] > '1')
         {
-            set_mode("OBSOLETE");
+            set_mode(MOD::OBSOLETE);
             set_erroring(1);
             return 0;
         }
@@ -116,7 +116,7 @@ namespace http
         if (!found)
         {
             if (!is_erroring())
-                set_mode("ERROR");
+                set_mode(MOD::ERROR);
             return -1;
         }
         return cur;
@@ -139,14 +139,14 @@ namespace http
                 }
                 catch (std::invalid_argument&)
                 {
-                    mode = "ERROR";
+                    mode = MOD::ERROR;
                     erroring = 1;
                     return false;
                 }
             }
             else
             {
-                mode = "ERROR";
+                mode = MOD::ERROR;
                 erroring = 1;
                 return false;
             }
@@ -174,9 +174,9 @@ namespace http
         auto len_str = get_header("Content-Length");
         if (len_str.empty())
         {
-            if (get_mode() == "POST")
+            if (get_mode() == MOD::POST)
             {
-                set_mode("ERROR");
+                set_mode(MOD::ERROR);
                 set_erroring(1);
                 return 0;
             }
@@ -189,13 +189,13 @@ namespace http
         }
         catch (const std::exception&)
         {
-            set_mode("ERROR");
+            set_mode(MOD::ERROR);
             set_erroring(1);
             return 0;
         }
         if (len < 0)
         {
-            set_mode("ERROR");
+            set_mode(MOD::ERROR);
             set_erroring(1);
             return 0;
         }
@@ -203,10 +203,10 @@ namespace http
         if (is_erroring())
             return 1;
 
-        if (get_mode() != "POST" && len != 0)
+        if (get_mode() != MOD::POST && len != 0)
 
         {
-            set_mode("ERROR");
+            set_mode(MOD::ERROR);
             set_erroring(1);
             return 0;
         }
@@ -218,7 +218,7 @@ namespace http
         std::string prospect = get_header("HTTP2-Settings");
         if (!prospect.empty())
         {
-            set_mode("OBSOLETE");
+            set_mode(MOD::OBSOLETE);
             set_erroring(1);
             return 0;
         }
@@ -233,7 +233,7 @@ namespace http
             body += prospect;
             if (length < body.size())
             {
-                mode = "ERROR DOUBLE REQUEST FAILED";
+                mode = MOD::ERROR_DOUBLE_REQUEST_FAILED;
                 erroring = 1;
                 return true;
             } // eventually add extra treatment for multiple request
@@ -269,7 +269,7 @@ namespace http
                     return true;
                 if ((check_length()) == 0)
                     return true;
-                if (mode == "GET" || mode == "HEAD")
+                if (mode == MOD::GET || mode == MOD::HEAD)
                     return true;
 
                 ///////////        get extra body                      ////////
@@ -277,7 +277,7 @@ namespace http
                 // npos is for all char til' the end
                 if (length < body.size())
                 {
-                    mode = "ERROR DOUBLE REQUEST FAILED";
+                    mode = MOD::ERROR_DOUBLE_REQUEST_FAILED;
                     erroring = 1;
                     return true; // eventually add traitment for multiple
                                  // request

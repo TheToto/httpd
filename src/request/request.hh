@@ -25,7 +25,7 @@ namespace http
         Request& operator=(Request&&) = default;
         ~Request() = default;
 
-        void set_mode(std::string mode_)
+        void set_mode(MOD mode_)
         {
             mode = mode_;
         }
@@ -38,7 +38,7 @@ namespace http
             headers[name] = value;
         }
 
-        const std::string& get_mode() const
+        const MOD& get_mode() const
         {
             return mode;
         }
@@ -83,7 +83,7 @@ namespace http
         bool is_head_ = false;
 
     private:
-        std::string mode = "";
+        MOD mode = MOD::ERROR;
         std::string src = "";
         std::string uri = "";
         std::string query = "";

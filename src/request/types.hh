@@ -29,6 +29,18 @@ namespace http
         HTTP_VERSION_NOT_SUPPORTED = 505
     };
 
+    enum MOD
+    {
+        GET,
+        POST,
+        HEAD,
+        ERROR,
+        ERROR_METHOD,
+        UPGRADE,
+        OBSOLETE,
+        ERROR_DOUBLE_REQUEST_FAILED
+    };
+
     /**
      * \brief Associate a status code to its message.
      *

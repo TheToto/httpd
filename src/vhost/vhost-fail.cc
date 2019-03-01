@@ -7,6 +7,8 @@
 #include "events/send.hh"
 #include "misc/fd.hh"
 #include "request/error.hh"
+#include "request/types.hh"
+
 namespace http
 {
     static inline void send_response(Connection& conn, Response resp,
@@ -19,11 +21,11 @@ namespace http
                             remaining_iterator, remaining_iterator)
     {
         auto mod = r.get_mode();
-        if (mod == "ERROR METHOD")
+        if (mod == MOD::ERROR_METHOD)
             send_response(conn, error::method_not_allowed(r));
-        else if (mod == "OBSOLETE")
+        else if (mod == MOD::OBSOLETE)
             send_response(conn, error::http_version_not_supported(r));
-        else if (mod == "UPGRADE")
+        else if (mod == MOD::UPGRADE)
             send_response(conn, error::upgrade_required(r));
         else
             send_response(conn, error::bad_request());

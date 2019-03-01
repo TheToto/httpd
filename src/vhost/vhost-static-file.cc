@@ -35,11 +35,11 @@ namespace http
         if (request.is_erroring())
         {
             auto mod = request.get_mode();
-            if (mod == "ERROR METHOD")
+            if (mod == MOD::ERROR_METHOD)
                 send_response(conn, error::method_not_allowed(request));
-            else if (mod == "OBSOLETE")
+            else if (mod == MOD::OBSOLETE)
                 send_response(conn, error::http_version_not_supported(request));
-            else if (mod == "UPGRADE")
+            else if (mod == MOD::UPGRADE)
                 send_response(conn, error::upgrade_required(request));
             else
                 send_response(conn, error::bad_request());
