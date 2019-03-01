@@ -251,6 +251,7 @@ namespace http
             if (split != std::string::npos)
             {
                 int cur = 0;
+                headed = true;
                 if (get_mode_str(head, cur) < 0)
                     return true;
 
