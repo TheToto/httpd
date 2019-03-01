@@ -78,6 +78,7 @@ namespace http
         int get_headers_str(const std::string& asked, int& cur);
         char check_length();
         char check_httptwo();
+        bool decode_uri(std::string&);
         bool operator()(const char* str, size_t n);
 
         bool is_head_ = false;

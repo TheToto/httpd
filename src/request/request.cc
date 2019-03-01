@@ -122,20 +122,20 @@ namespace http
         return cur;
     }
 
-    bool Request::parse_uri(std::string full_uri)
+    bool Request::decode_uri(std::string& str)
     {
-        size_t i = full_uri.find_first_of('%', 0);
+        size_t i = str.find_first_of('%', 0);
         while (i != std::string::npos)
         {
-            if (i + 2 < full_uri.size())
+            if (i + 2 < str.size())
             {
-                auto hex = full_uri.substr(i + 1, 2);
+                auto hex = str.substr(i + 1, 2);
 
                 try
                 {
                     std::string x(1, std::stol(hex, nullptr, 16));
-                    full_uri.replace(i, 3, x);
-                    i = full_uri.find_first_of('%', i + 1);
+                    str.replace(i, 3, x);
+                    i = str.find_first_of('%', i + 1);
                 }
                 catch (std::invalid_argument&)
                 {
@@ -151,6 +151,11 @@ namespace http
                 return false;
             }
         }
+        return true;
+    }
+
+    bool Request::parse_uri(std::string full_uri)
+    {
         int begin_uri = 0;
         int mid_src = full_uri.find("://");
         if (mid_src >= 0)
@@ -166,7 +171,7 @@ namespace http
             uri = full_uri.substr(begin_uri, begin_query - begin_uri);
             query = full_uri.substr(begin_query);
         }
-        return true;
+        return decode_uri(uri) && decode_uri(query);
     }
 
     char Request::check_length()
