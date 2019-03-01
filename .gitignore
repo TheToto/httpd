@@ -19,6 +19,8 @@ index.html
 #tests
 env/
 __*
+tests/\?toto
+
 
 build/
 
