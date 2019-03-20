@@ -40,16 +40,11 @@ namespace http
         : Response(nullptr, code)
     {}
 
-    Response::Response(std::string list_dir)
-        : list_dir_(list_dir)
-    {
-        Response(nullptr, STATUS_CODE::OK);
-    }
-
     Response::Response(misc::shared_fd file, const STATUS_CODE& code,
-                       bool is_head)
+                       bool is_head, std::string list_dir)
         : file_(file)
         , status(code)
+        , list_dir_(list_dir)
     {
         auto add_body = sup_body();
         if (file != nullptr)

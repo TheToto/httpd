@@ -73,7 +73,7 @@ namespace http
             {
                 if (dir_path != "" && is_dir(dir_path))
                 {
-                    Response resp(dir_path);
+                    Response resp(nullptr, STATUS_CODE::OK, request.is_head_, dir_path);
                     send_response(conn, resp);
                 }
                 else

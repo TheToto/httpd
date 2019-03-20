@@ -15,24 +15,30 @@ namespace misc
         static std::string generate_html(std::string title, std::string body)
         {
             std::string html;
-            html = "<!DOCTYPE html><html>"
-                   "<head><meta charset=utf-8><title>"
+            html = "<!DOCTYPE html>\n<html>\n"
+                   "<head>\n<meta charset=utf-8>\n<title>"
                 + title
-                + "</title>"
-                  "<style></style>"
-                  "</head><body>"
-                + body + "</body></html>";
+                + "</title>\n"
+                  "</head>\n<body>"
+                + body + "</body>\n</html>\n";
             return html;
         }
 
         static std::string generate_dir(std::string path)
         {
             std::string body;
-            for (auto& p : std::filesystem::directory_iterator("sandbox"))
+            body += "<li>\n";
+            for (auto& p : std::filesystem::directory_iterator(path))
             {
-                body += p.path();
-                body += "\n";
+                body += "<ul>";
+                body += "<a href=\"";
+                body += p.path().filename();
+                body += "\">";
+                body += p.path().filename();
+                body += "</a>";
+                body += "</ul>\n";
             }
+            body += "</li>\n";
             return generate_html("Index of " + path, body);
         }
 

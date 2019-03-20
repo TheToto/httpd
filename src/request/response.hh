@@ -22,10 +22,9 @@ namespace http
         explicit Response(const STATUS_CODE&);
 
         Response(misc::shared_fd file, const STATUS_CODE& = STATUS_CODE::OK,
-                 bool is_head = false);
+                 bool is_head = false, std::string list_dir = "");
         Response(const Request, misc::shared_fd file,
                  const STATUS_CODE& = STATUS_CODE::OK);
-        Response(std::string list_dir);
         Response(const Request, const STATUS_CODE& = STATUS_CODE::OK);
         // get the body of the response and its length
 
