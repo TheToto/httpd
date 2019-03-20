@@ -57,6 +57,7 @@ namespace http
         else if (is_dir(path))
         {
             path += '/' + this->conf_get().default_file_;
+            dir_path = "";
         }
         else
         {

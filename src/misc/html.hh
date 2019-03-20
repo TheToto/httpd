@@ -19,7 +19,7 @@ namespace misc
                    "<head>\n<meta charset=utf-8>\n<title>"
                 + title
                 + "</title>\n"
-                  "</head>\n<body>"
+                  "</head>\n<body>\n"
                 + body + "</body>\n</html>\n";
             return html;
         }
@@ -33,13 +33,17 @@ namespace misc
                 body += "<ul>";
                 body += "<a href=\"";
                 body += p.path().filename();
+                if (p.is_directory())
+                    body += "/";
                 body += "\">";
                 body += p.path().filename();
+                if (p.is_directory())
+                    body += "/";
                 body += "</a>";
                 body += "</ul>\n";
             }
             body += "</li>\n";
-            return generate_html("Index of " + path, body);
+            return generate_html("Index of " + path.substr(1), body);
         }
 
         static std::string generate_error(http::STATUS_CODE& status)
