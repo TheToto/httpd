@@ -9,6 +9,12 @@ namespace http::error
         return Response(STATUS_CODE::BAD_REQUEST);
     }
 
+    Response unauthorized(const Request&, shared_vhost)
+    {
+        // FIXME: Not implemented
+        return Response(STATUS_CODE::UNAUTHORIZED);
+    }
+
     Response forbidden(const Request& request)
     {
         return Response(request, STATUS_CODE::FORBIDDEN);
@@ -24,9 +30,30 @@ namespace http::error
         return Response(request, STATUS_CODE::METHOD_NOT_ALLOWED);
     }
 
+    Response proxy_authentication_required(const Request&, shared_vhost)
+    {
+        // FIXME: Not implemented
+        return Response(STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED);
+    }
+
+    Response payload_too_large()
+    {
+        return Response(STATUS_CODE::PAYLOAD_TOO_LARGE);
+    }
+
+    Response uri_too_long()
+    {
+        return Response(STATUS_CODE::URI_TOO_LONG);
+    }
+
     Response upgrade_required(const Request& request)
     {
         return Response(request, STATUS_CODE::UPGRADE_REQUIRED);
+    }
+
+    Response header_fields_too_large()
+    {
+        return Response(STATUS_CODE::HEADER_FIELDS_TOO_LARGE);
     }
 
     Response internal_server_error(const Request& request)

@@ -75,14 +75,26 @@ SOURCES = \
                        src/vhost/vhost-static-file.cc \
                        src/vhost/vhost-fail.cc \
                        src/vhost/vhost.hh \
-                       $(NULL)
+          src/error/init-error.hh \
+          src/error/parsing-error.hh \
+          src/misc/openssl/base64.cc \
+          src/misc/openssl/base64.hh \
+          src/misc/openssl/ssl-error.cc \
+          src/misc/openssl/ssl-error.hh \
+          src/misc/openssl/ssl-wrapper.hh \
+          src/misc/openssl/ssl.hh \
+          src/socket/ssl-socket.hh \
+          src/vhost/vhost-reverse-proxy.hh \
+          $(NULL)
 
 
+# Compile source files again to avoid silenting undefined references.
 spider_SOURCES = \
                  $(SOURCES) \
                  src/main.cc \
                  $(NULL)
 
+# https://www.gnu.org/software/automake/manual/html_node/Objects-created-both-with-libtool-and-without.html
 spider_CXXFLAGS = $(AM_CXXFLAGS)
 
 libspider_la_SOURCES = \

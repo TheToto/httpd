@@ -17,7 +17,7 @@ namespace http
         event_register.register_ew<SendResponseEW>(conn.sock_, resp, is_head);
     }
 
-    void VHostFail::respond(const Request& r, Connection& conn,
+    void VHostFail::respond(Request& r, Connection conn,
                             remaining_iterator, remaining_iterator)
     {
         auto mod = r.get_mode();

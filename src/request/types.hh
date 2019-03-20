@@ -18,10 +18,15 @@ namespace http
     {
         OK = 200,
         BAD_REQUEST = 400,
+        UNAUTHORIZED = 401,
         FORBIDDEN = 403,
         NOT_FOUND = 404,
         METHOD_NOT_ALLOWED = 405,
+        PROXY_AUTHENTICATION_REQUIRED = 407,
+        PAYLOAD_TOO_LARGE = 413,
+        URI_TOO_LONG = 414,
         UPGRADE_REQUIRED = 426,
+        HEADER_FIELDS_TOO_LARGE = 431,
         INTERNAL_SERVER_ERROR = 500,
         NOT_IMPLEMENTED = 501,
         BAD_GATEWAY = 502,
@@ -56,14 +61,25 @@ namespace http
             return {OK, "OK"};
         case BAD_REQUEST:
             return {BAD_REQUEST, "Bad Request"};
+        case UNAUTHORIZED:
+            return {UNAUTHORIZED, "Unauthorized"};
         case FORBIDDEN:
             return {FORBIDDEN, "Forbidden"};
         case NOT_FOUND:
             return {NOT_FOUND, "Not Found"};
         case METHOD_NOT_ALLOWED:
             return {METHOD_NOT_ALLOWED, "Method Not Allowed"};
+        case PROXY_AUTHENTICATION_REQUIRED:
+            return {PROXY_AUTHENTICATION_REQUIRED,
+                    "Proxy Authentication Required"};
+        case PAYLOAD_TOO_LARGE:
+            return {PAYLOAD_TOO_LARGE, "Payload Too Large"};
+        case URI_TOO_LONG:
+            return {URI_TOO_LONG, "URI Too Long"};
         case UPGRADE_REQUIRED:
             return {UPGRADE_REQUIRED, "Upgrade Required"};
+        case HEADER_FIELDS_TOO_LARGE:
+            return {HEADER_FIELDS_TOO_LARGE, "Request Header Fields Too Large"};
         case INTERNAL_SERVER_ERROR:
             return {INTERNAL_SERVER_ERROR, "Internal Server Error"};
         case NOT_IMPLEMENTED:

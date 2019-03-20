@@ -43,7 +43,7 @@ namespace http
          *
          * Note that these iterators will only be useful starting from SRPS.
          */
-        void respond(const Request&, Connection&, remaining_iterator,
+        void respond(Request&, Connection, remaining_iterator,
                      remaining_iterator) final;
     };
 } // namespace http

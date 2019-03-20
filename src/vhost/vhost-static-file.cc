@@ -29,7 +29,7 @@ namespace http
         return S_ISDIR(buf.st_mode);
     }
 
-    void VHostStaticFile::respond(const Request& request, Connection& conn,
+    void VHostStaticFile::respond(Request& request, Connection conn,
                                   remaining_iterator, remaining_iterator)
     {
         if (request.is_erroring())

@@ -1,6 +1,6 @@
 /**
- * \file vhost/vhost-fail.hh
- * \brief VHostFail declaration.
+ * \file vhost/vhost-reverse-proxy.hh
+ * \brief VhostReverseProxy declaration.
  */
 
 #pragma once
@@ -13,14 +13,15 @@
 namespace http
 {
     /**
-     * \class VHostFail
-     * \brief VHost serving static files.
+     * \class VHostReverseProxy
+     * \brief VHost in charge of forwarding the Request to the upstream/backend
+     * service.
      */
-    class VHostFail : public VHost
+    class VHostReverseProxy : public VHost
     {
     public:
         friend class VHostFactory;
-        virtual ~VHostFail() = default;
+        virtual ~VHostReverseProxy() = default;
 
     private:
         /**
@@ -28,20 +29,16 @@ namespace http
          *
          * \param config VHostConfig virtual host configuration.
          */
-        explicit VHostFail(const VHostConfig& conf)
-            : VHost(conf)
-        {}
+        explicit VHostReverseProxy(const VHostConfig&);
 
     public:
         /**
-         * \brief Send response.
+         * \brief Send request to the upstream.
          *
          * \param req Request.
          * \param conn Connection.
          * \param begin remaining_iterator of received data.
          * \param end remaining_iterator of received data.
-         *
-         * Note that these iterators will only be useful starting from SRPS.
          */
         void respond(Request&, Connection, remaining_iterator,
                      remaining_iterator) final;
