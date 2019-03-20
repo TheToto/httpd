@@ -1,7 +1,8 @@
 #include "request/response.hh"
-#include "misc/html.hh"
 
 #include <ctime>
+
+#include "misc/html.hh"
 
 namespace http
 {
@@ -39,7 +40,14 @@ namespace http
         : Response(nullptr, code)
     {}
 
-    Response::Response(misc::shared_fd file, const STATUS_CODE& code, bool is_head)
+    Response::Response(std::string list_dir)
+        : list_dir_(list_dir)
+    {
+        Response(nullptr, STATUS_CODE::OK);
+    }
+
+    Response::Response(misc::shared_fd file, const STATUS_CODE& code,
+                       bool is_head)
         : file_(file)
         , status(code)
     {
@@ -80,6 +88,8 @@ namespace http
 
     std::string Response::sup_body()
     {
+        if (list_dir_ != "")
+            return misc::Html::generate_dir(list_dir_);
         if (status != STATUS_CODE::OK)
             return misc::Html::generate_error(status);
         return "";

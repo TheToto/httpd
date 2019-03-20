@@ -51,6 +51,7 @@ namespace http
                     continue;
 
                 sock->setsockopt(SOL_SOCKET, SO_REUSEADDR, 1);
+                sock->setsockopt(SOL_SOCKET, SO_REUSEPORT, 1);
                 try
                 {
                     sock->bind(it->ai_addr, it->ai_addrlen);

@@ -24,6 +24,7 @@ AM_LDFLAGS = \
              -lev \
              -lssl \
              -lcrypto \
+             -lstdc++fs \
              $(NULL)
 
 AM_LDFLAGS += \

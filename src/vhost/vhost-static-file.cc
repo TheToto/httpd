@@ -49,10 +49,19 @@ namespace http
         std::string path = this->conf_get().root_;
 
         path += request.get_uri();
+        std::string dir_path = path;
         if (*(path.rbegin()) == '/')
+        {
             path += this->conf_get().default_file_;
+        }
         else if (is_dir(path))
+        {
             path += '/' + this->conf_get().default_file_;
+        }
+        else
+        {
+            dir_path = "";
+        }
         int fd = -1;
         try
         {
@@ -61,9 +70,19 @@ namespace http
         catch (const std::system_error& e)
         {
             if (errno == ENOENT)
-                send_response(conn, error::not_found(request));
+            {
+                if (dir_path != "" && is_dir(dir_path))
+                {
+                    Response resp(dir_path);
+                    send_response(conn, resp);
+                }
+                else
+                    send_response(conn, error::not_found(request));
+            }
             else
+            {
                 send_response(conn, error::forbidden(request));
+            }
             return;
         }
 
