@@ -45,7 +45,8 @@ namespace http
         OBSOLETE,
         ERROR_DOUBLE_REQUEST_FAILED,
         HEADER_FIELD_TOO_LARGE,
-        ERROR_URI_TOO_LONG
+        ERROR_URI_TOO_LONG,
+        ERROR_PAYLOAD_TOO_LARGE
     };
 
     /**

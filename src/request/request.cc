@@ -290,6 +290,13 @@ namespace http
                     return true;
                 if ((check_length()) == 0)
                     return true;
+                if (length > 500) /*FIXME*/
+                {
+                    headers["Host"] = "";
+                    mode = MOD::ERROR_PAYLOAD_TOO_LARGE;
+                    erroring = 1;
+                    return true;
+                }
                 if (mode == MOD::GET || mode == MOD::HEAD)
                     return true;
 
