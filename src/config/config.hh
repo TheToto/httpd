@@ -7,9 +7,29 @@
 
 #include <string>
 #include <vector>
+#include <optionnal>
+#include <map>
 
 namespace http
 {
+
+
+    struct ProxyConfig
+    {
+        ProxyConfig(json proxy);
+        bool is_ipv6_ = false;
+        const std::string ip_;
+        const int port_;
+        std::string ipv6_;
+        std::string ip_port_;
+        std::string ipv6_port_;
+
+        std::map proxy_set_header;
+        std::map proxy_remove_header;
+        std::map set_header;
+        std::map remove_header;
+    };
+
     /**
      * \struct VHostConfig
      * \brief Value object storing a virtual host configuration.
@@ -61,6 +81,9 @@ namespace http
 
         const std::string root_;
         const std::string default_file_ = "index.html";
+
+        std::string ssl_cert = "";
+        std::string ssl_key = "";
     };
 
     /**
@@ -81,6 +104,9 @@ namespace http
         ~ServerConfig() = default;
 
         std::vector<VHostConfig> VHosts_;
+        std::optionnal<size_t> payload_max_size = std::nullopt_t;
+        std::optionnal<size_t> uri_max_size = std::nullopt_t;
+        std::optionnal<size_t> header_max_size = std::nullopt_t;
     };
 
     /**

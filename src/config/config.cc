@@ -20,32 +20,78 @@ using json = nlohmann::json;
 
 namespace http
 {
+    ProxyConfig::Config(nlohmann::basic_json<>& proxy)
+    {
+
+        ip_ = proxy["ip"];
+        port_ = proxy["port"];
+
+        try
+        {
+            proxy_set_header(proxy["proxy_set_header"];);
+        } catch(const std::exception&) {}
+        try
+        {
+            proxy_remove_header(proxy["proxy_remove_header"];);
+        } catch(const std::exception&) {}
+        try
+        {
+            set_header(proxy["set_header"];);
+        } catch(const std::exception&) {}
+        try
+        {
+            remove_header(proxy["remove_header"];);
+        } catch(const std::exception&) {}
+
+    }
     static void parse_vhost(nlohmann::basic_json<>& i, ServerConfig& serv)
     {
         std::string ip = i["ip"];
         int port = i["port"];
         std::string server_name = i["server_name"];
-        std::string root = i["root"];
+
+        if (ip.empty() || port <= 0 || server_name.empty())
+            throw std::invalid_argument("invalid JSON file: a mandatory \
+argument is missing");
+
+
+        std::string root;
+        try
+        {
+            root = i["root"];
+        } catch (const std::exception& e){
+            root = ".";
+        }
+            
         std::string default_file;
         try
         {
             default_file = i["default_file"];
-        }
-        catch (const std::exception& e)
-        {
+        } catch (const std::exception& e){
             default_file = "index.html";
         }
-
-        if (ip.empty() || port <= 0 || server_name.empty() || root.empty())
-            throw std::invalid_argument("invalid JSON file: a mandatory \
-argument is missing");
-        if (i.size() == 5)
+        std::string ssl_cert = "";
+        try
         {
-            serv.VHosts_.push_back(
-                VHostConfig(ip, port, server_name, root, default_file));
-        }
-        else
-            serv.VHosts_.push_back(VHostConfig(ip, port, server_name, root));
+            ssl_cert = i["ssl_cert"];
+        } catch (const std::exception& e){}
+
+        std::string ssl_key = "";
+        try
+        {
+            ssl_key = i["ssl_key"];
+        } catch (const std::exception& e){}
+        if (ssl_key.empty() != ssl_cert.empty())
+            throw std::invalid_argument("ERROR: ssl_cert and ssl_key must /
+be defined simulteanously");
+
+        std::optionnal<json> proxy = nullopt_t;
+        try
+        {
+            proxy = json(i["proxy_pass"]);
+        } catch (const std::exception& e){}
+
+        serv.VHosts_.push_back(VHostConfig(ip, port, server_name, root));
     }
 
     ServerConfig parse_configuration(const std::string& path)
@@ -56,7 +102,21 @@ argument is missing");
         json j = json::parse(ifs);
         ServerConfig serv;
 
+        try
+        {
+            payload_max_size = j["payload_max_size"];
+        } catch(const std::exception&){}
+        try
+        {
+            uri_max_size = j["uri_max_size"];
+        } catch(const std::exception&){}
+        try
+        {
+            header_max_size = j["header_max_size"];
+        } catch(const std::exception&){}
+
         auto ctn = j["vhosts"];
+        
 
         for (auto i : ctn)
         {
