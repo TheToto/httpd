@@ -93,6 +93,7 @@ namespace http
         std::map<std::string, std::string> headers;
         int erroring = 0;
         size_t length = 0;
+        size_t data_received = 0;
         bool headed = false;
         std::string head = "";
     };
