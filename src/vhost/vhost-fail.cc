@@ -29,6 +29,8 @@ namespace http
             send_response(conn, error::upgrade_required(r));
         else if (mod == MOD::HEADER_FIELD_TOO_LARGE)
             send_response(conn, error::header_fields_too_large());
+        else if (mod == MOD::ERROR_URI_TOO_LONG)
+            send_response(conn, error::uri_too_long());
         else
             send_response(conn, error::bad_request());
     }

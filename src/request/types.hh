@@ -44,7 +44,8 @@ namespace http
         UPGRADE,
         OBSOLETE,
         ERROR_DOUBLE_REQUEST_FAILED,
-        HEADER_FIELD_TOO_LARGE
+        HEADER_FIELD_TOO_LARGE,
+        ERROR_URI_TOO_LONG
     };
 
     /**

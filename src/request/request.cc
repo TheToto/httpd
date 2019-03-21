@@ -220,11 +220,10 @@ namespace http
     {
         std::string prospect(str, n);
         data_received += prospect.length();
-        std::cout << "data received: " << data_received << std::endl;
-        if (data_received > 800) /*FIXME*/
+        if (serv_conf.header_max_size
+         && data_received > serv_conf.header_max_size.value())
         {
-            mode = MOD::HEADER_FIELD_TOO_LARGE;
-            erroring = 1;
+            set_mode(MOD::HEADER_FIELD_TOO_LARGE, 1);
             return true;
         }
         if (headed)
@@ -258,7 +257,12 @@ namespace http
                 int n_cur = head.find_first_of(' ', cur);
                 if (cur != std::string::npos)
                     parse_uri(head.substr(cur, n_cur - cur));
-
+                if (serv_conf.uri_max_size
+                 && uri.length() > serv_conf.uri_max_size.value())
+                {
+                    set_mode(MOD::ERROR_URI_TOO_LONG, 1);
+                    return true;
+                }
                 index_proxy_err = mode_error.end() - mode_error.begin() + 1;
                 cur = head.find_first_not_of(' ', n_cur);
                 n_cur = head.find_first_of('\r', cur);
