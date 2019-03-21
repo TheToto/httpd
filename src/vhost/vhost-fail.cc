@@ -31,6 +31,8 @@ namespace http
             send_response(conn, error::header_fields_too_large());
         else if (mod == MOD::ERROR_URI_TOO_LONG)
             send_response(conn, error::uri_too_long());
+        else if (mod == MOD::ERROR_PAYLOAD_TOO_LARGE)
+            send_response(conn, error::payload_too_large());
         else
             send_response(conn, error::bad_request());
     }
