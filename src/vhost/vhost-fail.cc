@@ -27,6 +27,8 @@ namespace http
             send_response(conn, error::http_version_not_supported(r));
         else if (mod == MOD::UPGRADE)
             send_response(conn, error::upgrade_required(r));
+        else if (mod == MOD::HEADER_FIELD_TOO_LARGE)
+            send_response(conn, error::header_fields_too_large());
         else
             send_response(conn, error::bad_request());
     }

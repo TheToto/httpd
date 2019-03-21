@@ -219,6 +219,14 @@ namespace http
     bool Request::operator()(const char* str, size_t n)
     {
         std::string prospect(str, n);
+        data_received += prospect.length();
+        std::cout << "data received: " << data_received << std::endl;
+        if (data_received > 800) /*FIXME*/
+        {
+            mode = MOD::HEADER_FIELD_TOO_LARGE;
+            erroring = 1;
+            return true;
+        }
         if (headed)
         {
             body += prospect;
