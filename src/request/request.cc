@@ -275,6 +275,13 @@ namespace http
                 int n_cur = head.find_first_of(' ', cur);
                 if (!parse_uri(head.substr(cur, n_cur - cur)))
                     return true;
+                std::cout << uri.length() << std::endl;
+                if (uri.length() > 100) /*FIXME*/
+                {
+                    mode = MOD::ERROR_URI_TOO_LONG;
+                    erroring = 1;
+                    return true;
+                }
                 cur = head.find_first_not_of(' ', n_cur);
                 n_cur = head.find_first_of('\r', cur);
                 version = head.substr(cur, n_cur - cur);
