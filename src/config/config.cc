@@ -15,6 +15,7 @@
 #include <stdexcept> //invalid_argument
 #include <string> //to_string
 #include <list>
+#include <set>
 #include <optional>
 #pragma GCC diagnostic pop
 
@@ -22,7 +23,7 @@ using json = nlohmann::json;
 
 namespace http
 {
-    ProxyConfig::ProxyConfig(nlohmann::basic_json<>& proxy)
+    ProxyConfig::ProxyConfig(json& proxy)
     {
         ip_ = proxy["ip"];
         port_ = proxy["port"];
@@ -44,6 +45,10 @@ namespace http
             remove_header(proxy["remove_header"];);
         } catch(const std::exception&) {}
 
+        ipv6_ = "[" + ip_ + "]";
+        server_name_port_ = server_name_ + ":" + std::to_string(port_);
+        ip_port_ = ip_ + ":" + std::to_string(port_);
+        ipv6_port_ = ipv6_ + ":" + std::to_string(port_);
     }
 
     VHostConfig::VHostConfig(std::string ip, int port, std::string server_name,
@@ -111,7 +116,7 @@ be defined simulteanously");
         try
         {
             for (std::string cur : json(i["auth_basic_users"]))
-                auth_basic_users.insert(cur);
+                auth_basic_users.push_front(cur);
         } catch (const std::exception& e){}
 
         if (auth_basic_users.empty() != auth_basic.empty())

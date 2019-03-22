@@ -8,8 +8,11 @@
 #include <string>
 #include <vector>
 #include <optional>
-#include <map>
+#include <set>
 #include <list>
+#include <json.hpp>
+
+using json = nlohmann::json;
 
 namespace http
 {
@@ -17,18 +20,22 @@ namespace http
 
     struct ProxyConfig
     {
-        ProxyConfig(nlohmann::basic_json proxy);
-        bool is_ipv6_ = false;
+        ProxyConfig(json proxy);
+        ProxyConfig(const ProxyConfig&) = default;
+        ProxyConfig& operator=(const ProxyConfig&) = default;
+        ProxyConfig(ProxyConfig&&) = default;
+        ProxyConfig& operator=(ProxyConfig&&) = default;
+
         const std::string ip_;
         const int port_;
         std::string ipv6_;
         std::string ip_port_;
         std::string ipv6_port_;
 
-        std::map<std::string> proxy_set_header;
-        std::map<std::string> proxy_remove_header;
-        std::map<std::string> set_header;
-        std::map<std::string> remove_header;
+        std::set<std::string> proxy_set_header;
+        std::set<std::string> proxy_remove_header;
+        std::set<std::string> set_header;
+        std::set<std::string> remove_header;
     };
 
     /**
@@ -76,7 +83,7 @@ namespace http
 
         std::string ssl_cert_ = "";
         std::string ssl_key_  = "";
-        std::optional<ProxyConfig> proxy_pass  = nullopt_t;
+        std::optional<ProxyConfig> proxy_pass  = std::nullopt;
         std::string auth_basic  = "";
         std::list<std::string> auth_basic_users ;
         std::string health_endpoint_  = "";
@@ -103,9 +110,9 @@ namespace http
         ~ServerConfig() = default;
 
         std::vector<VHostConfig> VHosts_;
-        std::optional<size_t> payload_max_size = std::nullopt_t;
-        std::optional<size_t> uri_max_size = std::nullopt_t;
-        std::optional<size_t> header_max_size = std::nullopt_t;
+        std::optional<size_t> payload_max_size = std::nullopt;
+        std::optional<size_t> uri_max_size = std::nullopt;
+        std::optional<size_t> header_max_size = std::nullopt;
     };
 
     /**
