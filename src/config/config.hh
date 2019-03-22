@@ -7,8 +7,9 @@
 
 #include <string>
 #include <vector>
-#include <optionnal>
+#include <optional>
 #include <map>
+#include <list>
 
 namespace http
 {
@@ -16,7 +17,7 @@ namespace http
 
     struct ProxyConfig
     {
-        ProxyConfig(json proxy);
+        ProxyConfig(nlohmann::basic_json proxy);
         bool is_ipv6_ = false;
         const std::string ip_;
         const int port_;
@@ -24,10 +25,10 @@ namespace http
         std::string ip_port_;
         std::string ipv6_port_;
 
-        std::map proxy_set_header;
-        std::map proxy_remove_header;
-        std::map set_header;
-        std::map remove_header;
+        std::map<std::string> proxy_set_header;
+        std::map<std::string> proxy_remove_header;
+        std::map<std::string> set_header;
+        std::map<std::string> remove_header;
     };
 
     /**
@@ -48,19 +49,10 @@ namespace http
         {}
 
         VHostConfig(std::string ip, int port, std::string server_name,
-                    std::string root, std::string def = "index.html")
-            : ip_(ip)
-            , port_(port)
-            , server_name_(server_name)
-            , root_(root)
-            , default_file_(def)
-        {
-            is_ipv6_ = false;
-            ipv6_ = "[" + ip_ + "]";
-            server_name_port_ = server_name_ + ":" + std::to_string(port_);
-            ip_port_ = ip_ + ":" + std::to_string(port_);
-            ipv6_port_ = ipv6_ + ":" + std::to_string(port_);
-        }
+                    std::string root, std::string def, std::string sslc,
+                    std::string sslk, std::optional<ProxyConfig> proxy,
+                    std::string authb, std::list<std::string> authbu,
+                    std::string health, bool autoi, bool def_vh);
 
         VHostConfig(const VHostConfig&) = default;
         VHostConfig& operator=(const VHostConfig&) = default;
@@ -82,8 +74,15 @@ namespace http
         const std::string root_;
         const std::string default_file_ = "index.html";
 
-        std::string ssl_cert = "";
-        std::string ssl_key = "";
+        std::string ssl_cert_ = "";
+        std::string ssl_key_  = "";
+        std::optional<ProxyConfig> proxy_pass  = nullopt_t;
+        std::string auth_basic  = "";
+        std::list<std::string> auth_basic_users ;
+        std::string health_endpoint_  = "";
+        bool auto_index_  = false;
+        bool default_vhost_  = false;
+
     };
 
     /**
@@ -104,9 +103,9 @@ namespace http
         ~ServerConfig() = default;
 
         std::vector<VHostConfig> VHosts_;
-        std::optionnal<size_t> payload_max_size = std::nullopt_t;
-        std::optionnal<size_t> uri_max_size = std::nullopt_t;
-        std::optionnal<size_t> header_max_size = std::nullopt_t;
+        std::optional<size_t> payload_max_size = std::nullopt_t;
+        std::optional<size_t> uri_max_size = std::nullopt_t;
+        std::optional<size_t> header_max_size = std::nullopt_t;
     };
 
     /**
