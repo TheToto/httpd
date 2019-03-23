@@ -9,6 +9,8 @@
 #include "request/response.hh"
 #include "vhost/vhost-factory.hh"
 
+#include "misc/openssl/ssl.hh"
+
 namespace http
 {
     EventWatcherRegistry event_register = EventWatcherRegistry();
@@ -20,6 +22,10 @@ static void stop_server(struct ev_loop* loop, ev_signal*, int)
 {
     ev_break(loop, EVBREAK_ALL);
     std::clog << "Closing server..." << std::endl;
+
+//  FIXME besoin de fermer le contexte ssl, je sais pas où le mettre
+//  SSL_CTX_free(ssl_ctx);
+    EVP_cleanup();
 }
 
 static void continue_server(struct ev_loop*, ev_signal*, int)
@@ -92,6 +98,7 @@ static int handle_two(char* argv[])
     }
     return launch_server(argv[1]);
 }
+
 
 int main(int argc, char* argv[])
 {
