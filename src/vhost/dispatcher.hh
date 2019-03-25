@@ -34,6 +34,8 @@ namespace http
         std::vector<shared_vhost> vhosts_;
     };
 
+    bool testing_ip(int mode, const char* ip);
+    void parse_host(const std::string my_host, sockaddr_in addr, std::string& server_name);
     /**
      * \brief Service object.
      */
