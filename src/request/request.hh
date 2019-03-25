@@ -6,6 +6,7 @@
 #pragma once
 
 #include <map>
+#include <vector>
 
 #include "request/types.hh"
 
@@ -25,9 +26,15 @@ namespace http
         Request& operator=(Request&&) = default;
         ~Request() = default;
 
-        void set_mode(MOD mode_)
+        void set_mode(MOD mode_, int is_error=0)
         {
-            mode = mode_;
+            if (is_error)
+            {
+                mode_error.push_back(mode_);
+                erroring = 1;
+            }
+            else
+                mode = mode_;
         }
         void set_uri(std::string uri_)
         {
@@ -40,7 +47,15 @@ namespace http
 
         const MOD& get_mode() const
         {
-            return mode;
+            if (!erroring)
+                return mode;
+            return mode_error[0];
+        }
+        const MOD& get_proxy_errors() const
+        {
+            if (index_proxy_err == 0 || index_proxy_err > mode_error.size())
+                return mode;
+            return mode_error[index_proxy_err - 1];
         }
         const std::string& get_uri() const
         {
@@ -70,12 +85,20 @@ namespace http
         {
             length = i;
         }
+        std::string rebuild()
+        {
+            return head + body;
+        }
+        std::string& get_head()
+        {
+            return head;
+        }
 
-        int get_mode_str(const std::string& asked, int& cur);
-        char get_http_version(const std::string& asked, int& cur);
+        int get_mode_str(const std::string& asked, size_t& cur);
+        char get_http_version(const std::string& asked, size_t& cur);
         bool parse_uri(std::string full_uri);
         void format_header_val(std::string& h_val);
-        int get_headers_str(const std::string& asked, int& cur);
+        int get_headers_str(const std::string& asked, size_t& cur);
         char check_length();
         char check_httptwo();
         bool decode_uri(std::string&);
@@ -85,6 +108,8 @@ namespace http
 
     private:
         MOD mode = MOD::ERROR;
+        std::vector<MOD> mode_error;
+        size_t index_proxy_err = 0;
         std::string src = "";
         std::string uri = "";
         std::string query = "";

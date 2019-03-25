@@ -21,19 +21,19 @@
 namespace http
 {
     /**
-     * \class ClientEW
+     * \class ClientProxyEW
      * \brief Workflow for client socket.
      */
-    class ClientEW : public EventWatcher
+    class ClientProxyEW : public EventWatcher
     {
     public:
         /**
-         * \brief Create a ClientEW from a Client socket.
+         * \brief Create a ClientProxyEW from a Client socket.
          */
-        explicit ClientEW(shared_socket socket)
-            : EventWatcher(socket->fd_get()->fd_, EV_READ)
+        explicit ClientProxyEW(Connection conn)
+            : EventWatcher(conn.backend_->fd_get()->fd_, EV_READ)
         {
-            sock_ = socket;
+            sock_ = conn.backend_;
             req = {};
             // Set socket non block
             int tmpfd = socket->fd_get()->fd_;
@@ -47,8 +47,6 @@ namespace http
          */
         void operator()() final
         {
-            if (!req)
-                req = Request();
             char str_c[8192];
             int n = 0;
             try
@@ -56,32 +54,35 @@ namespace http
                 n = sock_->recv(str_c, 8192);
                 if (n <= 0)
                 {
-                    std::clog << "A socked has disconnect\n";
+                    std::clog << "The backend has disconnect\n";
                     event_register.unregister_ew(this);
+                    // SEND BAD GATEWAY
                     return;
                 }
             }
-            catch(const std::exception& e)
+            catch (const std::exception& e)
             {
-                std::clog << "A socked has disconnect\n";
+                std::clog << "The backend has disconnect\n";
                 event_register.unregister_ew(this);
+                // SEND BAD GATEWAY
                 return;
             }
 
-            // Return true if request is complete or ERROR. Return false if the
-            // request is not complete
-            bool is_complete = req.value()(str_c, n);
+            bool is_complete = false; // FIXME : Test if \n\r\n\r
+            conn_.vhost_->apply_set_remove_header(false, header_);
             if (is_complete)
             {
-                std::clog << "We have a request ! \n" << str_c << std::endl;
+                std::clog << "We have the backend response ! \n" << std::endl;
                 event_register.unregister_ew(this);
-                shared_vhost v = dispatcher(req.value());
-                Connection conn(sock_, v);
-                v->respond(req.value(), conn, 0, 0); // FIXME : Iterators
+                Response r(header_);
+                r.file_ = conn_.sock_->fd_get();
+                r.file_size_ = /* FIXME : Compute file size from content lenght */0;
+                event_register.register_ew<SendResponseEW>(conn_.sock_, r);
             }
             else
             {
-                std::clog << "Current request is not complete...\n";
+                std::clog
+                    << "Current response from backend is not complete...\n";
             }
         }
 
@@ -89,8 +90,9 @@ namespace http
         /**
          * \brief Client socket.
          */
+        Connection conn_;
         shared_socket sock_;
-        std::optional<Request> req;
+        std::string header_;
         /**
          * \brief Port on which the socket is listening.
          */

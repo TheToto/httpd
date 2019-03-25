@@ -20,7 +20,7 @@ namespace http
     struct Response
     {
         explicit Response(const STATUS_CODE&);
-
+        Response(std::string);
         Response(misc::shared_fd file, const STATUS_CODE& = STATUS_CODE::OK,
                  bool is_head = false, std::string list_dir = "");
         Response(const Request, misc::shared_fd file,

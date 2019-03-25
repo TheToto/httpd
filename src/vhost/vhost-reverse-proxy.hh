@@ -29,7 +29,11 @@ namespace http
          *
          * \param config VHostConfig virtual host configuration.
          */
-        explicit VHostReverseProxy(const VHostConfig&);
+        explicit VHostReverseProxy(const VHostConfig& conf)
+            : VHost(conf)
+        {
+            // ?
+        }
 
     public:
         /**

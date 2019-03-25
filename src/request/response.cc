@@ -27,6 +27,10 @@ namespace http
         return buffer.st_size;
     }
 
+    Response::Response(std::string str)
+        : response_(str)
+    {}
+
     Response::Response(const Request r, misc::shared_fd file,
                        const STATUS_CODE& code)
         : Response(file, code, r.is_head_)
