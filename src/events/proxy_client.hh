@@ -34,9 +34,8 @@ namespace http
             : EventWatcher(conn.backend_->fd_get()->fd_, EV_READ)
         {
             sock_ = conn.backend_;
-            req = {};
             // Set socket non block
-            int tmpfd = socket->fd_get()->fd_;
+            int tmpfd = sock_->fd_get()->fd_;
             int flags = fcntl(tmpfd, F_GETFL);
             flags |= O_NONBLOCK;
             fcntl(tmpfd, F_SETFL, flags);
@@ -76,7 +75,8 @@ namespace http
                 event_register.unregister_ew(this);
                 Response r(header_);
                 r.file_ = conn_.sock_->fd_get();
-                r.file_size_ = /* FIXME : Compute file size from content lenght */0;
+                r.file_size_ =
+                    /* FIXME : Compute file size from content lenght */ 0;
                 event_register.register_ew<SendResponseEW>(conn_.sock_, r);
             }
             else

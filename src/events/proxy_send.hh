@@ -10,6 +10,7 @@
 
 #include "events/client.hh"
 #include "events/events.hh"
+#include "events/proxy_client.hh"
 #include "events/register.hh"
 #include "misc/fd.hh"
 #include "misc/socket.hh"
@@ -18,7 +19,6 @@
 #include "socket/socket.hh"
 #include "vhost/connection.hh"
 #include "vhost/dispatcher.hh"
-#include "events/proxy_client.hh"
 #include "vhost/vhost.hh"
 
 namespace http
@@ -40,6 +40,11 @@ namespace http
             sock_ = conn.backend_;
             sended_ = 0;
             to_send_ = to_send;
+
+            int tmpfd = sock_->fd_get()->fd_;
+            int flags = fcntl(tmpfd, F_GETFL);
+            flags |= O_NONBLOCK;
+            fcntl(tmpfd, F_SETFL, flags);
         }
 
         /**

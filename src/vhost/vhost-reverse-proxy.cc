@@ -5,6 +5,11 @@
 
 #include "vhost/vhost-reverse-proxy.hh"
 
+#include <iostream>
+#include <map>
+#include <set>
+#include <sstream>
+
 #include "config/config.hh"
 #include "events/proxy_send.hh"
 #include "events/register.hh"
@@ -26,15 +31,39 @@ namespace http
 
     void VHost::apply_set_remove_header(bool is_proxy, std::string& head)
     {
+        std::set<std::string> h_remove;
+        std::map<std::string, std::string> h_set;
+
         if (is_proxy)
         {
-            // SET/REMOVE headers from proxy_set_header and proxy_remove_header
-            // Modifier directement la string head...
+            // h_remove = conf_.proxy_pass.proxy_remove_header;
+            // h_set = conf_.proxy_pass.proxy_set_header;
         }
         else
         {
-            // SET/REMOVE headers from set_header and remove_header
+            // h_remove = conf_.pass.proxy_remove_header;
+            // h_set = conf_.pass.proxy_set_header;
         }
+        for (auto r : h_remove)
+        {
+            if (size_t i = head.find(r))
+            {
+                size_t end = head.find(std::string(http_crlf));
+                head.erase(i, end);
+            }
+        }
+        for (auto r : h_set)
+        {
+            if (size_t i = head.find(r.first))
+            {
+                size_t end = head.find(std::string(http_crlf));
+                head.erase(i, end);
+            }
+            size_t req_line = head.find(std::string(http_crlf));
+            head.insert(req_line + 2,
+                        r.first + ": " + r.second + std::string(http_crlf));
+        }
+        return
     }
 
     void VHostReverseProxy::respond(Request& request, Connection conn,
