@@ -35,7 +35,7 @@ namespace http
     };
 
     bool testing_ip(int mode, const char* ip);
-    void parse_host(const std::string my_host, sockaddr_in addr, std::string& server_name);
+    std::string parse_host(const std::string my_host, sockaddr_in& addr);
     /**
      * \brief Service object.
      */
