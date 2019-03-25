@@ -27,26 +27,46 @@ namespace http
     {
         ip_ = proxy["ip"];
         port_ = proxy["port"];
+        std::string tmp;
+        std::string tmp2;
+        try
+        {
 
-        try
-        {
-            proxy_set_header(proxy["proxy_set_header"];);
+            for (auto i : proxy["proxy_set_header"].items())
+            {
+                tmp = i.value();
+                tmp2 = i.key();
+                proxy_set_header[tmp2] =  tmp;
+            }
         } catch(const std::exception&) {}
         try
         {
-            proxy_remove_header(proxy["proxy_remove_header"];);
+            for (auto i : proxy["proxy_remove_header"])
+            {
+                tmp = i;
+                proxy_remove_header.insert(tmp);
+            }
         } catch(const std::exception&) {}
         try
         {
-            set_header(proxy["set_header"];);
+            for (auto i : proxy["set_header"].items())
+            {
+                tmp = i.value();
+                tmp2 = i.key();
+                set_header[tmp2] = tmp;
+            }
         } catch(const std::exception&) {}
         try
         {
-            remove_header(proxy["remove_header"];);
+            for (auto i : proxy["remove_header"])
+            {
+                tmp = i;
+                remove_header.insert(tmp);
+            }
+
         } catch(const std::exception&) {}
 
         ipv6_ = "[" + ip_ + "]";
-        server_name_port_ = server_name_ + ":" + std::to_string(port_);
         ip_port_ = ip_ + ":" + std::to_string(port_);
         ipv6_port_ = ipv6_ + ":" + std::to_string(port_);
     }
@@ -54,12 +74,12 @@ namespace http
     VHostConfig::VHostConfig(std::string ip, int port, std::string server_name,
             std::string root, std::string def, std::string sslc,
             std::string sslk, std::optional<ProxyConfig> proxy,
-            std::string authb, std::string authbu, std::string health,
-            bool autoi, bool def_vh):
+            std::string authb, std::list<std::string> authbu,
+            std::string health, bool autoi, bool def_vh):
         ip_(ip), port_(port), server_name_(server_name), root_(root),
         default_file_(def), ssl_cert_(sslc), ssl_key_(sslk), proxy_pass_(proxy),
-        auth_basic_(authb), auth_basic_users(authbu), health_endpoint_(health),
-        auto_index_(autoi), default_vhost(def_vh)
+        auth_basic_(authb), auth_basic_users_(authbu), health_endpoint_(health),
+        auto_index_(autoi), default_vhost_(def_vh)
     {
         ipv6_ = "[" + ip_ + "]";
         server_name_port_ = server_name_ + ":" + std::to_string(port_);
@@ -145,7 +165,7 @@ be defined simulteanously");
         std::optional<ProxyConfig> proxy = std::nullopt;
         try
         {
-            proxy = ProxyConfig(json(i["proxy_pass"]));
+            proxy = ProxyConfig(i["proxy_pass"]);
 
         } catch (const std::exception& e){}
 
@@ -185,9 +205,6 @@ root/defailt_file/auto_index/default_vhost is set");
         for (auto i : ctn)
         {
             json tmp(i);
-            if (tmp.size() != 4 && tmp.size() != 5)
-                throw std::invalid_argument("invalid json file: not a \
-json or wrong architecture");
             parse_vhost(tmp, serv);
         }
         return serv;

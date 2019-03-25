@@ -20,21 +20,21 @@ namespace http
 
     struct ProxyConfig
     {
-        ProxyConfig(json proxy);
+        ProxyConfig(json& proxy);
         ProxyConfig(const ProxyConfig&) = default;
         ProxyConfig& operator=(const ProxyConfig&) = default;
         ProxyConfig(ProxyConfig&&) = default;
         ProxyConfig& operator=(ProxyConfig&&) = default;
 
-        const std::string ip_;
-        const int port_;
+        std::string ip_;
+        int port_;
         std::string ipv6_;
         std::string ip_port_;
         std::string ipv6_port_;
 
-        std::set<std::string> proxy_set_header;
+        std::map<std::string,std::string> proxy_set_header;
         std::set<std::string> proxy_remove_header;
-        std::set<std::string> set_header;
+        std::map<std::string, std::string> set_header;
         std::set<std::string> remove_header;
     };
 
@@ -83,9 +83,9 @@ namespace http
 
         std::string ssl_cert_ = "";
         std::string ssl_key_  = "";
-        std::optional<ProxyConfig> proxy_pass  = std::nullopt;
-        std::string auth_basic  = "";
-        std::list<std::string> auth_basic_users ;
+        std::optional<ProxyConfig> proxy_pass_  = std::nullopt;
+        std::string auth_basic_  = "";
+        std::list<std::string> auth_basic_users_ ;
         std::string health_endpoint_  = "";
         bool auto_index_  = false;
         bool default_vhost_  = false;
