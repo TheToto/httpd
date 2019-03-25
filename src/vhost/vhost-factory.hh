@@ -8,6 +8,7 @@
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost-fail.hh"
 #include "vhost/vhost-static-file.hh"
+#include "vhost/vhost-reverse-proxy.hh"
 #include "vhost/vhost.hh"
 
 namespace http
@@ -31,7 +32,12 @@ namespace http
 
         static shared_vhost Create(VHostConfig conf)
         {
-            auto vhost = shared_vhost(new VHostStaticFile(conf));
+
+            shared_vhost vhost;
+            if (/* FIXME : conf.proxy_pass*/false)
+                vhost = shared_vhost(new VHostReverseProxy(conf));
+            else
+                vhost = shared_vhost(new VHostStaticFile(conf));
 
             dispatcher.register_vhost(vhost);
             return vhost;
