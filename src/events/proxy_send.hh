@@ -18,6 +18,7 @@
 #include "socket/socket.hh"
 #include "vhost/connection.hh"
 #include "vhost/dispatcher.hh"
+#include "events/proxy_client.hh"
 #include "vhost/vhost.hh"
 
 namespace http

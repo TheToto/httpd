@@ -24,7 +24,7 @@ namespace http
         event_register.register_ew<SendResponseEW>(conn.sock_, resp, is_head);
     }
 
-    void VHostReverseProxy::apply_set_remove_header(bool is_proxy, Request& req)
+    void VHost::apply_set_remove_header(bool is_proxy, std::string& head)
     {
         if (is_proxy)
         {
@@ -72,7 +72,7 @@ namespace http
         }
         conn.backend_ = sock;
         // 2. Send client request to backend (new EventWatcher ProxySend)
-        apply_set_remove_header(true, request);
+        apply_set_remove_header(true, request.get_head());
         event_register.register_ew<SendProxyEW>(conn, request.rebuild());
 
         // 3. Recv backend header (new EventWatcher ClientProxy) and apply
