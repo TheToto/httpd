@@ -91,11 +91,6 @@ namespace http
             ipv6_ = ipv6;
         }
 
-        SSL_CTX *get_ssl_ctx()
-        {
-            return ssl_ctx_;
-        }
-
     protected:
         /**
          * \brief File descriptor of the socket.
