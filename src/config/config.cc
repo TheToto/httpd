@@ -17,6 +17,7 @@
 #include <list>
 #include <set>
 #include <optional>
+#include "base64.hh"
 #pragma GCC diagnostic pop
 
 using json = nlohmann::json;
@@ -144,7 +145,7 @@ be defined simulteanously");
         try
         {
             for (std::string cur : json(i["auth_basic_users"]))
-                auth_basic_users.push_front(cur);
+                auth_basic_users.push_front(to_64(cur));
         } catch (const std::exception& e){}
 
         if (auth_basic_users.empty() != auth_basic.empty())

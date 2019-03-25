@@ -65,8 +65,10 @@ namespace http
                 }
                 catch (const std::exception&)
                 {
-                    std::clog << "Connection aborded !\n";
+                    std::clog << "Connection aborded with backend !\n";
                     event_register.unregister_ew(this);
+                    event_register.register_ew<SendResponseEW>(
+                        conn_.sock_, error::bad_gateway(Request()));
                     return;
                 }
             }
