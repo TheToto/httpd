@@ -85,6 +85,7 @@ SOURCES = \
           src/misc/openssl/ssl-wrapper.hh \
           src/misc/openssl/ssl.hh \
           src/socket/ssl-socket.hh \
+          src/socket/ssl-socket.cc \
           src/vhost/vhost-reverse-proxy.hh \
           $(NULL)
 
