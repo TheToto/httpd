@@ -36,13 +36,13 @@ namespace http
 
         if (is_proxy)
         {
-            // h_remove = conf_.proxy_pass.proxy_remove_header;
-            // h_set = conf_.proxy_pass.proxy_set_header;
+            h_remove = conf_.proxy_pass_.value().proxy_remove_header;
+            h_set = conf_.proxy_pass_.value().proxy_set_header;
         }
         else
         {
-            // h_remove = conf_.pass.proxy_remove_header;
-            // h_set = conf_.pass.proxy_set_header;
+            h_remove = conf_.proxy_pass_.value().proxy_remove_header;
+            h_set = conf_.proxy_pass_.value().proxy_set_header;
         }
         for (auto r : h_remove)
         {
@@ -63,7 +63,7 @@ namespace http
             head.insert(req_line + 2,
                         r.first + ": " + r.second + std::string(http_crlf));
         }
-        return
+        return;
     }
 
     void VHostReverseProxy::respond(Request& request, Connection conn,
@@ -75,7 +75,8 @@ namespace http
         misc::AddrInfoHint hints;
         hints.family(AF_UNSPEC).socktype(SOCK_STREAM);
         misc::AddrInfo res = misc::getaddrinfo(
-            /* IP BACKEND */ "127.0.0.1", /* PORT BACKEND */ "8080", hints);
+            conf_.proxy_pass_.value().ip_.c_str(),
+            std::to_string(conf_.proxy_pass_.value().port_).c_str(), hints);
         auto it = res.begin();
         for (; it != res.end(); it++)
         {

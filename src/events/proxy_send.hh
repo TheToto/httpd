@@ -33,7 +33,7 @@ namespace http
         /**
          * \brief Create a SendResponseEW from a SendResponse socket.
          */
-        explicit SendProxyEW(Connection conn, std::string& to_send)
+        explicit SendProxyEW(Connection conn, std::string to_send)
             : EventWatcher(conn.backend_->fd_get()->fd_, EV_WRITE)
         {
             conn_ = conn;

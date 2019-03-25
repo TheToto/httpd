@@ -4,6 +4,7 @@
  */
 
 #include <arpa/inet.h>
+#include <optional>
 
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost-fail.hh"
@@ -64,7 +65,7 @@ namespace http
 
             // Register vhost
             shared_vhost vhost;
-            if (/* FIXME : conf.proxy_pass*/ false)
+            if (conf.proxy_pass_ != std::nullopt)
                 vhost = shared_vhost(new VHostReverseProxy(conf));
             else
                 vhost = shared_vhost(new VHostStaticFile(conf));

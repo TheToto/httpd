@@ -10,6 +10,7 @@
 
 #include "events/events.hh"
 #include "events/register.hh"
+#include "events/send.hh"
 #include "misc/socket.hh"
 #include "request/error.hh"
 #include "request/request.hh"

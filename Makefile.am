@@ -42,6 +42,8 @@ SOURCES = \
                        src/events/events.cc \
                        src/events/events.hh \
                        src/events/client.hh \
+                       src/events/proxy_client.hh \
+                       src/events/proxy_send.hh \
                        src/events/send.hh \
                        src/events/server.hh \
                        src/events/register.hh \
@@ -74,19 +76,21 @@ SOURCES = \
                        src/vhost/vhost-factory.hh \
                        src/vhost/vhost-static-file.hh \
                        src/vhost/vhost-static-file.cc \
+                       src/vhost/vhost-reverse-proxy.hh \
+                       src/vhost/vhost-reverse-proxy.cc \
                        src/vhost/vhost-fail.cc \
                        src/vhost/vhost.hh \
-          src/error/init-error.hh \
-          src/error/parsing-error.hh \
-          src/misc/openssl/base64.cc \
-          src/misc/openssl/base64.hh \
-          src/misc/openssl/ssl-error.cc \
-          src/misc/openssl/ssl-error.hh \
-          src/misc/openssl/ssl-wrapper.hh \
-          src/misc/openssl/ssl.hh \
-          src/socket/ssl-socket.hh \
-          src/vhost/vhost-reverse-proxy.hh \
-          $(NULL)
+                       src/error/init-error.hh \
+                       src/error/parsing-error.hh \
+                       src/misc/openssl/base64.cc \
+                       src/misc/openssl/base64.hh \
+                       src/misc/openssl/ssl-error.cc \
+                       src/misc/openssl/ssl-error.hh \
+                       src/misc/openssl/ssl-wrapper.hh \
+                       src/misc/openssl/ssl.hh \
+                       src/socket/ssl-socket.hh \
+                       src/vhost/vhost-reverse-proxy.hh \
+                       $(NULL)
 
 
 # Compile source files again to avoid silenting undefined references.
