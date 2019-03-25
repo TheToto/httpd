@@ -259,10 +259,7 @@ namespace http
                     parse_uri(head.substr(cur, n_cur - cur));
                 if (serv_conf.uri_max_size
                  && uri.length() > serv_conf.uri_max_size.value())
-                {
                     set_mode(MOD::ERROR_URI_TOO_LONG, 1);
-                    return true;
-                }
                 index_proxy_err = mode_error.end() - mode_error.begin() + 1;
                 cur = head.find_first_not_of(' ', n_cur);
                 n_cur = head.find_first_of('\r', cur);
@@ -273,11 +270,11 @@ namespace http
                     return true;
                 if ((check_length()) == 0)
                     return true;
-                if (length > 500) /*FIXME*/
+                if (serv_conf.payload_max_size
+                 && length > serv_conf.payload_max_size.value())
                 {
                     headers["Host"] = "";
-                    mode = MOD::ERROR_PAYLOAD_TOO_LARGE;
-                    erroring = 1;
+                    set_mode(MOD::ERROR_PAYLOAD_TOO_LARGE, 1);
                     return true;
                 }
                 if (mode == MOD::GET || mode == MOD::HEAD)
