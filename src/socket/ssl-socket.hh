@@ -21,9 +21,9 @@ namespace http
      */
     struct SSLSocket : public Socket
     {
-        SSLSocket(int domain, int type, int protocol, SSL_CTX* ssl_ctx);
-
         SSLSocket(const misc::shared_fd& fd, SSL_CTX* ssl_ctx);
+
+        SSLSocket(int domain, int type, int protocol, SSL_CTX* ssl_ctx);
 
         ssize_t recv(void* dst, size_t len) final;
 
@@ -39,6 +39,7 @@ namespace http
         void setsockopt(int level, int optname, int optval) final;
 
         shared_socket accept(sockaddr* addr, socklen_t* addrlen) final;
+
         void connect(const sockaddr*, socklen_t) final;
 
     private:
@@ -56,6 +57,8 @@ namespace http
          * Warning: with this unique_ptr syntax, you'll need to instanciate the
          * pointer with both a value and a Deleter function.
          */
-        std::unique_ptr<SSL, decltype(SSL_free)*> ssl_;
+        std::shared_ptr<SSL> ssl_;
+
+        SSL_CTX* ctx_;
     };
 } // namespace http
