@@ -1,0 +1,34 @@
+{
+    "payload_max_size": 1024,
+    "uri_max_size": 256,
+    "header_max_size": 512,
+    "vhosts": [
+        {
+            "ip": "127.0.0.1",
+            "port": 8081,
+            "server_name": "localhost",
+            "proxy_pass":
+            {
+                "ip": "127.0.0.1",
+                "port": 1234,
+                "proxy_remove_header": [
+                    "Header-Removed",
+                    "HTTP_X_FORWARDED_PROTO"
+                ],
+                "proxy_set_header":
+                {
+                    "Foo": "Bar2",
+                    "Bar": "Foo2"
+                },
+                "set_header":
+                {
+                    "Chief": "Lucas the spider"
+                },
+                "remove_header":
+                [
+                    "X-Custom"
+                ]
+            }
+        }
+    ]
+}

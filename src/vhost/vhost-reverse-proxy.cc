@@ -31,6 +31,7 @@ namespace http
 
     void VHost::apply_set_remove_header(bool is_proxy, std::string& head)
     {
+        return;
         std::set<std::string> h_remove;
         std::map<std::string, std::string> h_set;
 
@@ -48,18 +49,20 @@ namespace http
         {
             if (size_t i = head.find(r))
             {
-                size_t end = head.find(std::string(http_crlf));
-                head.erase(i, end);
+                size_t end = head.find(std::string(http_crlf), i);
+                if (end != std::string::npos)
+                    head.erase(i, end);
             }
         }
         for (auto r : h_set)
         {
             if (size_t i = head.find(r.first))
             {
-                size_t end = head.find(std::string(http_crlf));
-                head.erase(i, end);
+                size_t end = head.find(std::string(http_crlf), i);
+                if (end != std::string::npos)
+                    head.erase(i, end);
             }
-            size_t req_line = head.find(std::string(http_crlf));
+            size_t req_line = head.find(std::string(http_crlfx2));
             head.insert(req_line + 2,
                         r.first + ": " + r.second + std::string(http_crlf));
         }

@@ -72,12 +72,12 @@ namespace http
                 }
                 catch (const std::exception&)
                 {
-                    std::clog << "Connection aborded !\n";
+                    std::clog << "Connection aborded ! 1\n";
                     event_register.unregister_ew(this);
                     return;
                 }
             }
-            if (file_)
+            if (file_ && file_size_ > 0)
             {
                 try
                 {
@@ -85,7 +85,7 @@ namespace http
                 }
                 catch (const std::exception&)
                 {
-                    std::clog << "Connection aborded !\n";
+                    std::clog << "Connection aborded ! 2\n";
                     event_register.unregister_ew(this);
                     return;
                 }
