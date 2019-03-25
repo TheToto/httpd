@@ -52,17 +52,17 @@ namespace http
             SSL_CTX_set_ecdh_auto(ssl_ctx_, 1);
 
             //FIXME LOUIS où trouver ssl_cert et ssl_key ?
-            const char *cert_file = std::string("tests/ssl/localhost.pem").c_str();
-            const char *key_file = std::string("tests/ssl/localhost-key.pem").c_str();
+            const char cert_file[] = "tests/ssl/localhost.pem";
+            const char key_file[] = "tests/ssl/localhost-key.pem";
 
             // Check if private key and certificate are usable
             //FIXME GERAUD check X509, check_private_key, etc...
-            if (SSL_CTX_use_certificate_file(ssl_ctx_.get(), cert_file, SSL_FILETYPE_PEM) <= 0)
+            if (SSL_CTX_use_PrivateKey_file(ssl_ctx_.get(), key_file, SSL_FILETYPE_PEM) <= 0)
             {
                 ERR_print_errors_fp(stderr);
                 throw;
             }
-            if (SSL_CTX_use_PrivateKey_file(ssl_ctx_.get(), key_file, SSL_FILETYPE_PEM) <= 0)
+            if (SSL_CTX_use_certificate_file(ssl_ctx_.get(), cert_file, SSL_FILETYPE_PEM) <= 0)
             {
                 ERR_print_errors_fp(stderr);
                 throw;
