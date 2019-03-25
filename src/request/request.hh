@@ -71,6 +71,11 @@ namespace http
             length = i;
         }
 
+        std::string rebuild()
+        {
+            return head + body;
+        }
+
         int get_mode_str(const std::string& asked, int& cur);
         char get_http_version(const std::string& asked, int& cur);
         bool parse_uri(std::string full_uri);

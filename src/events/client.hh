@@ -75,9 +75,9 @@ namespace http
             {
                 std::clog << "We have a request ! \n" << str_c << std::endl;
                 event_register.unregister_ew(this);
-                Connection con(sock_);
                 shared_vhost v = dispatcher(req.value());
-                v->respond(req.value(), con, 0, 0); // FIXME : Iterators
+                Connection conn(sock_, v);
+                v->respond(req.value(), conn, 0, 0); // FIXME : Iterators
             }
             else
             {

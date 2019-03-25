@@ -36,6 +36,8 @@ namespace http
         }
 
     public:
+        void VHostReverseProxy::apply_set_remove_header(bool is_proxy,
+                                                        Request& req);
         /**
          * \brief Send request to the upstream.
          *
