@@ -37,9 +37,7 @@ namespace http
             //go faire en fonction du fichier de config
 
             const SSL_METHOD *method;
-
             method = SSLv23_server_method();
-
             ssl_ctx_ = std::shared_ptr<SSL_CTX>(SSL_CTX_new(method), SSL_CTX_free);
 
             if (!ssl_ctx_.get())
@@ -55,14 +53,11 @@ namespace http
             const char cert_file[] = "tests/ssl/localhost.pem";
             const char key_file[] = "tests/ssl/localhost-key.pem";
 
-            // Check if private key and certificate are usable
+            // Check if private key and certificate are usable, then if private key matches
             //FIXME GERAUD check X509, check_private_key, etc...
-            if (SSL_CTX_use_PrivateKey_file(ssl_ctx_.get(), key_file, SSL_FILETYPE_PEM) <= 0)
-            {
-                ERR_print_errors_fp(stderr);
-                throw;
-            }
-            if (SSL_CTX_use_certificate_file(ssl_ctx_.get(), cert_file, SSL_FILETYPE_PEM) <= 0)
+            if ((SSL_CTX_use_PrivateKey_file(ssl_ctx_.get(), key_file, SSL_FILETYPE_PEM) <= 0) ||
+                (SSL_CTX_use_certificate_file(ssl_ctx_.get(), cert_file, SSL_FILETYPE_PEM) <= 0) ||
+                (SSL_CTX_check_private_key(ssl_ctx_.get()) != 1))
             {
                 ERR_print_errors_fp(stderr);
                 throw;
