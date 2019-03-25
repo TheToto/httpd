@@ -124,4 +124,6 @@ namespace http
      */
     struct ServerConfig parse_configuration(const std::string& path);
     int test_file(const std::string& path);
+
+    extern ServerConfig serv_conf;
 } // namespace http

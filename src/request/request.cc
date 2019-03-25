@@ -1,4 +1,5 @@
 #include "request/request.hh"
+#include "config/config.hh"
 
 #include <iostream>
 #include <sstream>
