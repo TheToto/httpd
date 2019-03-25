@@ -32,6 +32,7 @@ static int launch_server(char* path)
 {
     http::ServerConfig serv = http::parse_configuration(path);
 
+    SSL_library_init();
     SSL_load_error_strings();
     OpenSSL_add_ssl_algorithms();
 
