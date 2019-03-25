@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <map>
+#include <regex>
 #include <set>
 #include <sstream>
 
@@ -31,7 +32,6 @@ namespace http
 
     void VHost::apply_set_remove_header(bool is_proxy, std::string& head)
     {
-        return;
         std::set<std::string> h_remove;
         std::map<std::string, std::string> h_set;
 
@@ -42,31 +42,22 @@ namespace http
         }
         else
         {
-            h_remove = conf_.proxy_pass_.value().proxy_remove_header;
-            h_set = conf_.proxy_pass_.value().proxy_set_header;
+            h_remove = conf_.proxy_pass_.value().remove_header;
+            h_set = conf_.proxy_pass_.value().set_header;
         }
+
         for (auto r : h_remove)
         {
-            if (size_t i = head.find(r))
-            {
-                size_t end = head.find(std::string(http_crlf), i);
-                if (end != std::string::npos)
-                    head.erase(i, end);
-            }
+            std::regex del_header(r + ":(.*)\r\n");
+            head = std::regex_replace(head, del_header, "");
         }
         for (auto r : h_set)
         {
-            if (size_t i = head.find(r.first))
-            {
-                size_t end = head.find(std::string(http_crlf), i);
-                if (end != std::string::npos)
-                    head.erase(i, end);
-            }
-            size_t req_line = head.find(std::string(http_crlfx2));
-            head.insert(req_line + 2,
-                        r.first + ": " + r.second + std::string(http_crlf));
+            std::regex del_header(r.first + ":(.*)\r\n");
+            head = std::regex_replace(head, del_header, "");
+            size_t place_header = head.find_first_of('\n') + 1;
+            head.insert(place_header, r.first + ": " + r.second + http_crlf);
         }
-        return;
     }
 
     void VHostReverseProxy::respond(Request& request, Connection conn,

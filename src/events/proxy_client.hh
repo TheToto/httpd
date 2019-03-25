@@ -90,9 +90,10 @@ namespace http
             ssize_t is_complete = test_complete(header_);
             if (is_complete != -1)
             {
+                conn_.vhost_->apply_set_remove_header(false, header_);
                 size_t pos_head_end =
                     header_.find(std::string(http_crlfx2)) + 4;
-                conn_.vhost_->apply_set_remove_header(false, header_);
+
                 std::clog << "We have the backend response ! \n" << std::endl;
                 event_register.unregister_ew(this);
                 Response r(header_);
