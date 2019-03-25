@@ -45,6 +45,8 @@ namespace http
             auto it = res.begin();
             for (; it != res.end(); it++)
             {
+                //FIXME SSL contexte
+                //FIXME SSLSocket
                 sock = shared_socket(new DefaultSocket(
                     it->ai_family, it->ai_socktype, it->ai_protocol));
                 if (sock->fd_get()->fd_ == -1)
