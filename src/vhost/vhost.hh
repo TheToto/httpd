@@ -62,6 +62,8 @@ namespace http
                 ERR_print_errors_fp(stderr);
                 throw;
             }
+            //FIXME Authentification shits needs next line
+//            SSL_CTX_set_verify(ctx,SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT,NULL);
         }
 
         VHost() = delete;
