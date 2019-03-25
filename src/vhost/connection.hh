@@ -11,6 +11,7 @@
 
 namespace http
 {
+    class VHost;
     /**
      * \struct Connection
      * \brief Value object representing a connection.
@@ -20,8 +21,9 @@ namespace http
      */
     struct Connection
     {
-        Connection(shared_socket sock)
+        Connection(shared_socket sock, std::shared_ptr<VHost> vhost)
             : sock_(sock)
+            , vhost_(vhost)
         {}
         Connection() = default;
         Connection(const Connection&) = default;
@@ -31,6 +33,8 @@ namespace http
         ~Connection() = default;
 
         shared_socket sock_;
+        shared_socket backend_ = nullptr;
+        std::shared_ptr<VHost> vhost_;
         /* FIXME: Add members to store the information relative to the
         ** connection.
         */

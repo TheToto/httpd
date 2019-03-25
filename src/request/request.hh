@@ -85,6 +85,14 @@ namespace http
         {
             length = i;
         }
+        std::string rebuild()
+        {
+            return head + body;
+        }
+        std::string& get_head()
+        {
+            return head;
+        }
 
         int get_mode_str(const std::string& asked, size_t& cur);
         char get_http_version(const std::string& asked, size_t& cur);

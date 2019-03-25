@@ -59,7 +59,9 @@ namespace http
         {
             conf_.is_ipv6_ = b;
         }
-        
+
+        void apply_set_remove_header(bool is_proxy, std::string& head);
+
     protected:
         /**
          *  \brief VHost configuration.
@@ -81,7 +83,7 @@ namespace http
          * pointer with both a value and a Deleter function.
          */
         // FIXME !!!
-        //std::unique_ptr<SSL_CTX, decltype(SSL_CTX_free)*> ssl_ctx_;
+        // std::unique_ptr<SSL_CTX, decltype(SSL_CTX_free)*> ssl_ctx_;
     };
 
     using shared_vhost = std::shared_ptr<VHost>;
