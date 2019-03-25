@@ -45,11 +45,17 @@ namespace http
             headers[name] = value;
         }
 
-        MOD get_mode() const
+        const MOD& get_mode() const
         {
             if (!erroring)
                 return mode;
             return mode_error[0];
+        }
+        const MOD& get_proxy_errors() const
+        {
+            if (index_proxy_err == 0 || index_proxy_err > mode_error.size())
+                return mode;
+            return mode_error[index_proxy_err - 1];
         }
         const std::string& get_uri() const
         {
@@ -95,6 +101,7 @@ namespace http
     private:
         MOD mode = MOD::ERROR;
         std::vector<MOD> mode_error;
+        size_t index_proxy_err = 0;
         std::string src = "";
         std::string uri = "";
         std::string query = "";

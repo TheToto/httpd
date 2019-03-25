@@ -251,6 +251,7 @@ namespace http
                 if (cur != std::string::npos)
                     parse_uri(head.substr(cur, n_cur - cur));
 
+                index_proxy_err = mode_error.end() - mode_error.begin() + 1;
                 cur = head.find_first_not_of(' ', n_cur);
                 n_cur = head.find_first_of('\r', cur);
                 if (cur != std::string::npos)
@@ -263,7 +264,7 @@ namespace http
                 if (mode == MOD::GET || mode == MOD::HEAD)
                     return true;
 
-                ///////////        get extra body                      ////////
+                ///////////        get extra body                     ////////
                 body = prospect.substr(split + 4, std::string::npos);
                 // npos is for all char til' the end
                 if (length < body.size())
