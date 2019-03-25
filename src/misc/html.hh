@@ -26,13 +26,15 @@ namespace misc
 
         static std::string generate_dir(std::string path)
         {
+            std::string abs_path = path.substr(1);
             std::string body;
             body += "<li>\n";
-            body += "<ul><a href=\"..\">..</a></ul>\n";
+            body += "<ul><a href=\"" + abs_path + "..\">..</a></ul>\n";
             for (auto& p : std::filesystem::directory_iterator(path))
             {
                 body += "<ul>";
                 body += "<a href=\"";
+                body += abs_path;
                 body += p.path().filename();
                 if (p.is_directory())
                     body += "/";
@@ -44,7 +46,7 @@ namespace misc
                 body += "</ul>\n";
             }
             body += "</li>\n";
-            return generate_html("Index of " + path.substr(1), body);
+            return generate_html("Index of " + abs_path, body);
         }
 
         static std::string generate_error(http::STATUS_CODE& status)

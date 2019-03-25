@@ -99,11 +99,7 @@ namespace http
                 Response r(header_);
                 r.file_ = conn_.backend_->fd_get();
                 r.file_size_ = header_.size() - pos_head_end - is_complete;
-                std::cout << "Content length : " << is_complete
-                          << " head end : " << pos_head_end
-                          << " remain : " << r.file_size_ << std::endl;
                 event_register.register_ew<SendResponseEW>(conn_.sock_, r);
-                std::cout << header_.substr(pos_head_end);
             }
             else
             {

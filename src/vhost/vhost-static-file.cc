@@ -72,9 +72,10 @@ namespace http
         {
             if (errno == ENOENT)
             {
-                if (dir_path != "" && is_dir(dir_path))
+                if (conf_.auto_index_ && dir_path != "" && is_dir(dir_path))
                 {
-                    Response resp(nullptr, STATUS_CODE::OK, request.is_head_, dir_path);
+                    Response resp(nullptr, STATUS_CODE::OK, request.is_head_,
+                                  dir_path);
                     send_response(conn, resp);
                 }
                 else
