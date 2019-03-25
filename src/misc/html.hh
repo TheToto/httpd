@@ -28,6 +28,7 @@ namespace misc
         {
             std::string body;
             body += "<li>\n";
+            body += "<ul><a href=\"..\">..</a></ul>\n";
             for (auto& p : std::filesystem::directory_iterator(path))
             {
                 body += "<ul>";
