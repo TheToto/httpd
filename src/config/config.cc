@@ -17,6 +17,7 @@
 #include <list>
 #include <set>
 #include <optional>
+#include "base64.hh"
 #pragma GCC diagnostic pop
 
 using json = nlohmann::json;
@@ -83,7 +84,7 @@ namespace http
     {
         if (!inet_pton(AF_INET, ip_.c_str(), &addr.sin_addr))
             inet_pton(AF_INET6, ip_.c_str(), &addr.sin_addr);
-        
+
         ipv6_ = "[" + ip_ + "]";
         server_name_port_ = server_name_ + ":" + std::to_string(port_);
         ip_port_ = ip_ + ":" + std::to_string(port_);
@@ -139,7 +140,7 @@ be defined simulteanously");
         try
         {
             for (std::string cur : json(i["auth_basic_users"]))
-                auth_basic_users.push_front(cur);
+                auth_basic_users.push_front(to_64(cur));
         } catch (const std::exception& e){}
 
         if (auth_basic_users.empty() != auth_basic.empty())

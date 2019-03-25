@@ -13,7 +13,6 @@ static std::string translate(std::string& res, char tmp)
         res.push_back('+');
     else
         res.push_back('/');
-    std::cout << (int) tmp << '\n';
     return res;
 }
 
