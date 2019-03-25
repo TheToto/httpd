@@ -22,9 +22,6 @@ static void stop_server(struct ev_loop* loop, ev_signal*, int)
 {
     ev_break(loop, EVBREAK_ALL);
     std::clog << "Closing server..." << std::endl;
-
-//  FIXME besoin de fermer le contexte ssl, je sais pas où le mettre
-//  SSL_CTX_free(ssl_ctx);
     EVP_cleanup();
 }
 
@@ -34,6 +31,10 @@ static void continue_server(struct ev_loop*, ev_signal*, int)
 static int launch_server(char* path)
 {
     http::ServerConfig serv = http::parse_configuration(path);
+
+    SSL_load_error_strings();
+    OpenSSL_add_ssl_algorithms();
+
     for (auto conf : serv.VHosts_)
     {
         std::clog << "Setup " << conf.server_name_ << " vhost.\n";
