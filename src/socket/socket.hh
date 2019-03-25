@@ -105,7 +105,6 @@ namespace http
          * Either ipv4 or ipv6.
          */
         bool ipv6_ = false;
-        SSL_CTX *ssl_ctx_;
     };
 
     using shared_socket = std::shared_ptr<Socket>;
