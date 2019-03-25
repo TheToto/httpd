@@ -81,6 +81,9 @@ namespace http
         auth_basic_(authb), auth_basic_users_(authbu), health_endpoint_(health),
         auto_index_(autoi), default_vhost_(def_vh)
     {
+        if (!inet_pton(AF_INET, ip_.c_str(), &addr.sin_addr))
+            inet_pton(AF_INET6, ip_.c_str(), &addr.sin_addr);
+        
         ipv6_ = "[" + ip_ + "]";
         server_name_port_ = server_name_ + ":" + std::to_string(port_);
         ip_port_ = ip_ + ":" + std::to_string(port_);

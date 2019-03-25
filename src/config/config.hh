@@ -11,6 +11,7 @@
 #include <set>
 #include <list>
 #include <json.hpp>
+#include <arpa/inet.h>
 
 using json = nlohmann::json;
 
@@ -81,6 +82,7 @@ namespace http
         const std::string root_;
         const std::string default_file_ = "index.html";
 
+        sockaddr_in addr;
         std::string ssl_cert_ = "";
         std::string ssl_key_  = "";
         std::optional<ProxyConfig> proxy_pass_  = std::nullopt;
