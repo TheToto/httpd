@@ -49,6 +49,7 @@ namespace ssl
      * \brief SSL_write(3).
      */
     inline auto write = make_ssl_wrapper<int>(::SSL_write);
+    inline auto peek = make_ssl_wrapper<int>(::SSL_peek);
 
     /**
      * \brief X509_check_host(3).

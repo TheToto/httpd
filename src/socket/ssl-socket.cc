@@ -1,5 +1,6 @@
 #include "socket/ssl-socket.hh"
 
+#include "misc/openssl/ssl.hh"
 #define BUFSIZE 8192
 namespace http
 {
@@ -14,7 +15,7 @@ namespace http
 
     SSLSocket::SSLSocket(int domain, int type, int protocol, SSL_CTX* ssl_ctx)
         : Socket{std::make_shared<misc::FileDescriptor>(
-            sys::socket(domain, type, protocol))}
+              sys::socket(domain, type, protocol))}
     {
         ssl_ = std::shared_ptr<SSL>(SSL_new(ssl_ctx), SSL_free);
         SSL_set_fd(ssl_.get(), *fd_);
@@ -22,39 +23,38 @@ namespace http
         ctx_ = ssl_ctx;
     }
 
-ssize_t SSLSocket::recv(void* dst, size_t len)
+    ssize_t SSLSocket::recv(void* dst, size_t len)
     {
-        return SSL_read(ssl_.get(), dst, len);
-//      return sys::recv(*fd_, dst, len, 0);
+        return ssl::read(ssl_.get(), dst, len);
+        //return SSL_read(ssl_.get(), dst, len);
+        //return sys::recv(*fd_, dst, len, 0);
     }
 
     ssize_t SSLSocket::send(const void* src, size_t len)
     {
-        return SSL_write(ssl_.get(), src, len);
-//        return sys::send(*fd_, src, len, 0);
+        return ssl::write(ssl_.get(), src, len);
+        //return SSL_write(ssl_.get(), src, len);
+        //return sys::send(*fd_, src, len, 0);
     }
 
-    ssize_t SSLSocket::sendfile(misc::shared_fd& src, off_t& offset, size_t count)
+    ssize_t SSLSocket::sendfile(misc::shared_fd& src, off_t& offset,
+                                size_t count)
     {
-        size_t i = 0;
-        unsigned int n = 1;
-        (void) offset; //FIXME
-        while (n > 0 && i < count)
-        {
-            char buffer[BUFSIZE];
-
-            n = read(*src, buffer, BUFSIZE);
-
-            if (n + i > count)
-                SSL_write(ssl_.get(), buffer, count - i);
-            else
-                SSL_write(ssl_.get(), buffer, BUFSIZE);
-            i += n;
-        }
-        return i;
-//        return sys::sendfile(*fd_, *fd, &offset, len);
+        if (count > BUFSIZE)
+            count = BUFSIZE;
+        char buffer[BUFSIZE];
+        // Peek data
+        off_t old = sys::lseek(*src, offset, SEEK_CUR);
+        sys::lseek(*src, offset, SEEK_SET);
+        int peeked = sys::read(*src, buffer, count);
+        sys::lseek(*src, old, SEEK_SET);
+        // Send data (as much as possible)
+        int sended = ssl::write(ssl_.get(), buffer, peeked);
+        // Return number of bytes sended
+        offset += sended;
+        return sended;
+        //return sys::sendfile(*fd_, *fd, &offset, len);
     }
-
 
     void SSLSocket::bind(const sockaddr* addr, socklen_t addrlen)
     {
@@ -71,25 +71,23 @@ ssize_t SSLSocket::recv(void* dst, size_t len)
         sys::setsockopt(*fd_, level, optname, &optval, sizeof(int));
     }
 
-
     shared_socket SSLSocket::accept(sockaddr* addr, socklen_t* addrlen)
     {
         auto fd = std::make_shared<misc::FileDescriptor>(
             sys::accept(*fd_, addr, addrlen));
 
-        SSL_accept(ssl_.get());
+        ssl::accept(ssl_.get());
+        //SSL_accept(ssl_.get());
 
         auto s = new SSLSocket(fd, ctx_);
         return shared_socket(s);
     }
 
-
     void SSLSocket::connect(const sockaddr* addr, socklen_t len)
     {
         sys::connect(*fd_, addr, len);
-        SSL_connect(ssl_.get());
+        ssl::connect(ssl_.get());
+        //SSL_connect(ssl_.get());
     }
 
-
-
-}
+} // namespace http
