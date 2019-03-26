@@ -29,6 +29,18 @@
                     "X-Custom"
                 ]
             }
+        },
+        {
+            "ip":"0.0.0.0",
+            "port":8080,
+            "server_name":"sub.localhost",
+            "root":"/srv/www/sub.localhost/",
+            "health_endpoint":"/metrics",
+            "default_file":"cantillon.jpg",
+            "auth_basic":"Please log in to sub.localhost!",
+            "auth_basic_users": ["lucas:bestspider"],
+            "auto_index":true,
+            "default_vhost":true
         }
     ]
 }

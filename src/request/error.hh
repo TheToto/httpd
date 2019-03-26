@@ -15,12 +15,12 @@ namespace http::error
      * \brief Create an error response from a request.
      */
     Response bad_request();
-    Response unauthorized(const Request&, shared_vhost vhost);
+    Response unauthorized(const Request&, std::string realm);
     Response forbidden(const Request&);
     Response not_found(const Request&);
     Response method_not_allowed(const Request&);
     Response proxy_authentication_required(const Request& request,
-                                           shared_vhost vhost);
+                                           std::string realm);
     Response payload_too_large();
     Response uri_too_long();
     Response upgrade_required(const Request&);

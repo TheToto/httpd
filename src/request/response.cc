@@ -44,11 +44,17 @@ namespace http
         : Response(nullptr, code)
     {}
 
+    Response::Response(const STATUS_CODE& code, std::string realm)
+        : Response(nullptr, code, false, "", realm)
+    {}
+
     Response::Response(misc::shared_fd file, const STATUS_CODE& code,
-                       bool is_head, std::string list_dir)
+                       bool is_head, std::string list_dir,
+                       std::string realm)
         : file_(file)
         , status(code)
         , list_dir_(list_dir)
+        , realm_(realm)
     {
         auto add_body = sup_body();
         if (file != nullptr)
@@ -63,6 +69,20 @@ namespace http
         response_ += " ";
         response_ += pcode.second;
         response_ += http_crlf;
+        if (code == 401)
+        {
+            response_ += "WWW-Authenticate: Basic realm=\"";
+            response_ += realm_;
+            response_ += '"';
+            response_ += http_crlf;
+        }
+        if (code == 407)
+        {
+            response_ += "Proxy-Authenticate: Basic realm=\"";
+            response_ += realm_;
+            response_ += '"';
+            response_ += http_crlf;
+        }
         response_ += "Content-Length: ";
         response_ += std::to_string(file_size_);
         response_ += http_crlf;
