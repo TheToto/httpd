@@ -19,6 +19,9 @@ namespace http
         int mode = -1;
         std::string ip;
         std::string server_name;
+
+        addr.sin_family = AF_INET;
+
         auto cur = my_host.find(']');
         if (cur != std::string::npos)
         {
@@ -56,7 +59,17 @@ namespace http
         const std::string& host = r.get_header("Host");
         sockaddr_in addr;
         std::string this_server_name = parse_host(host, addr);
-        
+        sockaddr_in addr_def;
+        if (addr.sin_family == AF_INET)
+        {
+            addr_def.sin_family = AF_INET;
+            inet_pton(AF_INET, "0.0.0.0", &addr_def.sin_addr);
+        }
+        else
+        {
+            addr_def.sin_family = AF_INET6;
+            inet_pton(AF_INET6, "::", &addr_def.sin_addr);
+        }
         auto cur = vhosts_.begin();
         for (; cur != vhosts_.end(); cur++)
         {
@@ -71,10 +84,13 @@ namespace http
             }
             else if (conf.addr.sin_family == addr.sin_family)
             {
-                if (!addr.sin_port && conf.addr.sin_addr.s_addr == addr.sin_addr.s_addr)
+                if (!addr.sin_port
+                 && (conf.addr.sin_addr.s_addr == addr.sin_addr.s_addr
+                 || conf.addr.sin_addr.s_addr == addr_def.sin_addr.s_addr))
                     break;
                 if (conf.addr.sin_port == addr.sin_port
-                 && conf.addr.sin_addr.s_addr == addr.sin_addr.s_addr)
+                 && (conf.addr.sin_addr.s_addr == addr.sin_addr.s_addr
+                 || conf.addr.sin_addr.s_addr == addr_def.sin_addr.s_addr))
                     break;
             }
         }
