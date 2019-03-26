@@ -28,7 +28,7 @@ namespace http
         else
         {
             set_mode(MOD::ERROR_METHOD, 1);
-            cur = -1;
+            cur = asked.find_first_of(" ");
         }
         return cur;
     }
