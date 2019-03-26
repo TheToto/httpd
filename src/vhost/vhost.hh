@@ -89,6 +89,11 @@ namespace http
             return conf_;
         }
 
+        inline const std::shared_ptr<SSL_CTX> ssl_ctx_get() const noexcept
+        {
+            return ssl_ctx_;
+        }
+
         inline void set_ipv6(bool b)
         {
             conf_.is_ipv6_ = b;
