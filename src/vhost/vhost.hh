@@ -5,14 +5,14 @@
 
 #pragma once
 
-#include <openssl/ssl.h>
+#include <memory>
 
 #include "config/config.hh"
 #include "error/not-implemented.hh"
 #include "request/request.hh"
 #include "vhost/connection.hh"
 
-#include <memory>
+#include "misc/openssl/ssl.hh"
 
 namespace http
 {
@@ -33,8 +33,8 @@ namespace http
         explicit VHost(const VHostConfig& conf)
             : conf_(conf)
         {
-            //FIXME LOUIS tout ça c'est useless si le vhost est pas en https
-            //go faire en fonction du fichier de config
+            if (conf.ssl_cert_ == "")
+                return;
 
             const SSL_METHOD *method;
             method = SSLv23_server_method();
@@ -49,21 +49,21 @@ namespace http
 
             SSL_CTX_set_ecdh_auto(ssl_ctx_, 1);
 
-            //FIXME LOUIS où trouver ssl_cert et ssl_key ?
-            const char cert_file[] = "tests/ssl/localhost.pem";
-            const char key_file[] = "tests/ssl/localhost-key.pem";
+            if (SSL_CTX_use_PrivateKey_file(ssl_ctx_.get(),
+                                            conf.ssl_key_.c_str(),
+                                            SSL_FILETYPE_PEM) <= 0)
+                throw std::logic_error("invalid SSL privatekey");
+            if (SSL_CTX_use_certificate_file(ssl_ctx_.get(),
+                                          conf.ssl_cert_.c_str(),
+                                             SSL_FILETYPE_PEM) <= 0)
+                throw std::logic_error("invalid SSL certificate");
 
-            // Check if private key and certificate are usable, then if private key matches
-            //FIXME GERAUD check X509, check_private_key, etc...
-            if ((SSL_CTX_use_PrivateKey_file(ssl_ctx_.get(), key_file, SSL_FILETYPE_PEM) <= 0) ||
-                (SSL_CTX_use_certificate_file(ssl_ctx_.get(), cert_file, SSL_FILETYPE_PEM) <= 0) ||
-                (SSL_CTX_check_private_key(ssl_ctx_.get()) != 1))
-            {
-                ERR_print_errors_fp(stderr);
-                throw;
-            }
-            //FIXME Authentification shits needs next line
-//            SSL_CTX_set_verify(ctx,SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT,NULL);
+            if (SSL_CTX_check_private_key(ssl_ctx_.get()) != 1)
+                throw std::logic_error("SSL privatekey doens't match");
+
+
+            // FIXME Authentification shits needs next line
+            // SSL_CTX_set_verify(ctx,SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT,NULL);
         }
 
         VHost() = delete;
