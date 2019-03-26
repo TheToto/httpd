@@ -1,5 +1,5 @@
 #include "socket/ssl-socket.hh"
-
+#include <iostream>
 #include "misc/openssl/ssl.hh"
 #define BUFSIZE 8192
 namespace http
@@ -76,10 +76,10 @@ namespace http
         auto fd = std::make_shared<misc::FileDescriptor>(
             sys::accept(*fd_, addr, addrlen));
 
-        ssl::accept(ssl_.get());
-        //SSL_accept(ssl_.get());
-
         auto s = new SSLSocket(fd, ctx_);
+
+        SSL_accept(s->ssl_.get());
+
         return shared_socket(s);
     }
 

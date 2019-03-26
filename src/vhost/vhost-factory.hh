@@ -7,7 +7,10 @@
 
 #include "events/server.hh"
 #include "misc/addrinfo/addrinfo.hh"
+
 #include "socket/default-socket.hh"
+#include "socket/ssl-socket.hh"
+
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost-fail.hh"
 #include "vhost/vhost-static-file.hh"
@@ -45,10 +48,17 @@ namespace http
             auto it = res.begin();
             for (; it != res.end(); it++)
             {
-                //FIXME SSL contexte
-                //FIXME SSLSocket
+                //FIXME SSLSocket selon la config
+/*
+                sock = shared_socket(new SSLSocket(it->ai_family,
+                                                   it->ai_socktype,
+                                                   it->ai_protocol,
+                                                   (*vhost).ssl_ctx_get().get()));
+
+*/
                 sock = shared_socket(new DefaultSocket(
                     it->ai_family, it->ai_socktype, it->ai_protocol));
+
                 if (sock->fd_get()->fd_ == -1)
                     continue;
 
