@@ -39,13 +39,43 @@ namespace http
         {
             h_remove = conf_.proxy_pass_.value().proxy_remove_header;
             h_set = conf_.proxy_pass_.value().proxy_set_header;
+            // Host
+            std::regex set_header("Host:(.*)\r\n");
+            head = std::regex_replace(head, set_header, "");
+            size_t place_header = head.find_first_of('\n') + 1;
+            head.insert(place_header,
+                        "Host: " + conf_.proxy_pass_.value().ip_ + ":"
+                            + std::to_string(conf_.proxy_pass_.value().port_)
+                            + http_crlf);
+            // Forwarded
+            if (head.find("Forwarded:") != std::string::npos)
+            {
+                std::regex for_header("Forwarded:([^\r]*)");
+                std::string new_for("$&,for=" + conf_.ip_port_
+                                    + ";host=" + conf_.server_name_);
+                if (conf_.ssl_cert_ != "")
+                    new_for += ";proto=https";
+                else
+                    new_for += ";proto=http";
+                head = std::regex_replace(head, for_header, new_for);
+            }
+            else
+            {
+                place_header = head.find_first_of('\n') + 1;
+                std::string new_for("Forwarded: for=" + conf_.ip_port_
+                                    + ";host=" + conf_.server_name_);
+                if (conf_.ssl_cert_ != "")
+                    new_for += ";proto=https";
+                else
+                    new_for += ";proto=http";
+                head.insert(place_header, new_for + http_crlf);
+            }
         }
         else
         {
             h_remove = conf_.proxy_pass_.value().remove_header;
             h_set = conf_.proxy_pass_.value().set_header;
         }
-
         for (auto r : h_remove)
         {
             std::regex del_header(r + ":(.*)\r\n");
@@ -53,8 +83,8 @@ namespace http
         }
         for (auto r : h_set)
         {
-            std::regex del_header(r.first + ":(.*)\r\n");
-            head = std::regex_replace(head, del_header, "");
+            std::regex set_header(r.first + ":(.*)\r\n");
+            head = std::regex_replace(head, set_header, "");
             size_t place_header = head.find_first_of('\n') + 1;
             head.insert(place_header, r.first + ": " + r.second + http_crlf);
         }
@@ -69,8 +99,8 @@ namespace http
             if (auth == "")
             {
                 send_response(conn,
-                    error::proxy_authentication_required(request,
-                              conf_.auth_basic_));
+                              error::proxy_authentication_required(
+                                  request, conf_.auth_basic_));
                 return;
             }
             auto cur_1 = auth.find_first_of(' ');
@@ -78,7 +108,7 @@ namespace http
             auto len = auth.find_first_of(' ', cur_2) - cur_2;
             auth = auth.substr(cur_2, len);
             auto user = conf_.auth_basic_users_.begin();
-            for (;user != conf_.auth_basic_users_.end(); user++)
+            for (; user != conf_.auth_basic_users_.end(); user++)
             {
                 std::cout << *user << std::endl;
                 if (*user == auth)
@@ -87,8 +117,8 @@ namespace http
             if (user == conf_.auth_basic_users_.end())
             {
                 send_response(conn,
-                    error::proxy_authentication_required(request,
-                              conf_.auth_basic_));
+                              error::proxy_authentication_required(
+                                  request, conf_.auth_basic_));
                 return;
             }
         }
