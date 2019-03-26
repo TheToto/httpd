@@ -83,6 +83,8 @@ namespace http
         const std::string default_file_ = "index.html";
 
         sockaddr_in addr;
+        sockaddr_in6 addr6;
+        int mode = AF_INET;
         std::string ssl_cert_ = "";
         std::string ssl_key_  = "";
         std::optional<ProxyConfig> proxy_pass_  = std::nullopt;

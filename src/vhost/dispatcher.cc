@@ -13,10 +13,10 @@ namespace http
         return true;
     }
 
-    std::string parse_host(const std::string my_host, sockaddr_in& addr)
+    static std::string parse_host(const std::string my_host, sockaddr_in& addr,
+                           sockaddr_in6& addr6, int& mode)
     {
         int port = 0;
-        int mode = -1;
         std::string ip;
         std::string server_name;
 
@@ -45,30 +45,44 @@ namespace http
         }
         if (!server_name.length())
         {
-            inet_pton(mode, ip.c_str(), &addr.sin_addr);
+            if (mode == AF_INET)
+                inet_pton(AF_INET, ip.c_str(), &addr.sin_addr);
+            else
+                inet_pton(AF_INET6, ip.c_str(), &addr6.sin6_addr);
             addr.sin_family = mode;
+            addr6.sin6_family = mode;
         }
         addr.sin_port = port;
+        addr6.sin6_port = port;
         if (server_name == "")
             return "";
         return server_name;
+    }
+
+    static bool compare_addr6(sockaddr_in6 s1, sockaddr_in6 s2)
+    {
+        return memcmp(s1.sin6_addr.s6_addr, s2.sin6_addr.s6_addr,
+                      sizeof(s1.sin6_addr.s6_addr));
     }
 
     shared_vhost Dispatcher::operator()(Request& r)
     {
         const std::string& host = r.get_header("Host");
         sockaddr_in addr;
-        std::string this_server_name = parse_host(host, addr);
+        sockaddr_in6 addr6;
+        int mode = AF_INET;
+        std::string this_server_name = parse_host(host, addr, addr6, mode);
         sockaddr_in addr_def;
-        if (addr.sin_family == AF_INET)
+        sockaddr_in6 addr6_def;
+        if (mode == AF_INET)
         {
             addr_def.sin_family = AF_INET;
             inet_pton(AF_INET, "0.0.0.0", &addr_def.sin_addr);
         }
         else
         {
-            addr_def.sin_family = AF_INET6;
-            inet_pton(AF_INET6, "::", &addr_def.sin_addr);
+            addr6_def.sin6_family = AF_INET6;
+            inet_pton(AF_INET6, "::", &addr6_def.sin6_addr);
         }
         auto cur = vhosts_.begin();
         for (; cur != vhosts_.end(); cur++)
@@ -76,22 +90,53 @@ namespace http
             auto conf = (*cur)->conf_get();
             if (this_server_name != "")
             {
-                if (!addr.sin_port && conf.server_name_ == this_server_name)
-                    break;
-                if (conf.addr.sin_port == addr.sin_port
-                 && conf.server_name_ == this_server_name)
-                    break;
+                if (mode == AF_INET)
+                {
+                    if (!addr.sin_port
+                     && conf.server_name_ == this_server_name)
+                        break;
+                    if (conf.addr.sin_port == addr.sin_port
+                     && conf.server_name_ == this_server_name)
+                        break;
+                }
+                else
+                {
+                    if (!addr6.sin6_port
+                     && conf.server_name_ == this_server_name)
+                        break;
+                    if (conf.addr6.sin6_port == addr6.sin6_port
+                     && conf.server_name_ == this_server_name)
+                        break;
+                }
             }
-            else if (conf.addr.sin_family == addr.sin_family)
+            else if (conf.mode == mode)
             {
-                if (!addr.sin_port
-                 && (conf.addr.sin_addr.s_addr == addr.sin_addr.s_addr
-                 || conf.addr.sin_addr.s_addr == addr_def.sin_addr.s_addr))
-                    break;
-                if (conf.addr.sin_port == addr.sin_port
-                 && (conf.addr.sin_addr.s_addr == addr.sin_addr.s_addr
-                 || conf.addr.sin_addr.s_addr == addr_def.sin_addr.s_addr))
-                    break;
+                if (mode == AF_INET)
+                {
+                    if (!addr.sin_port
+                     && (conf.addr.sin_addr.s_addr
+                           == addr.sin_addr.s_addr
+                     || conf.addr.sin_addr.s_addr
+                          == addr_def.sin_addr.s_addr))
+                        break;
+                    if (conf.addr.sin_port == addr.sin_port
+                     && (conf.addr.sin_addr.s_addr
+                           == addr.sin_addr.s_addr
+                     || conf.addr.sin_addr.s_addr
+                          == addr_def.sin_addr.s_addr))
+                        break;
+                }
+                else
+                {
+                    if (!addr6.sin6_port
+                     && (compare_addr6(conf.addr6, addr6)
+                     || compare_addr6(conf.addr6, addr6_def)))
+                        break;
+                    if (conf.addr6.sin6_port == addr6.sin6_port
+                     && (compare_addr6(conf.addr6, addr6)
+                     ||  compare_addr6(conf.addr6, addr6_def)))
+                        break;
+                }
             }
         }
         if (cur == vhosts_.end())
