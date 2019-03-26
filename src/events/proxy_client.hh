@@ -68,7 +68,7 @@ namespace http
             try
             {
                 n = sock_->recv(str_c, 8192);
-                header_ += std::string(str_c, n);
+                content_ += std::string(str_c, n);
                 if (n <= 0)
                 {
                     std::clog << "The backend has disconnect\n";
@@ -87,25 +87,21 @@ namespace http
                 return;
             }
 
-            ssize_t is_complete = test_complete(header_);
-            if (is_complete != -1)
+            ssize_t c_l = test_complete(content_);
+            size_t pos_head_end = content_.find(std::string(http_crlfx2)) + 4;
+            if (c_l != -1 && content_.size() - pos_head_end - c_l == 0)
             {
-                conn_.vhost_->apply_set_remove_header(false, header_);
-                size_t pos_head_end =
-                    header_.find(std::string(http_crlfx2)) + 4;
-
+                conn_.vhost_->apply_set_remove_header(false, content_);
                 std::clog << "We have the backend response ! \n" << std::endl;
                 event_register.unregister_ew(this);
-                Response r(header_);
-                r.file_ = conn_.backend_->fd_get();
-                r.file_size_ = header_.size() - pos_head_end - is_complete;
+                Response r(content_);
                 event_register.register_ew<SendResponseEW>(conn_.sock_, r);
             }
             else
             {
                 std::clog
                     << "Current response from backend is not complete...\n"
-                        + header_ + "\n";
+                        + content_ + "\n";
             }
         }
 
@@ -115,7 +111,7 @@ namespace http
          */
         Connection conn_;
         shared_socket sock_;
-        std::string header_;
+        std::string content_;
         /**
          * \brief Port on which the socket is listening.
          */
