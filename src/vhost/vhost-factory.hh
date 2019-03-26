@@ -4,6 +4,7 @@
  */
 
 #include <arpa/inet.h>
+#include <optional>
 
 #include "events/server.hh"
 #include "misc/addrinfo/addrinfo.hh"
@@ -13,6 +14,7 @@
 
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost-fail.hh"
+#include "vhost/vhost-reverse-proxy.hh"
 #include "vhost/vhost-static-file.hh"
 #include "vhost/vhost.hh"
 
@@ -37,10 +39,8 @@ namespace http
 
         static shared_vhost Create(VHostConfig conf)
         {
-            auto vhost = shared_vhost(new VHostStaticFile(conf));
-
+            // Create server socket
             shared_socket sock;
-
             misc::AddrInfoHint hints;
             hints.family(AF_UNSPEC).socktype(SOCK_STREAM);
             misc::AddrInfo res = misc::getaddrinfo(
@@ -77,6 +77,13 @@ namespace http
             // listen
             sock->listen(128);
             event_register.register_ew<ServerEW>(sock);
+
+            // Register vhost
+            shared_vhost vhost;
+            if (conf.proxy_pass_ != std::nullopt)
+                vhost = shared_vhost(new VHostReverseProxy(conf));
+            else
+                vhost = shared_vhost(new VHostStaticFile(conf));
 
             dispatcher.register_vhost(vhost);
             return vhost;

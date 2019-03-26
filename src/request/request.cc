@@ -1,11 +1,12 @@
 #include "request/request.hh"
+#include "config/config.hh"
 
 #include <iostream>
 #include <sstream>
 
 namespace http
 {
-    int Request::get_mode_str(const std::string& asked, int& cur)
+    int Request::get_mode_str(const std::string& asked, size_t& cur)
     {
         size_t len = asked.size();
         if (len >= 4 && asked.substr(0, 4) == "GET ")
@@ -26,20 +27,18 @@ namespace http
         }
         else
         {
-            set_mode(MOD::ERROR_METHOD);
-            set_erroring(1);
-            cur = -1;
+            set_mode(MOD::ERROR_METHOD, 1);
+            cur = asked.find_first_of(" ");
         }
         return cur;
     }
 
-    char Request::get_http_version(const std::string& asked, int& cur)
+    char Request::get_http_version(const std::string& asked, size_t& cur)
     {
         auto pos2 = asked.find("HTTP", cur);
         if (pos2 == std::string::npos)
         {
-            set_mode(MOD::ERROR);
-            set_erroring(1);
+            set_mode(MOD::ERROR, 1);
             return 0;
         }
 
@@ -50,22 +49,19 @@ namespace http
         if ((p_version[5] <= '0' && p_version[5] > '9')
             || (p_version[5] <= '0' && p_version[7] > '9'))
         {
-            set_mode(MOD::ERROR);
-            set_erroring(1);
+            set_mode(MOD::ERROR, 1);
             return 0;
         }
 
         if (p_version[5] == '0' || p_version[7] == '0')
         {
-            set_mode(MOD::UPGRADE);
-            set_erroring(1);
+            set_mode(MOD::UPGRADE, 1);
             return 0;
         }
 
         if (p_version[5] > '1' || p_version[7] > '1')
         {
-            set_mode(MOD::OBSOLETE);
-            set_erroring(1);
+            set_mode(MOD::OBSOLETE, 1);
             return 0;
         }
 
@@ -91,7 +87,7 @@ namespace http
         }
     }
 
-    int Request::get_headers_str(const std::string& asked, int& cur)
+    int Request::get_headers_str(const std::string& asked, size_t& cur)
     {
         bool found = 0;
         while (cur > 0)
@@ -115,8 +111,7 @@ namespace http
         }
         if (!found)
         {
-            if (!is_erroring())
-                set_mode(MOD::ERROR);
+            set_mode(MOD::ERROR, 1);
             return -1;
         }
         return cur;
@@ -139,15 +134,13 @@ namespace http
                 }
                 catch (std::invalid_argument&)
                 {
-                    mode = MOD::ERROR;
-                    erroring = 1;
+                    set_mode(MOD::ERROR, 1);
                     return false;
                 }
             }
             else
             {
-                mode = MOD::ERROR;
-                erroring = 1;
+                set_mode(MOD::ERROR, 1);
                 return false;
             }
         }
@@ -181,8 +174,7 @@ namespace http
         {
             if (get_mode() == MOD::POST)
             {
-                set_mode(MOD::ERROR);
-                set_erroring(1);
+                set_mode(MOD::ERROR, 1);
                 return 0;
             }
             return 1;
@@ -194,14 +186,12 @@ namespace http
         }
         catch (const std::exception&)
         {
-            set_mode(MOD::ERROR);
-            set_erroring(1);
+            set_mode(MOD::ERROR, 1);
             return 0;
         }
         if (len < 0)
         {
-            set_mode(MOD::ERROR);
-            set_erroring(1);
+            set_mode(MOD::ERROR, 1);
             return 0;
         }
         set_length(len);
@@ -209,10 +199,8 @@ namespace http
             return 1;
 
         if (get_mode() != MOD::POST && len != 0)
-
         {
-            set_mode(MOD::ERROR);
-            set_erroring(1);
+            set_mode(MOD::ERROR, 1);
             return 0;
         }
         return 1;
@@ -223,8 +211,7 @@ namespace http
         std::string prospect = get_header("HTTP2-Settings");
         if (!prospect.empty())
         {
-            set_mode(MOD::OBSOLETE);
-            set_erroring(1);
+            set_mode(MOD::OBSOLETE, 1);
             return 0;
         }
         return 1;
@@ -233,13 +220,19 @@ namespace http
     bool Request::operator()(const char* str, size_t n)
     {
         std::string prospect(str, n);
+        data_received += prospect.length();
+        if (serv_conf.header_max_size
+         && data_received > serv_conf.header_max_size.value())
+        {
+            set_mode(MOD::HEADER_FIELD_TOO_LARGE, 1);
+            return true;
+        }
         if (headed)
         {
             body += prospect;
             if (length < body.size())
             {
-                mode = MOD::ERROR_DOUBLE_REQUEST_FAILED;
-                erroring = 1;
+                set_mode(MOD::ERROR_DOUBLE_REQUEST_FAILED, 1);
                 return true;
             } // eventually add extra treatment for multiple request
 
@@ -255,43 +248,50 @@ namespace http
             auto split = prospect.find(std::string(http_crlfx2));
             if (split != std::string::npos)
             {
-                int cur = 0;
+                size_t cur = 0;
                 headed = true;
-                if (get_mode_str(head, cur) < 0)
-                    return true;
 
-                if (get_http_version(head, cur) == 0)
-                    return true;
+                get_mode_str(head, cur);
+                get_http_version(head, cur);
 
                 cur = head.find_first_not_of(' ', cur);
                 int n_cur = head.find_first_of(' ', cur);
-                if (!parse_uri(head.substr(cur, n_cur - cur)))
-                    return true;
+                if (cur != std::string::npos)
+                    parse_uri(head.substr(cur, n_cur - cur));
+                if (serv_conf.uri_max_size
+                 && uri.length() > serv_conf.uri_max_size.value())
+                    set_mode(MOD::ERROR_URI_TOO_LONG, 1);
+                index_proxy_err = mode_error.end() - mode_error.begin() + 1;
                 cur = head.find_first_not_of(' ', n_cur);
                 n_cur = head.find_first_of('\r', cur);
-                version = head.substr(cur, n_cur - cur);
+                if (cur != std::string::npos)
+                    version = head.substr(cur, n_cur - cur);
                 get_headers_str(head, cur);
                 if ((check_httptwo()) == 0)
                     return true;
                 if ((check_length()) == 0)
                     return true;
+                if (serv_conf.payload_max_size
+                 && length > serv_conf.payload_max_size.value())
+                {
+                    headers["Host"] = "";
+                    set_mode(MOD::ERROR_PAYLOAD_TOO_LARGE, 1);
+                    return true;
+                }
                 if (mode == MOD::GET || mode == MOD::HEAD)
                     return true;
 
-                ///////////        get extra body                      ////////
+                ///////////        get extra body                     ////////
                 body = prospect.substr(split + 4, std::string::npos);
                 // npos is for all char til' the end
                 if (length < body.size())
                 {
-                    mode = MOD::ERROR_DOUBLE_REQUEST_FAILED;
-                    erroring = 1;
+                    set_mode(MOD::ERROR_DOUBLE_REQUEST_FAILED, 1);
                     return true; // eventually add traitment for multiple
                                  // request
                 }
                 if (length > body.size())
-                {
                     return false;
-                }
                 return true;
                 ///////////////////////////////////////////////////////////////
             }

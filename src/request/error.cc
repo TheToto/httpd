@@ -9,10 +9,9 @@ namespace http::error
         return Response(STATUS_CODE::BAD_REQUEST);
     }
 
-    Response unauthorized(const Request&, shared_vhost)
+    Response unauthorized(const Request&, std::string realm)
     {
-        // FIXME: Not implemented
-        return Response(STATUS_CODE::UNAUTHORIZED);
+        return Response(STATUS_CODE::UNAUTHORIZED, realm);
     }
 
     Response forbidden(const Request& request)
@@ -30,10 +29,9 @@ namespace http::error
         return Response(request, STATUS_CODE::METHOD_NOT_ALLOWED);
     }
 
-    Response proxy_authentication_required(const Request&, shared_vhost)
+    Response proxy_authentication_required(const Request&, std::string realm)
     {
-        // FIXME: Not implemented
-        return Response(STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED);
+        return Response(STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED, realm);
     }
 
     Response payload_too_large()

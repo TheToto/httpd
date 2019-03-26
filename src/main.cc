@@ -15,7 +15,7 @@ namespace http
 {
     EventWatcherRegistry event_register = EventWatcherRegistry();
     Dispatcher dispatcher = Dispatcher();
-
+    ServerConfig serv_conf;
 } // namespace http
 
 static void stop_server(struct ev_loop* loop, ev_signal*, int)
@@ -30,13 +30,12 @@ static void continue_server(struct ev_loop*, ev_signal*, int)
 
 static int launch_server(char* path)
 {
-    http::ServerConfig serv = http::parse_configuration(path);
-
+    http::serv_conf = http::parse_configuration(path);
     SSL_library_init();
     SSL_load_error_strings();
     OpenSSL_add_ssl_algorithms();
 
-    for (auto conf : serv.VHosts_)
+    for (auto conf : http::serv_conf.VHosts_)
     {
         std::clog << "Setup " << conf.server_name_ << " vhost.\n";
         http::VHostFactory::Create(conf);

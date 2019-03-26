@@ -99,6 +99,8 @@ namespace http
             conf_.is_ipv6_ = b;
         }
 
+        void apply_set_remove_header(bool is_proxy, std::string& head);
+
     protected:
         /**
          *  \brief VHost configuration.

@@ -6,8 +6,13 @@
 #pragma once
 
 #include "config/config.hh"
+#include "events/register.hh"
+#include "events/server.hh"
+#include "misc/addrinfo/addrinfo.hh"
 #include "request/request.hh"
+#include "socket/default-socket.hh"
 #include "vhost/connection.hh"
+#include "vhost/dispatcher.hh"
 #include "vhost/vhost.hh"
 
 namespace http
