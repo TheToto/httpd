@@ -99,10 +99,15 @@ namespace http
         , auto_index_(autoi)
         , default_vhost_(def_vh)
     {
+        mode = AF_INET;
+        addr.sin_port = port;
+        addr6.sin6_port = port;
+        addr.sin_family = AF_INET;
+        addr6.sin6_family = AF_INET6;
         if (!inet_pton(AF_INET, ip_.c_str(), &addr.sin_addr))
         {
-            inet_pton(AF_INET6, ip_.c_str(), &addr.sin_addr);
-            addr.sin_family = AF_INET6;
+            inet_pton(AF_INET6, ip_.c_str(), &addr6.sin6_addr);
+            mode = AF_INET6;
         }
         else
             addr.sin_family = AF_INET;
