@@ -63,6 +63,35 @@ namespace http
     void VHostReverseProxy::respond(Request& request, Connection conn,
                                     remaining_iterator, remaining_iterator)
     {
+        if (conf_.auth_basic_ != "")
+        {
+            std::string auth = request.get_header("Authorization");
+            if (auth == "")
+            {
+                send_response(conn,
+                    error::proxy_authentication_required(request,
+                              conf_.auth_basic_));
+                return;
+            }
+            auto cur_1 = auth.find_first_of(' ');
+            auto cur_2 = auth.find_first_not_of(' ', cur_1);
+            auto len = auth.find_first_of(' ', cur_2) - cur_2;
+            auth = auth.substr(cur_2, len);
+            auto user = conf_.auth_basic_users_.begin();
+            for (;user != conf_.auth_basic_users_.end(); user++)
+            {
+                std::cout << *user << std::endl;
+                if (*user == auth)
+                    break;
+            }
+            if (user == conf_.auth_basic_users_.end())
+            {
+                send_response(conn,
+                    error::proxy_authentication_required(request,
+                              conf_.auth_basic_));
+                return;
+            }
+        }
         // 1. Create connection to backend.
         shared_socket sock;
 

@@ -58,7 +58,6 @@ namespace http
                               conf_.auth_basic_));
                 return;
             }
-            std::cout << "OK: [" << auth << ']' << std::endl;
         }
         if (request.is_erroring())
         {
