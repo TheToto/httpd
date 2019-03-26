@@ -39,25 +39,34 @@ namespace http
 
         static shared_vhost Create(VHostConfig conf)
         {
+            // Register vhost
+            shared_vhost vhost;
+            if (conf.proxy_pass_ != std::nullopt)
+                vhost = shared_vhost(new VHostReverseProxy(conf));
+            else
+                vhost = shared_vhost(new VHostStaticFile(conf));
+
             // Create server socket
             shared_socket sock;
             misc::AddrInfoHint hints;
             hints.family(AF_UNSPEC).socktype(SOCK_STREAM);
             misc::AddrInfo res = misc::getaddrinfo(
                 conf.ip_.c_str(), std::to_string(conf.port_).c_str(), hints);
+
             auto it = res.begin();
             for (; it != res.end(); it++)
             {
                 //FIXME SSLSocket selon la config
-/*
-                sock = shared_socket(new SSLSocket(it->ai_family,
-                                                   it->ai_socktype,
-                                                   it->ai_protocol,
-                                                   (*vhost).ssl_ctx_get().get()));
+                if (conf.ssl_cert_ != "")
+                    sock = shared_socket(new SSLSocket(it->ai_family,
+                                                       it->ai_socktype,
+                                                       it->ai_protocol,
+                                                       vhost->ssl_ctx_get().get()));
 
-*/
-                sock = shared_socket(new DefaultSocket(
-                    it->ai_family, it->ai_socktype, it->ai_protocol));
+                else
+                    sock = shared_socket(new DefaultSocket(it->ai_family,
+                                                           it->ai_socktype,
+                                                           it->ai_protocol));
 
                 if (sock->fd_get()->fd_ == -1)
                     continue;
@@ -78,12 +87,6 @@ namespace http
             sock->listen(128);
             event_register.register_ew<ServerEW>(sock);
 
-            // Register vhost
-            shared_vhost vhost;
-            if (conf.proxy_pass_ != std::nullopt)
-                vhost = shared_vhost(new VHostReverseProxy(conf));
-            else
-                vhost = shared_vhost(new VHostStaticFile(conf));
 
             dispatcher.register_vhost(vhost);
             return vhost;
