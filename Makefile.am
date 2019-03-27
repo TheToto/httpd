@@ -80,6 +80,8 @@ SOURCES = \
                        src/vhost/vhost-reverse-proxy.cc \
                        src/vhost/vhost-fail.cc \
                        src/vhost/vhost.hh \
+                       src/vhost/apm.hh \
+                       src/vhost/apm.cc \
                        src/socket/ssl-socket.cc \
                        src/error/init-error.hh \
                        src/error/parsing-error.hh \
