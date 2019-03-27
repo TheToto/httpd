@@ -22,7 +22,7 @@ def reset_alarm():
 
 
 def launch_server(json = "tests/json/test1.json"):
-    os.system("killall spider")
+    os.system("pkill spider")
 
     setup_alarm(2)
     try :

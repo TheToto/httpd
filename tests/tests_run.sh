@@ -12,5 +12,5 @@ pytest -vv
 
 deactivate
 
-killall spider
+pkill spider
 exit 0
