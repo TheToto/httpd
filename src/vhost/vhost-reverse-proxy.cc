@@ -122,6 +122,13 @@ namespace http
                 return;
             }
         }
+        if (request.get_uri() == conf_.health_endpoint_)
+        {
+            Response resp(nullptr, STATUS_CODE::OK, request.is_head_, "", "",
+                          apm.get_json());
+            send_response(conn, resp, request.is_head_);
+            return;
+        }
         // 1. Create connection to backend.
         shared_socket sock;
 
