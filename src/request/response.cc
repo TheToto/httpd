@@ -93,9 +93,11 @@ namespace http
         if (code == BAD_REQUEST || code == PAYLOAD_TOO_LARGE
                 || code == URI_TOO_LONG || code == HEADER_FIELDS_TOO_LARGE
                 || code >= INTERNAL_SERVER_ERROR)
+        {
             response_ += "Connection: close";
+            response_ += http_crlf;
+        }
 
-        response_ += http_crlf;
 
         response_ += http_crlf;
 
