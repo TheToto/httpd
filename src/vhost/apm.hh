@@ -1,13 +1,14 @@
 #pragma once
 
 #include <string>
-
+#include <json.hpp>
 #include "request/types.hh"
 
 namespace http
 {
     struct APM
     {
+
         static size_t global_connections_active;
         static size_t global_connections_reading;
         static size_t global_connections_writing;
