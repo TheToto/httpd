@@ -18,7 +18,7 @@ namespace http
         j["requests_5xx"] = requests_5xx;
         j["requests_nb"] = requests_nb;
 
-        return j.dump();
+        return j.dump(4);
     }
 
     void APM::add_request()
@@ -45,4 +45,4 @@ namespace http
             requests_5xx++;
         }
     }
-}
+} // namespace http

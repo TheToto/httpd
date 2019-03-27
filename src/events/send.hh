@@ -37,6 +37,7 @@ namespace http
             : EventWatcher(conn.sock_->fd_get()->fd_, EV_WRITE)
         {
             APM::global_connections_writing++;
+            conn.vhost_->get_apm().add_request_final(resp.get_status());
             sock_ = conn.sock_;
             sended_ = 0;
             to_send_ = resp();

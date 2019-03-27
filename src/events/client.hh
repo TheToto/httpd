@@ -43,11 +43,6 @@ namespace http
             fcntl(tmpfd, F_SETFL, flags);
         }
 
-        virtual ~ClientEW() override
-        {
-            APM::global_connections_reading--;
-        }
-
         /**
          * \brief Start accepting connections on Client socket.
          */
@@ -64,6 +59,7 @@ namespace http
                 {
                     std::clog << "A socked has disconnect\n";
                     APM::global_connections_active--;
+                    APM::global_connections_reading--;
                     event_register.unregister_ew(this);
                     return;
                 }
@@ -72,6 +68,7 @@ namespace http
             {
                 std::clog << "A socked has disconnect\n";
                 APM::global_connections_active--;
+                APM::global_connections_reading--;
                 event_register.unregister_ew(this);
                 return;
             }
@@ -86,6 +83,7 @@ namespace http
                 shared_vhost v = dispatcher(req.value());
                 Connection conn(sock_, v);
                 v->get_apm().add_request();
+                APM::global_connections_reading--;
                 v->respond(req.value(), conn, 0, 0); // FIXME : Iterators
             }
             else

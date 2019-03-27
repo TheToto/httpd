@@ -77,6 +77,7 @@ namespace http
             Response resp(nullptr, STATUS_CODE::OK, request.is_head_, "", "",
                           apm.get_json());
             send_response(conn, resp, request.is_head_);
+            return;
         }
         std::string path = this->conf_get().root_;
 

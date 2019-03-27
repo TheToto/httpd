@@ -97,7 +97,7 @@ namespace http
             conf_.is_ipv6_ = b;
         }
 
-        APM get_apm()
+        APM& get_apm()
         {
             return apm;
         }
@@ -109,7 +109,7 @@ namespace http
          *  \brief VHost configuration.
          */
         VHostConfig conf_;
-        APM apm = APM();
+        APM apm;
         /**
          * \brief VHost's SSL context.
          *

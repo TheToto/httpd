@@ -119,4 +119,9 @@ namespace http
             return misc::Html::generate_error(status);
         return "";
     }
+
+    STATUS_CODE Response::get_status()
+    {
+        return status;
+    }
 } // namespace http

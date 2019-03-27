@@ -44,6 +44,8 @@ namespace http
         misc::shared_fd file_ = nullptr;
         size_t file_size_ = 0;
 
+        STATUS_CODE get_status();
+
     private:
         STATUS_CODE status;
         std::string list_dir_ = "";
