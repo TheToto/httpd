@@ -59,11 +59,7 @@ namespace http
                 throw std::logic_error("invalid SSL certificate");
 
             if (SSL_CTX_check_private_key(ssl_ctx_.get()) != 1)
-                throw std::logic_error("SSL privatekey doens't match");
-
-
-            // FIXME Authentification shits needs next line
-            // SSL_CTX_set_verify(ctx,SSL_VERIFY_PEER|SSL_VERIFY_FAIL_IF_NO_PEER_CERT,NULL);
+                throw std::logic_error("SSL privatekey doesn't match certificate");
         }
 
         VHost() = delete;

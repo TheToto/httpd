@@ -56,7 +56,6 @@ namespace http
             auto it = res.begin();
             for (; it != res.end(); it++)
             {
-                //FIXME SSLSocket selon la config
                 if (conf.ssl_cert_ != "")
                     sock = shared_socket(new SSLSocket(it->ai_family,
                                                        it->ai_socktype,
