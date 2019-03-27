@@ -25,7 +25,7 @@ namespace http
         Response(std::string);
         Response(misc::shared_fd file, const STATUS_CODE& = STATUS_CODE::OK,
                  bool is_head = false, std::string list_dir = "",
-                 std::string realm = "");
+                 std::string realm = "", std::string health = "");
         Response(const Request, misc::shared_fd file,
                  const STATUS_CODE& = STATUS_CODE::OK);
         Response(const Request, const STATUS_CODE& = STATUS_CODE::OK);

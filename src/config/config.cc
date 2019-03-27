@@ -189,7 +189,7 @@ namespace http
         std::string health_endpoint = "";
         try
         {
-            health_endpoint = i["auth_endpoint"];
+            health_endpoint = i["health_endpoint"];
         }
         catch (const std::exception& e)
         {}
@@ -276,7 +276,8 @@ namespace http
         }
         catch (const std::exception& e)
         {
-            std::clog << "An error happened while testing:\n" << e.what() << '\n';
+            std::clog << "An error happened while testing:\n"
+                      << e.what() << '\n';
             return 1;
         }
         return 0;

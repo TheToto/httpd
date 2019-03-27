@@ -49,14 +49,16 @@ namespace http
     {}
 
     Response::Response(misc::shared_fd file, const STATUS_CODE& code,
-                       bool is_head, std::string list_dir,
-                       std::string realm)
+                       bool is_head, std::string list_dir, std::string realm,
+                       std::string health)
         : file_(file)
         , status(code)
         , list_dir_(list_dir)
         , realm_(realm)
     {
         auto add_body = sup_body();
+        if (health != "" && STATUS_CODE::OK == code)
+            add_body = health;
         if (file != nullptr)
             file_size_ = get_size(file);
         else
@@ -91,13 +93,12 @@ namespace http
         response_ += std::string(get_time(tab));
         response_ += http_crlf;
         if (code == BAD_REQUEST || code == PAYLOAD_TOO_LARGE
-                || code == URI_TOO_LONG || code == HEADER_FIELDS_TOO_LARGE
-                || code >= INTERNAL_SERVER_ERROR)
+            || code == URI_TOO_LONG || code == HEADER_FIELDS_TOO_LARGE
+            || code >= INTERNAL_SERVER_ERROR)
         {
             response_ += "Connection: close";
             response_ += http_crlf;
         }
-
 
         response_ += http_crlf;
 

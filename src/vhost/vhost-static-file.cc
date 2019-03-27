@@ -72,10 +72,12 @@ namespace http
                 send_response(conn, error::bad_request());
             return;
         }
-        /*if (request.get_uri() == conf_.health_endpoint_)
+        if (request.get_uri() == conf_.health_endpoint_)
         {
-            send_response(conn, )
-        }*/
+            Response resp(nullptr, STATUS_CODE::OK, request.is_head_, "", "",
+                          apm.get_json());
+            send_response(conn, resp, request.is_head_);
+        }
         std::string path = this->conf_get().root_;
 
         path += request.get_uri();
