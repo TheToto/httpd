@@ -1,0 +1,17 @@
+{
+    "vhosts": [
+        {
+            "ip": "127.0.0.1",
+            "port": 8000,
+            "server_name": "localhost",
+            "root": ".",
+            "ssl_cert": "tests/ssl/localhost.pem",
+            "ssl_key": "tests/ssl/localhost-key.pem",
+            "auto_index": true,
+            "auth_basic": "Please log in to sub.localhost!",
+            "auth_basic_users": [
+                "lucas:bestspider"
+            ]
+        }
+    ]
+}
