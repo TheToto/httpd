@@ -6,16 +6,23 @@
 #include "events/event-loop.hh"
 #include "events/register.hh"
 #include "events/server.hh"
-#include "request/response.hh"
-#include "vhost/vhost-factory.hh"
-
 #include "misc/openssl/ssl.hh"
+#include "request/response.hh"
+#include "vhost/apm.hh"
+#include "vhost/vhost-factory.hh"
 
 namespace http
 {
     EventWatcherRegistry event_register = EventWatcherRegistry();
     Dispatcher dispatcher = Dispatcher();
     ServerConfig serv_conf;
+    size_t APM::global_connections_active = 0;
+    size_t APM::global_connections_reading = 0;
+    size_t APM::global_connections_writing = 0;
+    size_t APM::global_requests_2xx = 0;
+    size_t APM::global_requests_4xx = 0;
+    size_t APM::global_requests_5xx = 0;
+    size_t APM::global_requests_nb = 0;
 } // namespace http
 
 static void stop_server(struct ev_loop* loop, ev_signal*, int)
@@ -99,7 +106,6 @@ static int handle_two(char* argv[])
     }
     return launch_server(argv[1]);
 }
-
 
 int main(int argc, char* argv[])
 {

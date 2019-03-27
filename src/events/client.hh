@@ -14,10 +14,10 @@
 #include "request/error.hh"
 #include "request/request.hh"
 #include "socket/socket.hh"
+#include "vhost/apm.hh"
 #include "vhost/connection.hh"
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost.hh"
-
 namespace http
 {
     /**
@@ -33,6 +33,7 @@ namespace http
         explicit ClientEW(shared_socket socket)
             : EventWatcher(socket->fd_get()->fd_, EV_READ)
         {
+            APM::global_connections_reading++;
             sock_ = socket;
             req = {};
             // Set socket non block
@@ -40,6 +41,11 @@ namespace http
             int flags = fcntl(tmpfd, F_GETFL);
             flags |= O_NONBLOCK;
             fcntl(tmpfd, F_SETFL, flags);
+        }
+
+        virtual ~ClientEW() override
+        {
+            APM::global_connections_reading--;
         }
 
         /**
@@ -57,13 +63,15 @@ namespace http
                 if (n <= 0)
                 {
                     std::clog << "A socked has disconnect\n";
+                    APM::global_connections_active--;
                     event_register.unregister_ew(this);
                     return;
                 }
             }
-            catch(const std::exception& e)
+            catch (const std::exception& e)
             {
                 std::clog << "A socked has disconnect\n";
+                APM::global_connections_active--;
                 event_register.unregister_ew(this);
                 return;
             }
@@ -77,6 +85,7 @@ namespace http
                 event_register.unregister_ew(this);
                 shared_vhost v = dispatcher(req.value());
                 Connection conn(sock_, v);
+                v->get_apm().add_request();
                 v->respond(req.value(), conn, 0, 0); // FIXME : Iterators
             }
             else

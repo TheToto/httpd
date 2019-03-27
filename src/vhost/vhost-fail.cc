@@ -14,11 +14,11 @@ namespace http
     static inline void send_response(Connection& conn, Response resp,
                                      bool is_head = false)
     {
-        event_register.register_ew<SendResponseEW>(conn.sock_, resp, is_head);
+        event_register.register_ew<SendResponseEW>(conn, resp, is_head);
     }
 
-    void VHostFail::respond(Request& r, Connection conn,
-                            remaining_iterator, remaining_iterator)
+    void VHostFail::respond(Request& r, Connection conn, remaining_iterator,
+                            remaining_iterator)
     {
         auto mod = r.get_mode();
         if (mod == MOD::ERROR_METHOD)

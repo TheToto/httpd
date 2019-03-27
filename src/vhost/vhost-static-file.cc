@@ -12,7 +12,7 @@ namespace http
     static inline void send_response(Connection& conn, Response resp,
                                      bool is_head = false)
     {
-        event_register.register_ew<SendResponseEW>(conn.sock_, resp, is_head);
+        event_register.register_ew<SendResponseEW>(conn, resp, is_head);
     }
 
     static inline bool is_dir(std::string& path)
@@ -37,8 +37,8 @@ namespace http
             std::string auth = request.get_header("Authorization");
             if (auth == "")
             {
-                send_response(conn, error::unauthorized(request,
-                              conf_.auth_basic_));
+                send_response(conn,
+                              error::unauthorized(request, conf_.auth_basic_));
                 return;
             }
             auto cur_1 = auth.find_first_of(' ');
@@ -46,7 +46,7 @@ namespace http
             auto len = auth.find_first_of(' ', cur_2) - cur_2;
             auth = auth.substr(cur_2, len);
             auto user = conf_.auth_basic_users_.begin();
-            for (;user != conf_.auth_basic_users_.end(); user++)
+            for (; user != conf_.auth_basic_users_.end(); user++)
             {
                 std::cout << *user << std::endl;
                 if (*user == auth)
@@ -54,8 +54,8 @@ namespace http
             }
             if (user == conf_.auth_basic_users_.end())
             {
-                send_response(conn, error::unauthorized(request,
-                              conf_.auth_basic_));
+                send_response(conn,
+                              error::unauthorized(request, conf_.auth_basic_));
                 return;
             }
         }
@@ -72,7 +72,10 @@ namespace http
                 send_response(conn, error::bad_request());
             return;
         }
-
+        /*if (request.get_uri() == conf_.health_endpoint_)
+        {
+            send_response(conn, )
+        }*/
         std::string path = this->conf_get().root_;
 
         path += request.get_uri();

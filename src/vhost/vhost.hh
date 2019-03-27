@@ -9,10 +9,10 @@
 
 #include "config/config.hh"
 #include "error/not-implemented.hh"
-#include "request/request.hh"
-#include "vhost/connection.hh"
-
 #include "misc/openssl/ssl.hh"
+#include "request/request.hh"
+#include "vhost/apm.hh"
+#include "vhost/connection.hh"
 
 namespace http
 {
@@ -36,9 +36,10 @@ namespace http
             if (conf.ssl_cert_ == "")
                 return;
 
-            const SSL_METHOD *method;
+            const SSL_METHOD* method;
             method = SSLv23_server_method();
-            ssl_ctx_ = std::shared_ptr<SSL_CTX>(SSL_CTX_new(method), SSL_CTX_free);
+            ssl_ctx_ =
+                std::shared_ptr<SSL_CTX>(SSL_CTX_new(method), SSL_CTX_free);
 
             if (!ssl_ctx_.get())
             {
@@ -49,17 +50,18 @@ namespace http
 
             SSL_CTX_set_ecdh_auto(ssl_ctx_, 1);
 
-            if (SSL_CTX_use_PrivateKey_file(ssl_ctx_.get(),
-                                            conf.ssl_key_.c_str(),
-                                            SSL_FILETYPE_PEM) <= 0)
+            if (SSL_CTX_use_PrivateKey_file(
+                    ssl_ctx_.get(), conf.ssl_key_.c_str(), SSL_FILETYPE_PEM)
+                <= 0)
                 throw std::logic_error("invalid SSL privatekey");
-            if (SSL_CTX_use_certificate_file(ssl_ctx_.get(),
-                                          conf.ssl_cert_.c_str(),
-                                             SSL_FILETYPE_PEM) <= 0)
+            if (SSL_CTX_use_certificate_file(
+                    ssl_ctx_.get(), conf.ssl_cert_.c_str(), SSL_FILETYPE_PEM)
+                <= 0)
                 throw std::logic_error("invalid SSL certificate");
 
             if (SSL_CTX_check_private_key(ssl_ctx_.get()) != 1)
-                throw std::logic_error("SSL privatekey doesn't match certificate");
+                throw std::logic_error(
+                    "SSL privatekey doesn't match certificate");
         }
 
         VHost() = delete;
@@ -95,6 +97,11 @@ namespace http
             conf_.is_ipv6_ = b;
         }
 
+        APM get_apm()
+        {
+            return apm;
+        }
+
         void apply_set_remove_header(bool is_proxy, std::string& head);
 
     protected:
@@ -102,7 +109,7 @@ namespace http
          *  \brief VHost configuration.
          */
         VHostConfig conf_;
-
+        APM apm = APM();
         /**
          * \brief VHost's SSL context.
          *

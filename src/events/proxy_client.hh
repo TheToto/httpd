@@ -74,7 +74,7 @@ namespace http
                     std::clog << "The backend has disconnect\n";
                     event_register.unregister_ew(this);
                     event_register.register_ew<SendResponseEW>(
-                        conn_.sock_, error::bad_gateway(Request()));
+                        conn_, error::bad_gateway(Request()));
                     return;
                 }
             }
@@ -83,7 +83,7 @@ namespace http
                 std::clog << "The backend has disconnect\n";
                 event_register.unregister_ew(this);
                 event_register.register_ew<SendResponseEW>(
-                    conn_.sock_, error::bad_gateway(Request()));
+                    conn_, error::bad_gateway(Request()));
                 return;
             }
 
@@ -95,7 +95,7 @@ namespace http
                 std::clog << "We have the backend response ! \n" << std::endl;
                 event_register.unregister_ew(this);
                 Response r(content_);
-                event_register.register_ew<SendResponseEW>(conn_.sock_, r);
+                event_register.register_ew<SendResponseEW>(conn_, r);
             }
             else
             {

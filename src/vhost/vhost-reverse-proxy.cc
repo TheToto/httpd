@@ -27,7 +27,7 @@ namespace http
     static inline void send_response(Connection& conn, Response resp,
                                      bool is_head = false)
     {
-        event_register.register_ew<SendResponseEW>(conn.sock_, resp, is_head);
+        event_register.register_ew<SendResponseEW>(conn, resp, is_head);
     }
 
     void VHost::apply_set_remove_header(bool is_proxy, std::string& head)

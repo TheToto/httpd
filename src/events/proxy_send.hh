@@ -68,7 +68,7 @@ namespace http
                     std::clog << "Connection aborded with backend !\n";
                     event_register.unregister_ew(this);
                     event_register.register_ew<SendResponseEW>(
-                        conn_.sock_, error::bad_gateway(Request()));
+                        conn_, error::bad_gateway(Request()));
                     return;
                 }
             }

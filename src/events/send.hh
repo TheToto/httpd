@@ -16,10 +16,10 @@
 #include "request/error.hh"
 #include "request/request.hh"
 #include "socket/socket.hh"
+#include "vhost/apm.hh"
 #include "vhost/connection.hh"
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost.hh"
-
 namespace http
 {
     /**
@@ -32,11 +32,12 @@ namespace http
         /**
          * \brief Create a SendResponseEW from a SendResponse socket.
          */
-        explicit SendResponseEW(shared_socket socket, Response resp,
+        explicit SendResponseEW(Connection conn, Response resp,
                                 bool is_head = false)
-            : EventWatcher(socket->fd_get()->fd_, EV_WRITE)
+            : EventWatcher(conn.sock_->fd_get()->fd_, EV_WRITE)
         {
-            sock_ = socket;
+            APM::global_connections_writing++;
+            sock_ = conn.sock_;
             sended_ = 0;
             to_send_ = resp();
             if (!is_head)
@@ -50,6 +51,11 @@ namespace http
                 file_size_ = 0;
             }
             sended_header_ = 0;
+        }
+
+        virtual ~SendResponseEW() override
+        {
+            APM::global_connections_writing--;
         }
 
         /**
@@ -73,6 +79,7 @@ namespace http
                 catch (const std::exception&)
                 {
                     std::clog << "Connection aborded ! 1\n";
+                    APM::global_connections_active--;
                     event_register.unregister_ew(this);
                     return;
                 }
@@ -86,6 +93,7 @@ namespace http
                 catch (const std::exception&)
                 {
                     std::clog << "Connection aborded ! 2\n";
+                    APM::global_connections_active--;
                     event_register.unregister_ew(this);
                     return;
                 }

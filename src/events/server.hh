@@ -9,7 +9,7 @@
 #include "events/events.hh"
 #include "events/register.hh"
 #include "socket/socket.hh"
-
+#include "vhost/apm.hh"
 namespace http
 {
     /**
@@ -44,6 +44,7 @@ namespace http
                     break;
                 }
                 std::clog << "Accept a new socket !\n";
+                APM::global_connections_active++;
                 event_register.register_ew<ClientEW>(client_sock);
             }
         }
