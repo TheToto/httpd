@@ -69,14 +69,14 @@ namespace http
         response_ += " ";
         response_ += pcode.second;
         response_ += http_crlf;
-        if (code == 401)
+        if (code == UNAUTHORIZED)
         {
             response_ += "WWW-Authenticate: Basic realm=\"";
             response_ += realm_;
             response_ += '"';
             response_ += http_crlf;
         }
-        if (code == 407)
+        if (code == PROXY_AUTHENTICATION_REQUIRED)
         {
             response_ += "Proxy-Authenticate: Basic realm=\"";
             response_ += realm_;
@@ -90,8 +90,11 @@ namespace http
         char tab[80] = {0};
         response_ += std::string(get_time(tab));
         response_ += http_crlf;
+        if (code == BAD_REQUEST || code == PAYLOAD_TOO_LARGE
+                || code == URI_TOO_LONG || code == HEADER_FIELDS_TOO_LARGE
+                || code >= INTERNAL_SERVER_ERROR)
+            response_ += "Connection: close";
 
-        response_ += "Connection: close";
         response_ += http_crlf;
 
         response_ += http_crlf;
