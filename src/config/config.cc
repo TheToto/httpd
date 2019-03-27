@@ -163,7 +163,7 @@ namespace http
         {}
         if (ssl_key.empty() != ssl_cert.empty())
             throw std::invalid_argument("ERROR: ssl_cert and ssl_key must "
-                                        "be defined simulteanously");
+                                        "be defined simultaneously");
 
         std::string auth_basic = "";
         try
@@ -184,7 +184,7 @@ namespace http
 
         if (auth_basic_users.empty() != auth_basic.empty())
             throw std::invalid_argument("ERROR: auth_basic and auth_basic_users"
-                                        " must be defined simulteanously");
+                                        " must be defined simultaneously");
 
         std::string health_endpoint = "";
         try
@@ -276,7 +276,7 @@ namespace http
         }
         catch (const std::exception& e)
         {
-            std::clog << "An error append while testing:\n" << e.what() << '\n';
+            std::clog << "An error happened while testing:\n" << e.what() << '\n';
             return 1;
         }
         return 0;
