@@ -270,48 +270,15 @@ namespace http
 
     int test_file(const std::string& path)
     {
-        std::ifstream ifs(path);
-        if (!ifs.is_open())
+        try
         {
-            std::clog << "Provided file invalid: cannot open file\n";
+            auto res = parse_configuration(path);
+        }
+        catch (const std::exception& e)
+        {
+            std::clog << "An error append while testing:\n" << e.what() << '\n';
             return 1;
         }
-        json j = json::parse(ifs);
-        ServerConfig serv;
-
-        auto ctn = j["vhosts"];
-
-        for (auto i : ctn)
-        {
-            json tmp(i);
-            if (tmp.size() != 4 && tmp.size() != 5)
-            {
-                std::clog << ("invalid json file: not a "
-                              "json or wrong architecture\n");
-                return 1;
-            }
-            std::string ip = tmp["ip"];
-            int port = tmp["port"];
-            std::string server_name = tmp["server_name"];
-            std::string root = tmp["root"];
-            std::string default_file;
-            try
-            {
-                default_file = tmp["default_file"];
-            }
-            catch (const std::exception& e)
-            {
-                default_file = "index.html";
-            }
-
-            if (ip.empty() || port <= 0 || server_name.empty() || root.empty())
-            {
-                std::clog << ("invalid JSON file: a mandatory "
-                              "argument is missing\n");
-                return 1;
-            }
-        }
-
         return 0;
     }
 } // namespace http
