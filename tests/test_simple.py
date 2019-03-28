@@ -34,13 +34,13 @@ def test_get_simple():
 def test_head_simple():
     serverProc = launch_server()
     assert(serverProc != None)
-    resp = requests.head('http://127.0.0.1:8000')
+    resp = requests.head('http://127.0.0.1:8000/tests')
     assert(resp.status_code == 200)
     kill_server(serverProc)
 
 def test_post_simple():
     serverProc = launch_server()
     assert(serverProc != None)
-    resp = requests.post('http://127.0.0.1:8000')
+    resp = requests.post('http://127.0.0.1:8000/tests/')
     assert(resp.status_code == 200)
     kill_server(serverProc)
