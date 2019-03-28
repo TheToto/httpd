@@ -31,7 +31,7 @@ namespace http
         if (head.find(http_crlf) == std::string::npos)
             return -1;
         size_t c_l = 0;
-        if (size_t pos_size = head.find("Content-Length:"))
+        if (size_t pos_size = head.find("Content-Length:") != std::string::npos)
         {
             pos_size = head.find_first_of(':', pos_size) + 1;
             pos_size = head.find_first_not_of(' ', pos_size);
