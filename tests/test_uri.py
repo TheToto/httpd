@@ -14,21 +14,21 @@ from spider_misc import *
 
 
 def test_uri_spaces():
-    get_uri('tests/garbage/ a  ', 'tests/%20a%20%20')
-    get_uri('tests/garbage/   ', 'tests/%20%20%20')
+    get_uri('tests/garbage/ a  ', 'tests/garbage/%20a%20%20')
+    get_uri('tests/garbage/   ', 'tests/garbage/%20%20%20')
 
 def test_uri_quotes():
-    get_uri('tests/garbage/""', 'tests/%22%22')
+    get_uri('tests/garbage/""', 'tests/garbage/%22%22')
 
 def test_uri_question():
-    get_uri('tests/garbage/?toto', 'tests/%3ftoto')
+    get_uri('tests/garbage/?toto', 'tests/garbage/%3ftoto')
 
 def test_uri_hardcore():
-    get_uri('tests/garbage/#$%&@@@', 'tests/%23%24%25%26%40%40%40')
+    get_uri('tests/garbage/#$%&@@@', 'tests/garbage/%23%24%25%26%40%40%40')
 
 
 def test_uri_percent00_escape():
-    get_uri('tests/garbage/%00', 'tests/%25%30%30')
+    get_uri('tests/garbage/%00', 'tests/garbage/%25%30%30')
 
 def get_uri(path, pathURI):
     f = open(path, "w+")
