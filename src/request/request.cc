@@ -96,9 +96,10 @@ namespace http
             if (cur == 0 || asked.substr(cur, 1) == "\r")
                 break;
             int len_cur = asked.find_first_of(':', cur) - cur;
-            if (len_cur == 4 && asked.substr(cur, 6) == "Host: ")
+            if (len_cur == 4 && (asked.substr(cur, 6) == "Host: "
+                    || asked.substr(cur, 6) == "Host:\t"))
                 found = 1;
-            int beg_v = asked.find_first_not_of(' ', cur + len_cur + 1);
+            int beg_v = asked.find_first_not_of(" \t", cur + len_cur + 1);
             int len_v = asked.find_first_of('\r', beg_v) - beg_v;
             std::string name = asked.substr(cur, len_cur);
             std::string val = "";
