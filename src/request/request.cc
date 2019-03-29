@@ -26,6 +26,11 @@ namespace http
             is_head_ = true;
             cur = 4;
         }
+        else if (len < 6)
+        {
+            set_mode(MOD::ERROR);
+            cur = asked.find_first_of(" ");
+        }
         else
         {
             set_mode(MOD::ERROR_METHOD, 1);
