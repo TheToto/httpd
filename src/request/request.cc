@@ -1,8 +1,9 @@
 #include "request/request.hh"
-#include "config/config.hh"
 
 #include <iostream>
 #include <sstream>
+
+#include "config/config.hh"
 
 namespace http
 {
@@ -157,7 +158,7 @@ namespace http
             begin_uri = full_uri.find_first_of('/', mid_src + 3);
             src = full_uri.substr(0, begin_uri);
         }
-        int begin_query = full_uri.find_first_of('?');
+        int begin_query = full_uri.find_first_of("?#");
         if (begin_query < 0)
             uri = full_uri.substr(begin_uri);
         else
@@ -223,7 +224,7 @@ namespace http
         std::string prospect(str, n);
         data_received += prospect.length();
         if (serv_conf.header_max_size
-         && data_received > serv_conf.header_max_size.value())
+            && data_received > serv_conf.header_max_size.value())
         {
             set_mode(MOD::HEADER_FIELD_TOO_LARGE, 1);
             return true;
@@ -260,7 +261,7 @@ namespace http
                 if (cur != std::string::npos)
                     parse_uri(head.substr(cur, n_cur - cur));
                 if (serv_conf.uri_max_size
-                 && uri.length() > serv_conf.uri_max_size.value())
+                    && uri.length() > serv_conf.uri_max_size.value())
                     set_mode(MOD::ERROR_URI_TOO_LONG, 1);
                 index_proxy_err = mode_error.end() - mode_error.begin() + 1;
                 cur = head.find_first_not_of(' ', n_cur);
@@ -273,7 +274,7 @@ namespace http
                 if ((check_length()) == 0)
                     return true;
                 if (serv_conf.payload_max_size
-                 && length > serv_conf.payload_max_size.value())
+                    && length > serv_conf.payload_max_size.value())
                 {
                     headers["Host"] = "";
                     set_mode(MOD::ERROR_PAYLOAD_TOO_LARGE, 1);
