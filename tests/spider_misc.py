@@ -40,9 +40,9 @@ def kill_server(serverProc):
     assert(serverProc.poll() == None)
     os.killpg(os.getpgid(serverProc.pid), signal.SIGINT)
 
-def custom_request(path):
+def custom_request(path, ip="127.0.0.1", port=8000):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect(("127.0.0.1", 8000))
+    sock.connect((ip, port))
     file_content = open(path, "rb").read()
     sock.send(file_content)
     time.sleep(0.2)
