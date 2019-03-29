@@ -1,0 +1,14 @@
+{
+    "payload_max_size": 100,
+    "uri_max_size": 2,
+    "header_max_size": 250,
+    "vhosts": [
+        {
+            "ip": "127.0.0.1",
+            "port": 8000,
+            "server_name": "localhost",
+            "root": ".",
+            "health_endpoint": "/health"
+        }
+    ]
+}
