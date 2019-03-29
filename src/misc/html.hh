@@ -51,6 +51,7 @@ namespace misc
 
         static std::string generate_error(http::STATUS_CODE& status)
         {
+            return "";
             if (status == http::STATUS_CODE::NOT_FOUND)
                 return generate_html("404 Not Found",
                                      "<h3>404 error</h3><p>The requested URL "
