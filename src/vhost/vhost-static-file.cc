@@ -29,6 +29,17 @@ namespace http
         return S_ISDIR(buf.st_mode);
     }
 
+    static inline void file_exists(std::string& path)
+    {
+        struct stat buf;
+        sys::stat(path.c_str(), &buf);
+        if (!S_ISREG(buf.st_mode))
+        {
+            errno = ENOENT;
+            throw std::logic_error("Can't open a dir");
+        }
+    }
+
     void VHostStaticFile::respond(Request& request, Connection conn,
                                   remaining_iterator, remaining_iterator)
     {
@@ -107,9 +118,10 @@ namespace http
         int fd = -1;
         try
         {
+            file_exists(path);
             fd = sys::open(path.c_str(), O_RDONLY);
         }
-        catch (const std::system_error& e)
+        catch (const std::exception& e)
         {
             if (errno == ENOENT)
             {
