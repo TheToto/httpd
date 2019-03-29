@@ -48,7 +48,9 @@ namespace http
             return 1;
 
         if ((p_version[5] <= '0' && p_version[5] > '9')
-            || (p_version[5] <= '0' && p_version[7] > '9'))
+            || (p_version[5] <= '0' && p_version[7] > '9')
+            || p_version[6] != '.'
+            || p_version[4] != '/')
         {
             set_mode(MOD::ERROR, 1);
             return 0;
