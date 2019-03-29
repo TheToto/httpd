@@ -83,7 +83,8 @@ namespace http
                              std::string root, std::string def,
                              std::string sslc, std::string sslk,
                              std::optional<ProxyConfig> proxy,
-                             std::string authb, std::list<std::string> authbu,
+                             std::optional<std::string> authb,
+                             std::optional<std::list<std::string>> authbu,
                              std::string health, bool autoi, bool def_vh)
         : ip_(ip)
         , port_(port)
@@ -165,24 +166,34 @@ namespace http
             throw std::invalid_argument("ERROR: ssl_cert and ssl_key must "
                                         "be defined simultaneously");
 
-        std::string auth_basic = "";
+        std::optional<std::string> auth_basic = std::nullopt;
         try
         {
             auth_basic = i["auth_basic"];
         }
         catch (const std::exception& e)
-        {}
+        {
+            auth_basic = std::nullopt;
+        }
 
-        std::list<std::string> auth_basic_users;
+        std::optional<std::list<std::string>> auth_basic_users = std::nullopt;
         try
         {
-            for (std::string cur : json(i["auth_basic_users"]))
-                auth_basic_users.push_front(ssl::base64_encode(cur));
+            auto list = i.find("auth_basic_users");
+            if (list != i.end())
+            {
+                auth_basic_users = std::list<std::string>();
+                for (std::string cur : i["auth_basic_users"])
+                    auth_basic_users.value()
+                        .push_front(ssl::base64_encode(cur));
+            }
         }
         catch (const std::exception& e)
-        {}
+        {
+            auth_basic_users = std::nullopt;
+        }
 
-        if (auth_basic_users.empty() != auth_basic.empty())
+        if (auth_basic_users.has_value() != auth_basic.has_value())
             throw std::invalid_argument("ERROR: auth_basic and auth_basic_users"
                                         " must be defined simultaneously");
 

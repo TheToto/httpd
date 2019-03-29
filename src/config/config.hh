@@ -59,7 +59,8 @@ namespace http
         VHostConfig(std::string ip, int port, std::string server_name,
                     std::string root, std::string def, std::string sslc,
                     std::string sslk, std::optional<ProxyConfig> proxy,
-                    std::string authb, std::list<std::string> authbu,
+                    std::optional<std::string> authb,
+                    std::optional<std::list<std::string>> authbu,
                     std::string health, bool autoi, bool def_vh);
 
         VHostConfig(const VHostConfig&) = default;
@@ -88,8 +89,8 @@ namespace http
         std::string ssl_cert_ = "";
         std::string ssl_key_  = "";
         std::optional<ProxyConfig> proxy_pass_  = std::nullopt;
-        std::string auth_basic_  = "";
-        std::list<std::string> auth_basic_users_ ;
+        std::optional<std::string> auth_basic_  = std::nullopt;
+        std::optional<std::list<std::string>> auth_basic_users_ = std::nullopt;
         std::string health_endpoint_  = "";
         bool auto_index_  = false;
         bool default_vhost_  = false;
