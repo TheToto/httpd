@@ -114,6 +114,8 @@ namespace http
 
         ~ServerConfig() = default;
 
+        void vhost_check();
+
         std::vector<VHostConfig> VHosts_;
         std::optional<size_t> payload_max_size = std::nullopt;
         std::optional<size_t> uri_max_size = std::nullopt;

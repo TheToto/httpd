@@ -119,6 +119,23 @@ namespace http
         ipv6_port_ = ipv6_ + ":" + std::to_string(port_);
     }
 
+    void ServerConfig::vhost_check()
+    {
+        for (size_t i = 0; i < VHosts_.size(); i++)
+        {
+            for (size_t j = i + 1; j < VHosts_.size(); j++)
+                {
+                    if ((VHosts_[i].ip_ == VHosts_[j].ip_
+                        || VHosts_[i].ip_ == "0.0.0.0"
+                        || VHosts_[j].ip_ == "0.0.0.0")
+                        && VHosts_[i].port_ == VHosts_[j].port_
+                        && VHosts_[i].server_name_ == VHosts_[j].server_name_)
+                            throw std::invalid_argument("VHosts "
+                                "must be differenciable");
+                }
+        }
+    }
+
     static void parse_vhost(nlohmann::basic_json<>& i, ServerConfig& serv)
     {
         std::string ip = i["ip"];
@@ -276,6 +293,7 @@ namespace http
             json tmp(i);
             parse_vhost(tmp, serv);
         }
+        serv.vhost_check();
         return serv;
     }
 
