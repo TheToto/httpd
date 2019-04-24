@@ -1,6 +1,9 @@
 #include <cstring>
 #include <iostream>
 #include <sys/wait.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <vector>
 
 #include "config/config.hh"
 #include "error/not-implemented.hh"
@@ -43,6 +46,8 @@ static int launch_server(char* path)
     SSL_load_error_strings();
     OpenSSL_add_ssl_algorithms();
 
+    std::vector<int> pids;
+
     for (int i = 0; i < http::serv_conf.nb_workers; i++)
     {
         int pid = fork();
@@ -69,9 +74,14 @@ static int launch_server(char* path)
             loop();
             return 0;
         }
+        else
+        {
+            pids.push_back(pid);
+        }
     }
     int waitstatus = 0;
-    wait(&waitstatus);
+    for (int i = 0; i < http::serv_conf.nb_workers; i++)
+        waitpid(pids[i], &waitstatus, 0);
     return 0;
 }
 
