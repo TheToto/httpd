@@ -45,6 +45,8 @@ namespace http
                 }
                 std::clog << "Accept a new socket !\n";
                 APM::global_connections_active++;
+                if (sock_.get()->is_ipv6())
+                    client_sock.get()->ipv6_set(true);
                 event_register.register_ew<ClientEW>(client_sock);
             }
         }

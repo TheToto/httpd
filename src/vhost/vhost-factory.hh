@@ -75,6 +75,8 @@ namespace http
                 try
                 {
                     sock->bind(it->ai_addr, it->ai_addrlen);
+                    if (it->ai_family == AF_INET6)
+                        sock->ipv6_set(true);
                     break;
                 }
                 catch (std::system_error&)
@@ -85,7 +87,6 @@ namespace http
             // listen
             sock->listen(128);
             event_register.register_ew<ServerEW>(sock);
-
 
             dispatcher.register_vhost(vhost);
             return vhost;

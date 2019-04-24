@@ -45,7 +45,7 @@ namespace http
             {
                 perror("Unable to create the SSL Context");
                 ERR_print_errors_fp(stderr);
-                throw;
+                return;
             }
 
             SSL_CTX_set_ecdh_auto(ssl_ctx_, 1);
@@ -53,15 +53,14 @@ namespace http
             if (SSL_CTX_use_PrivateKey_file(
                     ssl_ctx_.get(), conf.ssl_key_.c_str(), SSL_FILETYPE_PEM)
                 <= 0)
-                throw std::logic_error("invalid SSL privatekey");
+                return;
             if (SSL_CTX_use_certificate_file(
                     ssl_ctx_.get(), conf.ssl_cert_.c_str(), SSL_FILETYPE_PEM)
                 <= 0)
-                throw std::logic_error("invalid SSL certificate");
+                return;
 
             if (SSL_CTX_check_private_key(ssl_ctx_.get()) != 1)
-                throw std::logic_error(
-                    "SSL privatekey doesn't match certificate");
+                return;
         }
 
         VHost() = delete;
@@ -102,7 +101,7 @@ namespace http
             return apm;
         }
 
-        void apply_set_remove_header(bool is_proxy, std::string& head);
+        void apply_set_remove_header(bool is_proxy, std::string& head, Connection conn);
 
     protected:
         /**

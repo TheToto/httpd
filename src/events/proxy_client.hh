@@ -35,7 +35,14 @@ namespace http
         {
             pos_size = head.find_first_of(':', pos_size) + 1;
             pos_size = head.find_first_not_of(' ', pos_size);
-            c_l = std::stoi(head.substr(pos_size));
+            try
+            {
+                c_l = std::stoi(head.substr(pos_size));
+            }
+            catch(const std::exception& e)
+            {
+                c_l = 0;
+            }
         }
         return c_l;
     }
@@ -91,7 +98,7 @@ namespace http
             size_t pos_head_end = content_.find(std::string(http_crlfx2)) + 4;
             if (c_l != -1 && content_.size() - pos_head_end - c_l == 0)
             {
-                conn_.vhost_->apply_set_remove_header(false, content_);
+                conn_.vhost_->apply_set_remove_header(false, content_, conn_);
                 std::clog << "We have the backend response ! \n" << std::endl;
                 event_register.unregister_ew(this);
                 Response r(content_);

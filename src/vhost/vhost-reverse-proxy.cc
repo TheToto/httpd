@@ -30,7 +30,7 @@ namespace http
         event_register.register_ew<SendResponseEW>(conn, resp, is_head);
     }
 
-    void VHost::apply_set_remove_header(bool is_proxy, std::string& head)
+    void VHost::apply_set_remove_header(bool is_proxy, std::string& head, Connection conn)
     {
         std::set<std::string> h_remove;
         std::map<std::string, std::string> h_set;
@@ -53,6 +53,9 @@ namespace http
                 std::regex for_header("Forwarded:([^\r]*)");
                 std::string new_for("$&,for=" + conf_.ip_port_
                                     + ";host=" + conf_.server_name_);
+                if (conn.sock_.get()->is_ipv6())
+                    new_for = "$&,for=" + conf_.ipv6_port_
+                                    + ";host=" + conf_.server_name_;
                 if (conf_.ssl_cert_ != "")
                     new_for += ";proto=https";
                 else
@@ -64,6 +67,9 @@ namespace http
                 place_header = head.find_first_of('\n') + 1;
                 std::string new_for("Forwarded: for=" + conf_.ip_port_
                                     + ";host=" + conf_.server_name_);
+                if (conn.sock_.get()->is_ipv6())
+                    new_for = "Forwarded: for=" + conf_.ipv6_port_
+                                    + ";host=" + conf_.server_name_;
                 if (conf_.ssl_cert_ != "")
                     new_for += ";proto=https";
                 else
@@ -173,7 +179,7 @@ namespace http
         }
         conn.backend_ = sock;
         // 2. Send client request to backend (new EventWatcher ProxySend)
-        apply_set_remove_header(true, request.get_head());
+        apply_set_remove_header(true, request.get_head(), conn);
         event_register.register_ew<SendProxyEW>(conn, request.rebuild());
 
         // 3. Recv backend header (new EventWatcher ClientProxy) and apply
