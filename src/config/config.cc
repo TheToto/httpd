@@ -285,6 +285,13 @@ namespace http
         }
         catch (const std::exception&)
         {}
+        try{
+            serv.nb_workers = j["nb_workers"];
+        }
+        catch (const std::exception&)
+        {
+            serv.nb_workers = 1;
+        }
 
         auto ctn = j["vhosts"];
 

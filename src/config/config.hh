@@ -120,6 +120,8 @@ namespace http
         std::optional<size_t> payload_max_size = std::nullopt;
         std::optional<size_t> uri_max_size = std::nullopt;
         std::optional<size_t> header_max_size = std::nullopt;
+        int nb_workers = 1;
+        bool is_default = false;
     };
 
     /**
@@ -131,6 +133,6 @@ namespace http
      */
     struct ServerConfig parse_configuration(const std::string& path);
     int test_file(const std::string& path);
-
     extern ServerConfig serv_conf;
+
 } // namespace http

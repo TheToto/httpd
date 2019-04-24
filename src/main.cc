@@ -42,23 +42,31 @@ static int launch_server(char* path)
     SSL_load_error_strings();
     OpenSSL_add_ssl_algorithms();
 
-    for (auto conf : http::serv_conf.VHosts_)
+    for (int i = 0; i < http::serv_conf.nb_workers; i++)
     {
-        std::clog << "Setup " << conf.server_name_ << " vhost.\n";
-        http::VHostFactory::Create(conf);
+        int pid = fork();
+
+        if (pid == 0)
+        {
+            for (auto conf : http::serv_conf.VHosts_)
+            {
+                std::clog << "Setup " << conf.server_name_ << " vhost.\n";
+                http::VHostFactory::Create(conf);
+            }
+
+            auto loop = http::event_register.loop_get();
+            ev_signal sigint_watcher;
+            ev_signal_init(&sigint_watcher, stop_server, SIGINT);
+            loop.register_sigint_watcher(&sigint_watcher);
+
+            ev_signal sigpipe_watcher;
+            ev_signal_init(&sigpipe_watcher, continue_server, SIGPIPE);
+            loop.register_sigint_watcher(&sigpipe_watcher);
+
+            std::clog << "Server launched !" << std::endl;
+            loop();
+        }
     }
-
-    auto loop = http::event_register.loop_get();
-    ev_signal sigint_watcher;
-    ev_signal_init(&sigint_watcher, stop_server, SIGINT);
-    loop.register_sigint_watcher(&sigint_watcher);
-
-    ev_signal sigpipe_watcher;
-    ev_signal_init(&sigpipe_watcher, continue_server, SIGPIPE);
-    loop.register_sigint_watcher(&sigpipe_watcher);
-
-    std::clog << "Server launched !" << std::endl;
-    loop();
     return 0;
 }
 
