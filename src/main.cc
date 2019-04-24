@@ -1,5 +1,6 @@
 #include <cstring>
 #include <iostream>
+#include <sys/wait.h>
 
 #include "config/config.hh"
 #include "error/not-implemented.hh"
@@ -55,6 +56,7 @@ static int launch_server(char* path)
             }
 
             auto loop = http::event_register.loop_get();
+
             ev_signal sigint_watcher;
             ev_signal_init(&sigint_watcher, stop_server, SIGINT);
             loop.register_sigint_watcher(&sigint_watcher);
@@ -63,10 +65,13 @@ static int launch_server(char* path)
             ev_signal_init(&sigpipe_watcher, continue_server, SIGPIPE);
             loop.register_sigint_watcher(&sigpipe_watcher);
 
-            std::clog << "Server launched !" << std::endl;
+            std::clog << "Server launched ! Process " << i << std::endl;
             loop();
+            return 0;
         }
     }
+    int waitstatus = 0;
+    wait(&waitstatus);
     return 0;
 }
 

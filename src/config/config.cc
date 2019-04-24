@@ -292,6 +292,9 @@ namespace http
         {
             serv.nb_workers = 1;
         }
+        if (serv.nb_workers < 0)
+            throw std::invalid_argument("Number of workers "
+                                            "cannot be negative");
 
         auto ctn = j["vhosts"];
 
