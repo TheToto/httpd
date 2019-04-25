@@ -27,6 +27,7 @@ namespace http
     struct Upstream{
 
         Upstream(std::string& ip, int port, int weight, std::string& health);
+        Upstream() = default;
 
         std::string ip_;
         int port_;
@@ -34,6 +35,7 @@ namespace http
         std::string ip_port_;
         std::string ipv6_port_;
         std::string health_; /// Usefull if method checks failed/dead proxy, "" meaning method does not
+        bool alive = true;
         int weight_;        /// Do not use
     };
 

@@ -44,8 +44,8 @@ namespace http
             head = std::regex_replace(head, set_header, "");
             size_t place_header = head.find_first_of('\n') + 1;
             head.insert(place_header,
-                        "Host: " + conf_.proxy_pass_.value().ip_ + ":"
-                            + std::to_string(conf_.proxy_pass_.value().port_)
+                        "Host: " + lastUpstream.ip_ + ":"
+                            + std::to_string(lastUpstream.port_)
                             + http_crlf);
             // Forwarded
             if (head.find("Forwarded:") != std::string::npos)
@@ -143,11 +143,23 @@ namespace http
         // 1. Create connection to backend.
         shared_socket sock;
 
+        ProxyConfig next = conf_.proxy_pass_.value();
+        Upstream upstream;
+        //FIXME check all upstreams list to check if all dead => 503
+        do {
+            upstream = next.upstreams[next.nextProxy.front()];
+
+            // put back the upstream to the end of the queue.
+            next.nextProxy.push_back(next.nextProxy.front());
+            next.nextProxy.pop_front();
+        } while ((next.method_ == "fail-robin" || next.method_ == "failover") && !upstream.alive);
+        lastUpstream = upstream;
+
         misc::AddrInfoHint hints;
         hints.family(AF_UNSPEC).socktype(SOCK_STREAM);
         misc::AddrInfo res = misc::getaddrinfo(
-            conf_.proxy_pass_.value().ip_.c_str(),
-            std::to_string(conf_.proxy_pass_.value().port_).c_str(), hints);
+            upstream.ip_.c_str(),
+            std::to_string(upstream.port_).c_str(), hints);
         auto it = res.begin();
         for (; it != res.end(); it++)
         {
@@ -175,6 +187,8 @@ namespace http
         // 2. Send client request to backend (new EventWatcher ProxySend)
         apply_set_remove_header(true, request.get_head());
         event_register.register_ew<SendProxyEW>(conn, request.rebuild());
+
+        //FIXME if backend failed, set status to dead and retry with another upstream until all died or success
 
         // 3. Recv backend header (new EventWatcher ClientProxy) and apply
         //   In ClientProxyEW
