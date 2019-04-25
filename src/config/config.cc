@@ -35,8 +35,8 @@ namespace http
         ipv6_port_ = ipv6_ + ":" + std::to_string(port_);
     }
 
-    static ProxyConfig ProxyConfig::parse_upstream(json& proxy,
-            nlohmann::basic_json<>& j){
+    ProxyConfig ProxyConfig::parse_upstream(json& proxy,
+            json& j){
 
         std::vector<Upstream> v;
         std::string upstreamLink = "";
@@ -61,7 +61,7 @@ namespace http
 
         if (!ip.empty()){
             v.push_back(Upstream(ip, port, 2, health));
-            return ProxyConfig(proxy, j, v, method);
+            return ProxyConfig(proxy, v, method);
         }
         method = j["upstreams"][upstreamLink]["method"];
         for (auto i: j["upstreams"][upstreamLink]["hosts"]){
@@ -78,10 +78,10 @@ namespace http
             v.push_back(Upstream(ip, port, weight, health));
             health = "";
         }
-        return ProxyConfig(proxy, j, v, method);
+        return ProxyConfig(proxy, v, method);
     }
 
-    ProxyConfig::ProxyConfig(json& proxy, nlohmann::basic_json<>& j, std::vector<Upstream>& v,
+    ProxyConfig::ProxyConfig(json& proxy, std::vector<Upstream>& v,
             std::string& method)
     {
         std::string tmp;
@@ -133,13 +133,12 @@ namespace http
         method_ = method;
         upstreams = v;
         std::deque<int> q;
-        for (int index2 = 0; index2 < v.size(); index2++){
+        for (unsigned long index2 = 0; index2 < v.size(); index2++){
             for (int index = 0; index < v[index2].weight_; index++)
                 q.push_back(index2);
         }
         std::random_shuffle(q.begin(), q.end());
-        nextProxy = std::queue(q);
-
+        nextProxy = q;
     }
 
     VHostConfig::VHostConfig(std::string ip, int port, std::string server_name,
@@ -305,7 +304,7 @@ namespace http
         std::optional<ProxyConfig> proxy = std::nullopt;
         try
         {
-            proxy = ProxyConfig(i["proxy_pass"], j);
+            proxy = ProxyConfig::parse_upstream(i["proxy_pass"], j);
         }
         catch (const std::exception& e)
         {}

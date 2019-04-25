@@ -45,17 +45,17 @@ namespace http
      **/
     struct ProxyConfig
     {
-        ProxyConfig(json& proxy, nlohmann::basic_json<>& j, std::vector<Upstream>& v,
+        ProxyConfig(json& proxy, std::vector<Upstream>& v,
                     std::string& method);
         ProxyConfig(const ProxyConfig&) = default;
         ProxyConfig& operator=(const ProxyConfig&) = default;
         ProxyConfig(ProxyConfig&&) = default;
         ProxyConfig& operator=(ProxyConfig&&) = default;
 
-        static ProxyConfig parse_upstream(json& proxy, nlohmann::basic_json<>& j);
+        static ProxyConfig parse_upstream(json& proxy, json& j);
 
         std::vector<Upstream> upstreams;/// Vector of upstreams available for this proxy
-        std::queue<int> nextProxy;      ///queue to use to know which upstream is next to be called (please, re-insert after use)
+        std::deque<int> nextProxy;      ///queue to use to know which upstream is next to be called (please, re-insert after use)
         std::string method_;    ///what is the current method (RR, failR etc.)."" being no method
         std::map<std::string,std::string> proxy_set_header;
         std::set<std::string> proxy_remove_header;
