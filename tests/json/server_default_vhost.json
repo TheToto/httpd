@@ -7,8 +7,6 @@
             "ip": "127.0.0.1",
             "port": 8081,
             "server_name": "localhost",
-            "auth_basic":"Please log in to sub.localhost!",
-            "auth_basic_users": ["lucas:bestspider"],
             "proxy_pass":
             {
                 "ip": "127.0.0.1",
@@ -39,10 +37,8 @@
             "root":"tests/",
             "health_endpoint":"/metrics",
             "default_file":"cantillon.jpg",
-            "auth_basic":"Please log in to sub.localhost!",
-            "auth_basic_users": ["lucas:bestspider"],
             "auto_index":true,
-            "default_vhost":false
+            "default_vhost":true
         }
     ]
 }

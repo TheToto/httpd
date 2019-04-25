@@ -74,6 +74,7 @@ namespace http
         std::string this_server_name = parse_host(host, addr, addr6, mode);
         sockaddr_in addr_def;
         sockaddr_in6 addr6_def;
+        shared_vhost default_vhost = nullptr;
         if (mode == AF_INET)
         {
             addr_def.sin_family = AF_INET;
@@ -88,6 +89,8 @@ namespace http
         for (; cur != vhosts_.end(); cur++)
         {
             auto conf = (*cur)->conf_get();
+            if (conf.default_vhost_)
+                default_vhost = *cur;
             if (this_server_name != "")
             {
                 if (mode == AF_INET)
@@ -141,6 +144,8 @@ namespace http
         }
         if (cur == vhosts_.end())
         {
+            if (default_vhost != nullptr)
+                return default_vhost;
             if (!r.is_erroring())
                 r.set_mode(MOD::ERROR);
             std::clog << "No vhost found for this request...\n";
