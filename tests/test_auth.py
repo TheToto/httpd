@@ -35,7 +35,7 @@ def test_auth_miss_proxy():
     serverProc = launch_server('tests/json/proxy.json')
     assert(serverProc != None)
     requ = custom_request('tests/custom/auth_miss_proxy.txt', 'localhost', 8081)
-    assert(requ.status == 401)
+    assert(requ.status == 407)
     kill_server(serverProc)
 
 def test_auth_wrong_proxy():
@@ -43,11 +43,4 @@ def test_auth_wrong_proxy():
     assert(serverProc != None)
     requ = requests.get('http://127.0.0.1:8081/', auth=('lucas','yolo'))
     assert(requ.status_code == 407)
-    kill_server(serverProc)
-
-def test_auth_valid_proxy():
-    serverProc = launch_server('tests/json/proxy.json')
-    assert(serverProc != None)
-    requ = requests.get('http://127.0.1.7:8080/', auth=('lucas','bestspider'))
-    assert(requ.status_code == 200)
     kill_server(serverProc)

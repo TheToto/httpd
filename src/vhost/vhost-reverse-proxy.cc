@@ -99,7 +99,7 @@ namespace http
     void VHostReverseProxy::respond(Request& request, Connection conn,
                                     remaining_iterator, remaining_iterator)
     {
-        if (conf_.auth_basic_.has_value())
+        if (!request.is_erroring() && conf_.auth_basic_.has_value())
         {
             std::string auth = request.get_header("Authorization");
             if (auth == "")
