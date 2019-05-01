@@ -180,7 +180,7 @@ namespace http
         // 1. Create connection to backend.
         shared_socket sock;
 
-        ProxyConfig next = conf_.proxy_pass_.value();
+        ProxyConfig& next = conf_.proxy_pass_.value();
 
         lastUpstream = next.upstreams.getNext();
         if (lastUpstream.isNull()){
