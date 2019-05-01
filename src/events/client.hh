@@ -78,7 +78,7 @@ namespace http
             bool is_complete = req.value()(str_c, n);
             if (is_complete)
             {
-                std::clog << "We have a request ! \n" << str_c << std::endl;
+                std::clog << "We have a request ! \n" << req.value().get_head() << std::endl;
                 event_register.unregister_ew(this);
                 shared_vhost v = dispatcher(req.value());
                 Connection conn(sock_, v);
