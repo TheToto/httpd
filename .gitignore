@@ -28,3 +28,7 @@ build/
 .vscode
 .gdb_history
 *.swp
+
+#clion
+.idea/
+cmake-build-debug/
