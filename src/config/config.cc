@@ -1,3 +1,5 @@
+#include <random>
+
 #include "config/config.hh"
 
 #include "error/not-implemented.hh"
@@ -33,6 +35,10 @@ namespace http
         ipv6_ = "[" + ip_ + "]";
         ip_port_ = ip_ + ":" + std::to_string(port_);
         ipv6_port_ = ipv6_ + ":" + std::to_string(port_);
+    }
+
+    bool Upstream::isNull() {
+        return port_ == -1;
     }
 
     ProxyConfig ProxyConfig::parse_upstream(json& proxy,
@@ -81,7 +87,7 @@ namespace http
         return ProxyConfig(proxy, v, method);
     }
 
-    ProxyConfig::ProxyConfig(json& proxy, std::vector<Upstream>& v,
+    ProxyConfig::ProxyConfig(json& proxy, std::vector<Upstream> v,
             std::string& method)
     {
         std::string tmp;
@@ -131,14 +137,7 @@ namespace http
 
 
         method_ = method;
-        upstreams = v;
-        std::deque<int> q;
-        for (unsigned long index2 = 0; index2 < v.size(); index2++){
-            for (int index = 0; index < v[index2].weight_; index++)
-                q.push_back(index2);
-        }
-        std::random_shuffle(q.begin(), q.end());
-        nextProxy = q;
+        upstreams = upQueue(v);
     }
 
     VHostConfig::VHostConfig(std::string ip, int port, std::string server_name,
@@ -383,5 +382,35 @@ namespace http
             return 1;
         }
         return 0;
+    }
+
+    upQueue::upQueue(std::vector<Upstream> &v) {
+        vector = v;
+        fillQueue();
+    }
+
+    Upstream upQueue::getNext() {
+        if (queue.empty())
+        {
+            fillQueue();
+        }
+        Upstream res;
+        do {
+            if (queue.empty())
+                return nullUpstream;
+            res = vector[queue.front()];
+            queue.pop_front();
+        } while (!res.alive);
+        return res;
+    }
+
+    void upQueue::fillQueue() {
+        std::deque<int> q;
+        for (unsigned long index2 = 0; index2 < vector.size(); index2++){
+            for (int index = 0; index < vector[index2].weight_; index++)
+                q.push_back(index2);
+        }
+        std::shuffle(q.begin(), q.end(), std::mt19937(std::random_device()()));
+        queue = q;
     }
 } // namespace http

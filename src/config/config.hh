@@ -28,6 +28,7 @@ namespace http
 
         Upstream(std::string& ip, int port, int weight, std::string& health);
         Upstream() = default;
+        bool isNull();
 
         std::string ip_;
         int port_;
@@ -39,6 +40,20 @@ namespace http
         int weight_;        /// Do not use
     };
 
+    ///static ref for performance issues
+    static Upstream nullUpstream((std::string &) "", -1, 0, (std::string &) "");
+
+    struct upQueue{
+        upQueue() = default;
+        upQueue(std::vector<Upstream>& v);
+        Upstream getNext();
+
+        private:
+            void fillQueue();
+            std::deque<int> queue;
+            std::vector<Upstream> vector;
+    };
+
 
     /**
      *  \struct ProxyConfig
@@ -47,7 +62,7 @@ namespace http
      **/
     struct ProxyConfig
     {
-        ProxyConfig(json& proxy, std::vector<Upstream>& v,
+        ProxyConfig(json& proxy, std::vector<Upstream> v,
                     std::string& method);
         ProxyConfig(const ProxyConfig&) = default;
         ProxyConfig& operator=(const ProxyConfig&) = default;
@@ -56,8 +71,7 @@ namespace http
 
         static ProxyConfig parse_upstream(json& proxy, json& j);
 
-        std::vector<Upstream> upstreams;/// Vector of upstreams available for this proxy
-        std::deque<int> nextProxy;      ///queue to use to know which upstream is next to be called (please, re-insert after use)
+        upQueue upstreams;/// Vector of upstreams available for this proxy
         std::string method_;    ///what is the current method (RR, failR etc.)."" being no method
         std::map<std::string,std::string> proxy_set_header;
         std::set<std::string> proxy_remove_header;

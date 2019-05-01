@@ -157,22 +157,17 @@ namespace http
         shared_socket sock;
 
         ProxyConfig next = conf_.proxy_pass_.value();
-        Upstream upstream;
-        //FIXME check all upstreams list to check if all dead => 503
-        do {
-            upstream = next.upstreams[next.nextProxy.front()];
 
-            // put back the upstream to the end of the queue.
-            next.nextProxy.push_back(next.nextProxy.front());
-            next.nextProxy.pop_front();
-        } while ((next.method_ == "fail-robin" || next.method_ == "failover") && !upstream.alive);
-        lastUpstream = upstream;
+        lastUpstream = next.upstreams.getNext();
+        if (lastUpstream.isNull()){
+            //TODO FIXME Ca veut dire que tous les reverse sont dead => service unavailable 503
+        }
 
         misc::AddrInfoHint hints;
         hints.family(AF_UNSPEC).socktype(SOCK_STREAM);
         misc::AddrInfo res = misc::getaddrinfo(
-            upstream.ip_.c_str(),
-            std::to_string(upstream.port_).c_str(), hints);
+            lastUpstream.ip_.c_str(),
+            std::to_string(lastUpstream.port_).c_str(), hints);
         auto it = res.begin();
         for (; it != res.end(); it++)
         {
