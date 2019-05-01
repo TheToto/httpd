@@ -12,27 +12,53 @@
 #include <list>
 #include <json.hpp>
 #include <arpa/inet.h>
+#include <queue>
 
 using json = nlohmann::json;
 
 namespace http
 {
 
+    /**
+     *  \struct Upstream
+     *  \brief Adress of one instance of the Reverse Proxy
+     *
+     **/
+    struct Upstream{
 
-    struct ProxyConfig
-    {
-        ProxyConfig(json& proxy);
-        ProxyConfig(const ProxyConfig&) = default;
-        ProxyConfig& operator=(const ProxyConfig&) = default;
-        ProxyConfig(ProxyConfig&&) = default;
-        ProxyConfig& operator=(ProxyConfig&&) = default;
+        Upstream(std::string& ip, int port, int weight, std::string& health);
+        Upstream() = default;
 
         std::string ip_;
         int port_;
         std::string ipv6_;
         std::string ip_port_;
         std::string ipv6_port_;
+        std::string health_; /// Usefull if method checks failed/dead proxy, "" meaning method does not
+        bool alive = true;
+        int weight_;        /// Do not use
+    };
 
+
+    /**
+     *  \struct ProxyConfig
+     *  \brief Contains all informations about the reverse proxy whose attach to the VHost
+     *
+     **/
+    struct ProxyConfig
+    {
+        ProxyConfig(json& proxy, std::vector<Upstream>& v,
+                    std::string& method);
+        ProxyConfig(const ProxyConfig&) = default;
+        ProxyConfig& operator=(const ProxyConfig&) = default;
+        ProxyConfig(ProxyConfig&&) = default;
+        ProxyConfig& operator=(ProxyConfig&&) = default;
+
+        static ProxyConfig parse_upstream(json& proxy, json& j);
+
+        std::vector<Upstream> upstreams;/// Vector of upstreams available for this proxy
+        std::deque<int> nextProxy;      ///queue to use to know which upstream is next to be called (please, re-insert after use)
+        std::string method_;    ///what is the current method (RR, failR etc.)."" being no method
         std::map<std::string,std::string> proxy_set_header;
         std::set<std::string> proxy_remove_header;
         std::map<std::string, std::string> set_header;
@@ -88,13 +114,14 @@ namespace http
         int mode = AF_INET;
         std::string ssl_cert_ = "";
         std::string ssl_key_  = "";
+
         std::optional<ProxyConfig> proxy_pass_  = std::nullopt;
+
         std::optional<std::string> auth_basic_  = std::nullopt;
         std::optional<std::list<std::string>> auth_basic_users_ = std::nullopt;
         std::string health_endpoint_  = "";
         bool auto_index_  = false;
         bool default_vhost_  = false;
-
     };
 
     /**
@@ -120,6 +147,8 @@ namespace http
         std::optional<size_t> payload_max_size = std::nullopt;
         std::optional<size_t> uri_max_size = std::nullopt;
         std::optional<size_t> header_max_size = std::nullopt;
+        int nb_workers = 1;
+        bool is_default = false;
     };
 
     /**
@@ -131,6 +160,6 @@ namespace http
      */
     struct ServerConfig parse_configuration(const std::string& path);
     int test_file(const std::string& path);
-
     extern ServerConfig serv_conf;
+
 } // namespace http

@@ -18,6 +18,7 @@
 #include <set>
 #include <stdexcept> //invalid_argument
 #include <string> //to_string
+#include <queue>
 
 #include "misc/openssl/base64.hh"
 
@@ -25,10 +26,64 @@ using json = nlohmann::json;
 
 namespace http
 {
-    ProxyConfig::ProxyConfig(json& proxy)
+
+    Upstream::Upstream(std::string& ip, int port, int weight, std::string& health):
+        ip_(ip), port_(port), health_(health), weight_(weight)
     {
-        ip_ = proxy["ip"];
-        port_ = proxy["port"];
+        ipv6_ = "[" + ip_ + "]";
+        ip_port_ = ip_ + ":" + std::to_string(port_);
+        ipv6_port_ = ipv6_ + ":" + std::to_string(port_);
+    }
+
+    ProxyConfig ProxyConfig::parse_upstream(json& proxy,
+            json& j){
+
+        std::vector<Upstream> v;
+        std::string upstreamLink = "";
+        std::string ip = "";
+        std::string method = "";
+        int weight = 1;
+        int port = 0;
+        std::string health = "";
+
+        try {
+            upstreamLink = proxy["upstream"];
+        }
+        catch (const std::exception&) {}
+        try {
+            ip = proxy["ip"];
+            port = proxy["port"];
+        }
+        catch (std::exception& e){
+            if (upstreamLink.empty())
+                throw e;
+        }
+
+        if (!ip.empty()){
+            v.push_back(Upstream(ip, port, 2, health));
+            return ProxyConfig(proxy, v, method);
+        }
+        method = j["upstreams"][upstreamLink]["method"];
+        for (auto i: j["upstreams"][upstreamLink]["hosts"]){
+            ip = i["ip"];
+            port = i["port"];
+            try {
+                weight = i["weight"];
+            }
+            catch (std::exception&){
+                weight = 1;
+            }
+            if (method == "failover" || method == "fail-robin")
+                health = i["health"];
+            v.push_back(Upstream(ip, port, weight, health));
+            health = "";
+        }
+        return ProxyConfig(proxy, v, method);
+    }
+
+    ProxyConfig::ProxyConfig(json& proxy, std::vector<Upstream>& v,
+            std::string& method)
+    {
         std::string tmp;
         std::string tmp2;
         try
@@ -74,9 +129,16 @@ namespace http
         catch (const std::exception&)
         {}
 
-        ipv6_ = "[" + ip_ + "]";
-        ip_port_ = ip_ + ":" + std::to_string(port_);
-        ipv6_port_ = ipv6_ + ":" + std::to_string(port_);
+
+        method_ = method;
+        upstreams = v;
+        std::deque<int> q;
+        for (unsigned long index2 = 0; index2 < v.size(); index2++){
+            for (int index = 0; index < v[index2].weight_; index++)
+                q.push_back(index2);
+        }
+        std::random_shuffle(q.begin(), q.end());
+        nextProxy = q;
     }
 
     VHostConfig::VHostConfig(std::string ip, int port, std::string server_name,
@@ -136,7 +198,8 @@ namespace http
         }
     }
 
-    static void parse_vhost(nlohmann::basic_json<>& i, ServerConfig& serv)
+    static void parse_vhost(nlohmann::basic_json<>& i, ServerConfig& serv,
+            nlohmann::basic_json<>& j)
     {
         std::string ip = i["ip"];
         int port = i["port"];
@@ -241,7 +304,7 @@ namespace http
         std::optional<ProxyConfig> proxy = std::nullopt;
         try
         {
-            proxy = ProxyConfig(i["proxy_pass"]);
+            proxy = ProxyConfig::parse_upstream(i["proxy_pass"], j);
         }
         catch (const std::exception& e)
         {}
@@ -251,7 +314,7 @@ namespace http
                 || auto_index != false || default_vhost != false))
             throw std::invalid_argument(
                 "ERROR: a proxy_pass cannot be set if "
-                "root/defailt_file/auto_index/default_vhost is set");
+                "root/default_file/auto_index/default_vhost is set");
 
         serv.VHosts_.push_back(
             VHostConfig(ip, port, server_name, root, default_file, ssl_cert,
@@ -285,13 +348,23 @@ namespace http
         }
         catch (const std::exception&)
         {}
+        try{
+            serv.nb_workers = j["nb_workers"];
+        }
+        catch (const std::exception&)
+        {
+            serv.nb_workers = 1;
+        }
+        if (serv.nb_workers < 0)
+            throw std::invalid_argument("Number of workers "
+                                            "cannot be negative");
 
         auto ctn = j["vhosts"];
 
         for (auto i : ctn)
         {
             json tmp(i);
-            parse_vhost(tmp, serv);
+            parse_vhost(tmp, serv, j);
         }
         serv.vhost_check();
         return serv;
