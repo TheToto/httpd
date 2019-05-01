@@ -30,6 +30,11 @@ namespace http
         event_register.register_ew<SendResponseEW>(conn, resp, is_head);
     }
 
+    static inline bool conf_is_ipv6(std::string ip_proxy)
+    {
+        return ip_proxy.find(':') != std::string::npos;
+    }
+
     void VHost::apply_set_remove_header(bool is_proxy, std::string& head, Connection conn)
     {
         std::set<std::string> h_remove;
@@ -43,10 +48,12 @@ namespace http
             std::regex set_header("Host:(.*)\r\n");
             head = std::regex_replace(head, set_header, "");
             size_t place_header = head.find_first_of('\n') + 1;
-            head.insert(place_header,
-                        "Host: " + conf_.proxy_pass_.value().ip_ + ":"
-                            + std::to_string(conf_.proxy_pass_.value().port_)
-                            + http_crlf);
+            if (conf_is_ipv6(conf_.proxy_pass_.value().ip_))
+                head.insert(place_header,
+                        "Host: " + conf_.proxy_pass_.value().ipv6_port_ + http_crlf);
+            else
+                head.insert(place_header,
+                        "Host: " + conf_.proxy_pass_.value().ip_port_ + http_crlf);
             // Forwarded
             if (head.find("Forwarded:") != std::string::npos)
             {
