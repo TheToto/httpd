@@ -71,6 +71,7 @@ namespace http
             {
                 try
                 {
+                    std::cout << "debug : " << sock_.get()->fd_get().get()->fd_ << std::endl;
                     sended_header_ +=
                         sock_->send(to_send_.c_str() + sended_header_,
                                     to_send_.size() - sended_header_);

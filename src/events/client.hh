@@ -47,7 +47,9 @@ namespace http
         void init_timer()
         {
             // TODO : Set config value
-            ev_timer_init(&transaction_timer, abort, 10, 0);
+            timer_init = true;
+            std::cout << "Init timer" << std::endl;
+            ev_timer_init(&transaction_timer, abort, 3., 0);
             transaction_timer.data = this;
             event_register.loop_get().register_timer_watcher(&transaction_timer);
         }
@@ -55,6 +57,7 @@ namespace http
         void stop_timer(bool cut = false)
         {
             ev_timer_stop(event_register.loop_get().loop, &transaction_timer);
+            std::cout << "Stop timer" << std::endl;
             if (cut)
             {
                 event_register.unregister_ew(this);
@@ -86,13 +89,15 @@ namespace http
             {
                 n = sock_->recv(str_c, 8192);
 
-                init_timer();
+                if (!timer_init)
+                    init_timer();
 
                 if (n <= 0)
                 {
                     std::clog << "A socked has disconnect\n";
                     APM::global_connections_active--;
                     APM::global_connections_reading--;
+                    stop_timer();
                     event_register.unregister_ew(this);
                     return;
                 }
@@ -102,6 +107,7 @@ namespace http
                 std::clog << "A socked has disconnect\n";
                 APM::global_connections_active--;
                 APM::global_connections_reading--;
+                stop_timer();
                 event_register.unregister_ew(this);
                 return;
             }
@@ -131,6 +137,7 @@ namespace http
          * \brief Client socket.
          */
         ev_timer transaction_timer;
+        bool timer_init = false;
 
         shared_socket sock_;
         std::optional<Request> req;
