@@ -69,7 +69,7 @@ namespace http
                     event_register.unregister_ew(this);
                     if (conn_.is_health())
                     {
-                        // FIXME : callback_louis(conn_, Response("")); (invalid/dead)
+                        Health::health_callback(conn_, Response(""));
                         return;
                     }
                     event_register.register_ew<SendResponseEW>(

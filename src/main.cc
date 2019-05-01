@@ -15,6 +15,7 @@
 #include "request/response.hh"
 #include "vhost/apm.hh"
 #include "vhost/vhost-factory.hh"
+#include "config/health.hh"
 
 namespace http
 {
@@ -42,7 +43,8 @@ static void continue_server(struct ev_loop*, ev_signal*, int)
 
 static void periodic_cb(struct ev_loop*, ev_periodic*, int)
 {
-    std::cout << "Plop !" << std::endl;
+    std::cout << "Checking VHost upstreams !" << std::endl;
+    http::Health::check_all_vhost();
 }
 
 static int launch_thread(int i)

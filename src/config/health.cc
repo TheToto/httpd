@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <vector>
 
+#include "config/health.hh"
 #include "events/proxy_send.hh"
 #include "config/config.hh"
 #include "error/not-implemented.hh"
@@ -17,7 +18,7 @@
 #include "vhost/vhost-factory.hh"
 
 namespace http {
-    static void check_alive(std::shared_ptr<VHost> vhost)
+    void Health::check_alive(shared_vhost vhost)
     {
         for (size_t i = 0; i < vhost->conf_get().proxy_pass_.value().upstreams.vector.size(); i++){
             shared_socket sock;
@@ -53,5 +54,16 @@ namespace http {
             Connection connection(sock, vhost,i);
             event_register.register_ew<SendProxyEW>(connection, vhost->conf_get().proxy_pass_.value().upstreams.build_health(cur.health_, cur.ip_port_));
         }
+    }
+
+    void Health::check_all_vhost() {
+        for (shared_vhost vhost : dispatcher.getVhosts())
+        {
+            Health::check_alive(vhost);
+        }
+    }
+
+    void Health::health_callback(Connection &conn, Response resp) {
+        conn.vhost_.get()->conf_get().proxy_pass_.value().upstreams.set_health(conn.health_, resp.get_status() == STATUS_CODE::OK);
     }
 }

@@ -31,6 +31,10 @@ namespace http
         shared_vhost operator()(Request& r);
 
     private:
+    public:
+        const std::vector<shared_vhost> &getVhosts() const;
+
+    private:
         std::vector<shared_vhost> vhosts_;
     };
 
