@@ -29,7 +29,26 @@ namespace http
 
     Response::Response(std::string str)
         : response_(str)
-    {}
+    {
+        if (str == "")
+        {
+            status = STATUS_CODE::BAD_REQUEST;
+            return;
+        }
+        size_t start = str.find_first_of(" ");
+        start = str.find_first_not_of(" ", start);
+        std::string num = str.substr(start, 3);
+        size_t c_l;
+        try
+        {
+            c_l = std::stoi(num);
+            status = (STATUS_CODE)c_l;
+        }
+        catch(const std::exception& e)
+        {
+            status = STATUS_CODE::BAD_REQUEST;
+        }
+    }
 
     Response::Response(const Request r, misc::shared_fd file,
                        const STATUS_CODE& code)

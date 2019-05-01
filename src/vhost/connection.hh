@@ -26,8 +26,9 @@ namespace http
                 , vhost_(vhost)
         {}
 
-        Connection(shared_socket sock, int health)
+        Connection(shared_socket sock, std::shared_ptr<VHost> vhost, int health)
                 : backend_(sock)
+                , vhost_(vhost)
                 , health(health)
         {}
 
