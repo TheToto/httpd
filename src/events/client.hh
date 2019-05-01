@@ -18,6 +18,7 @@
 #include "vhost/connection.hh"
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost.hh"
+#include "events/register.hh"
 namespace http
 {
     /**
@@ -43,6 +44,30 @@ namespace http
             fcntl(tmpfd, F_SETFL, flags);
         }
 
+        void init_timer()
+        {
+            // TODO : Set config value
+            ev_timer_init(&transaction_timer, abort, 10, 0);
+            transaction_timer.data = this;
+            event_register.loop_get().register_timer_watcher(&transaction_timer);
+        }
+
+        void stop_timer(bool cut = false)
+        {
+            ev_timer_stop(event_register.loop_get().loop, &transaction_timer);
+            if (cut)
+            {
+                event_register.unregister_ew(this);
+                // SEND TIMEOUT ERROR (via FailVhost ?)
+            }
+        }
+
+        static void abort(struct ev_loop*, ev_timer *w, int)
+        {
+            auto ew = reinterpret_cast<ClientEW*>(w->data);
+            ew->stop_timer(true);
+        }
+
         /**
          * \brief Start accepting connections on Client socket.
          */
@@ -55,6 +80,9 @@ namespace http
             try
             {
                 n = sock_->recv(str_c, 8192);
+
+                init_timer();
+
                 if (n <= 0)
                 {
                     std::clog << "A socked has disconnect\n";
@@ -79,6 +107,7 @@ namespace http
             if (is_complete)
             {
                 std::clog << "We have a request ! \n" << req.value().get_head() << std::endl;
+                stop_timer();
                 event_register.unregister_ew(this);
                 shared_vhost v = dispatcher(req.value());
                 Connection conn(sock_, v);
@@ -96,6 +125,8 @@ namespace http
         /**
          * \brief Client socket.
          */
+        ev_timer transaction_timer;
+
         shared_socket sock_;
         std::optional<Request> req;
         /**
