@@ -40,8 +40,8 @@ namespace http
         int weight_;        /// Do not use
     };
 
-    ///static ref for performance issues
-    static Upstream nullUpstream((std::string &) "", -1, 0, (std::string &) "");
+    static std::string nullStr = "";
+    static Upstream nullUpstream(nullStr, -1, -1, nullStr);
 
     struct upQueue{
         upQueue() = default;
