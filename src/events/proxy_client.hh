@@ -18,6 +18,7 @@
 #include "vhost/connection.hh"
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost.hh"
+#include "config/health.hh"
 
 namespace http
 {
