@@ -37,6 +37,8 @@ lib_LTLIBRARIES = libspider.la
 SOURCES = \
                        src/config/config.cc \
                        src/config/config.hh \
+                       src/config/health.cc \
+                       src/config/health.hh \
                        src/error/not-implemented.hh \
                        src/events/event-loop.hh \
                        src/events/events.cc \

@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <vector>
 
+#include "events/proxy_send.hh"
 #include "config/config.hh"
 #include "error/not-implemented.hh"
 #include "events/event-loop.hh"

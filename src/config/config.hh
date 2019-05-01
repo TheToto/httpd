@@ -48,10 +48,12 @@ namespace http
         upQueue(std::vector<Upstream>& v);
         Upstream getNext();
 
-        private:
-            void fillQueue();
-            std::deque<int> queue;
-            std::vector<Upstream> vector;
+        std::string build_health(std::string heal_ep, std::string ipPort);
+        void set_health(int health, bool is_ok);
+
+        void fillQueue();
+        std::deque<int> queue;
+        std::vector<Upstream> vector;
     };
 
 

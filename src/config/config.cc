@@ -22,6 +22,8 @@
 #include <string> //to_string
 #include <queue>
 
+#include "request/types.hh"
+
 #include "misc/openssl/base64.hh"
 
 using json = nlohmann::json;
@@ -412,5 +414,13 @@ namespace http
         }
         std::shuffle(q.begin(), q.end(), std::mt19937(std::random_device()()));
         queue = q;
+    }
+
+    void upQueue::set_health(int health, bool is_ok) {
+        vector[health].health_ = is_ok;
+    }
+
+    std::string upQueue::build_health(std::string heal_ep, std::string ipPort){
+        return "GET " + heal_ep + " HTTP/1.1" + http_crlf + "Host: " + ipPort + http_crlfx2;
     }
 } // namespace http
