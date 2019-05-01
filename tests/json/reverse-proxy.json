@@ -9,8 +9,8 @@
             "server_name": "localhost",
             "proxy_pass":
             {
-                "ip": "127.0.0.1",
-                "port": 8080,
+                "ip": "172.217.19.227",
+                "port": 80,
                 "proxy_remove_header": [
                     "Header-Removed",
                     "HTTP_X_FORWARDED_PROTO"
