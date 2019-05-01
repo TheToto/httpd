@@ -59,7 +59,11 @@ namespace http {
     void Health::check_all_vhost() {
         for (shared_vhost vhost : dispatcher.getVhosts())
         {
-            Health::check_alive(vhost);
+            if (vhost->conf_get().proxy_pass_.has_value()) {
+                const std::string& tmp = vhost->conf_get().proxy_pass_.value().method_;
+                if (tmp == "failover" || tmp == "fail-robin")
+                    Health::check_alive(vhost);
+            }
         }
     }
 
