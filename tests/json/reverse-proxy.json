@@ -4,15 +4,15 @@
     "header_max_size": 1024,
     "vhosts": [
         {
-            "ip": "127.0.0.1",
+            "ip": "::1",
             "port": 8001,
             "server_name": "localhost",
             "proxy_pass":
             {
-                "ip": "172.217.19.227",
-                "port": 80,
+                "ip": "::1",
+                "port": 8000,
                 "proxy_remove_header": [
-                    "Header-Removed",
+                    "User-Agent",
                     "HTTP_X_FORWARDED_PROTO"
                 ],
                 "proxy_set_header":
