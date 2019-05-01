@@ -81,6 +81,11 @@ namespace http
                 {
                     std::clog << "The backend has disconnect\n";
                     event_register.unregister_ew(this);
+                    if (conn_.is_health())
+                    {
+                        // FIXME : callback_louis(conn_.health, ""); (invalid/dead)
+                        return;
+                    }
                     event_register.register_ew<SendResponseEW>(
                         conn_, error::bad_gateway(Request()));
                     return;
@@ -90,6 +95,11 @@ namespace http
             {
                 std::clog << "The backend has disconnect\n";
                 event_register.unregister_ew(this);
+                if (conn_.is_health())
+                {
+                    // FIXME : callback_louis(conn_.health, ""); (invalid/dead)
+                    return;
+                }
                 event_register.register_ew<SendResponseEW>(
                     conn_, error::bad_gateway(Request()));
                 return;
@@ -103,6 +113,11 @@ namespace http
                 std::clog << "We have the backend response ! \n" << std::endl;
                 event_register.unregister_ew(this);
                 Response r(content_);
+                if (conn_.is_health())
+                {
+                    // FIXME : callback_louis(conn_.health, r); (valid)
+                    return;
+                }
                 event_register.register_ew<SendResponseEW>(conn_, r);
             }
             else

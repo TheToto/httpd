@@ -67,6 +67,11 @@ namespace http
                 {
                     std::clog << "Connection aborded with backend !\n";
                     event_register.unregister_ew(this);
+                    if (conn_.is_health())
+                    {
+                        // FIXME : callback_louis(conn_.health, ""); (invalid/dead)
+                        return;
+                    }
                     event_register.register_ew<SendResponseEW>(
                         conn_, error::bad_gateway(Request()));
                     return;
