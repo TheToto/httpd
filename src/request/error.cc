@@ -69,6 +69,11 @@ namespace http::error
         return Response(request, STATUS_CODE::BAD_GATEWAY);
     }
 
+    Response service_unavailable(const Request& request)
+    {
+        return Response(request, STATUS_CODE::SERVICE_UNAVAILABLE);
+    }
+
     Response gateway_timeout(const Request& request)
     {
         return Response(request, STATUS_CODE::GATEWAY_TIMEOUT);

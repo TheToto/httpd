@@ -30,6 +30,7 @@ namespace http
         INTERNAL_SERVER_ERROR = 500,
         NOT_IMPLEMENTED = 501,
         BAD_GATEWAY = 502,
+        SERVICE_UNAVAILABLE = 503,
         GATEWAY_TIMEOUT = 504,
         HTTP_VERSION_NOT_SUPPORTED = 505
     };
@@ -58,43 +59,44 @@ namespace http
     inline constexpr std::pair<STATUS_CODE, decltype(http_crlf)>
     statusCode(STATUS_CODE code)
     {
-        switch (code)
-        {
-        case OK:
-            return {OK, "OK"};
-        case BAD_REQUEST:
-            return {BAD_REQUEST, "Bad Request"};
-        case UNAUTHORIZED:
-            return {UNAUTHORIZED, "Unauthorized"};
-        case FORBIDDEN:
-            return {FORBIDDEN, "Forbidden"};
-        case NOT_FOUND:
-            return {NOT_FOUND, "Not Found"};
-        case METHOD_NOT_ALLOWED:
-            return {METHOD_NOT_ALLOWED, "Method Not Allowed"};
-        case PROXY_AUTHENTICATION_REQUIRED:
-            return {PROXY_AUTHENTICATION_REQUIRED,
-                    "Proxy Authentication Required"};
-        case PAYLOAD_TOO_LARGE:
-            return {PAYLOAD_TOO_LARGE, "Payload Too Large"};
-        case URI_TOO_LONG:
-            return {URI_TOO_LONG, "URI Too Long"};
-        case UPGRADE_REQUIRED:
-            return {UPGRADE_REQUIRED, "Upgrade Required"};
-        case HEADER_FIELDS_TOO_LARGE:
-            return {HEADER_FIELDS_TOO_LARGE, "Request Header Fields Too Large"};
-        case INTERNAL_SERVER_ERROR:
-            return {INTERNAL_SERVER_ERROR, "Internal Server Error"};
-        case NOT_IMPLEMENTED:
-            return {NOT_IMPLEMENTED, "Not Implemented"};
-        case BAD_GATEWAY:
-            return {BAD_GATEWAY, "Bad Gateway"};
-        case GATEWAY_TIMEOUT:
-            return {GATEWAY_TIMEOUT, "Gateway Timeout"};
-        case HTTP_VERSION_NOT_SUPPORTED:
-            return {HTTP_VERSION_NOT_SUPPORTED, "HTTP Version Not Supported"};
-        default:
-            throw std::logic_error("unknown status_code");
+        switch (code) {
+            case OK:
+                return {OK, "OK"};
+            case BAD_REQUEST:
+                return {BAD_REQUEST, "Bad Request"};
+            case UNAUTHORIZED:
+                return {UNAUTHORIZED, "Unauthorized"};
+            case FORBIDDEN:
+                return {FORBIDDEN, "Forbidden"};
+            case NOT_FOUND:
+                return {NOT_FOUND, "Not Found"};
+            case METHOD_NOT_ALLOWED:
+                return {METHOD_NOT_ALLOWED, "Method Not Allowed"};
+            case PROXY_AUTHENTICATION_REQUIRED:
+                return {PROXY_AUTHENTICATION_REQUIRED,
+                        "Proxy Authentication Required"};
+            case PAYLOAD_TOO_LARGE:
+                return {PAYLOAD_TOO_LARGE, "Payload Too Large"};
+            case URI_TOO_LONG:
+                return {URI_TOO_LONG, "URI Too Long"};
+            case UPGRADE_REQUIRED:
+                return {UPGRADE_REQUIRED, "Upgrade Required"};
+            case HEADER_FIELDS_TOO_LARGE:
+                return {HEADER_FIELDS_TOO_LARGE, "Request Header Fields Too Large"};
+            case INTERNAL_SERVER_ERROR:
+                return {INTERNAL_SERVER_ERROR, "Internal Server Error"};
+            case NOT_IMPLEMENTED:
+                return {NOT_IMPLEMENTED, "Not Implemented"};
+            case BAD_GATEWAY:
+                return {BAD_GATEWAY, "Bad Gateway"};
+            case SERVICE_UNAVAILABLE:
+                return {SERVICE_UNAVAILABLE, "Service Unavailable"};
+            case GATEWAY_TIMEOUT:
+                return {GATEWAY_TIMEOUT, "Gateway Timeout"};
+            case HTTP_VERSION_NOT_SUPPORTED:
+                return {HTTP_VERSION_NOT_SUPPORTED, "HTTP Version Not Supported"};
+            default:
+                throw std::logic_error("unknown status_code");
         }
     }
 } // namespace http

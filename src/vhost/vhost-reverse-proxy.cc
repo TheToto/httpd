@@ -184,7 +184,9 @@ namespace http
 
         lastUpstream = next.upstreams.getNext();
         if (lastUpstream.isNull()){
-            //TODO FIXME Ca veut dire que tous les reverse sont dead => service unavailable 503
+            ///all reverse are dead
+            send_response(conn, error::service_unavailable(request));
+            return;
         }
 
         misc::AddrInfoHint hints;

@@ -28,6 +28,7 @@ namespace http::error
     Response internal_server_error(const Request&);
     Response not_implemented(const Request&);
     Response bad_gateway(const Request&);
+    Response service_unavailable(const Request&);
     Response gateway_timeout(const Request&);
     Response http_version_not_supported(const Request&);
 } // namespace http::error
