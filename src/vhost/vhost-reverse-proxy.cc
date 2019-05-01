@@ -54,6 +54,30 @@ namespace http
             else
                 head.insert(place_header,
                         "Host: " + lastUpstream.ip_port_ + http_crlf);
+
+            size_t x_pos = head.find("X-Forwarded-For:");
+            if (x_pos != std::string::npos)
+            {
+                x_pos = head.find_first_of(":", x_pos);
+                x_pos = head.find_first_not_of(": ", x_pos);
+                std::string new_for = "Forwarded: ";
+                while (head[x_pos] != '\r')
+                {
+                    size_t x_end = head.find_first_of(",\r", x_pos);
+                    std::string x_head = head.substr(x_pos, x_end - x_pos);
+                    if (conf_is_ipv6(x_head))
+                    {
+                        x_head = "\"[" + x_head + "]\"";
+                    }
+                    new_for += "for=" + x_head;
+                    x_pos = head.find_first_not_of(" ,", x_end);
+                    if (head[x_pos] != '\r')
+                        new_for += ",";
+                }
+                place_header = head.find_first_of('\n') + 1;
+                head.insert(place_header, new_for + http_crlf);
+            }
+
             // Forwarded
             if (head.find("Forwarded:") != std::string::npos)
             {
@@ -61,8 +85,8 @@ namespace http
                 std::string new_for("$&,for=" + conf_.ip_port_
                                     + ";host=" + conf_.server_name_);
                 if (conn.sock_.get()->is_ipv6())
-                    new_for = "$&,for=" + conf_.ipv6_port_
-                                    + ";host=" + conf_.server_name_;
+                    new_for = "$&,for=\"" + conf_.ipv6_port_
+                                    + "\";host=" + conf_.server_name_;
                 if (conf_.ssl_cert_ != "")
                     new_for += ";proto=https";
                 else
@@ -75,8 +99,8 @@ namespace http
                 std::string new_for("Forwarded: for=" + conf_.ip_port_
                                     + ";host=" + conf_.server_name_);
                 if (conn.sock_.get()->is_ipv6())
-                    new_for = "Forwarded: for=" + conf_.ipv6_port_
-                                    + ";host=" + conf_.server_name_;
+                    new_for = "Forwarded: for=\"" + conf_.ipv6_port_
+                                    + "\";host=" + conf_.server_name_;
                 if (conf_.ssl_cert_ != "")
                     new_for += ";proto=https";
                 else
