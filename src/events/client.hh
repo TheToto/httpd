@@ -58,7 +58,12 @@ namespace http
             if (cut)
             {
                 event_register.unregister_ew(this);
-                // SEND TIMEOUT ERROR (via FailVhost ?)
+                shared_vhost v = Dispatcher::get_fail();
+                Connection conn(sock_, v);
+                Request r;
+                r.set_mode(MOD::TIMEOUT_TRANSACTION);
+                APM::global_connections_reading--;
+                v->respond(r, conn, 0, 0);
             }
         }
 

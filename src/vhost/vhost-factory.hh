@@ -3,6 +3,8 @@
  * \brief VHostFactory
  */
 
+#pragma once
+
 #include <arpa/inet.h>
 #include <optional>
 
@@ -87,7 +89,6 @@ namespace http
             // listen
             sock->listen(128);
             event_register.register_ew<ServerEW>(sock);
-
             dispatcher.register_vhost(vhost);
             return vhost;
         }

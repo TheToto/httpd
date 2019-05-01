@@ -153,4 +153,9 @@ namespace http
         }
         return *cur;
     }
+
+    shared_vhost Dispatcher::get_fail() {
+        return VHostFactory::Fail();
+    }
+
 } // namespace http

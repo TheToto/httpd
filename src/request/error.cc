@@ -83,4 +83,11 @@ namespace http::error
     {
         return Response(request, STATUS_CODE::HTTP_VERSION_NOT_SUPPORTED);
     }
+
+    Response timeout_transaction(const Request& request)
+    {
+        Response r = Response(request, STATUS_CODE::TIMEOUT);
+        r.add_header("X-Timeout-Reason", "Transaction");
+        return r;
+    }
 } // namespace http::error

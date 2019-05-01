@@ -23,6 +23,8 @@ namespace http
         auto mod = r.get_mode();
         if (mod == MOD::ERROR_METHOD)
             send_response(conn, error::method_not_allowed(r));
+        else if (mod == MOD::TIMEOUT_TRANSACTION)
+            send_response(conn, error::timeout_transaction(r));
         else if (mod == MOD::OBSOLETE)
             send_response(conn, error::http_version_not_supported(r));
         else if (mod == MOD::UPGRADE)

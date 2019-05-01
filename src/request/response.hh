@@ -41,6 +41,13 @@ namespace http
         const std::string& operator()() const;
         std::string sup_body();
 
+        void add_header(std::string name, std::string content)
+        {
+            size_t place_header = response_.find_first_of('\n') + 1;
+            response_.insert(place_header,
+                        name + ": " + content + http_crlf);
+        }
+
         misc::shared_fd file_ = nullptr;
         size_t file_size_ = 0;
 

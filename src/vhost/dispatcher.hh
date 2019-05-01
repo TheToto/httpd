@@ -30,6 +30,8 @@ namespace http
         }
         shared_vhost operator()(Request& r);
 
+        static shared_vhost get_fail();
+
     private:
         std::vector<shared_vhost> vhosts_;
     };

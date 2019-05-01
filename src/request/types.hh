@@ -23,6 +23,7 @@ namespace http
         NOT_FOUND = 404,
         METHOD_NOT_ALLOWED = 405,
         PROXY_AUTHENTICATION_REQUIRED = 407,
+        TIMEOUT = 408,
         PAYLOAD_TOO_LARGE = 413,
         URI_TOO_LONG = 414,
         UPGRADE_REQUIRED = 426,
@@ -47,7 +48,8 @@ namespace http
         ERROR_DOUBLE_REQUEST_FAILED,
         HEADER_FIELD_TOO_LARGE,
         ERROR_URI_TOO_LONG,
-        ERROR_PAYLOAD_TOO_LARGE
+        ERROR_PAYLOAD_TOO_LARGE,
+        TIMEOUT_TRANSACTION
     };
 
     /**
@@ -95,6 +97,8 @@ namespace http
                 return {GATEWAY_TIMEOUT, "Gateway Timeout"};
             case HTTP_VERSION_NOT_SUPPORTED:
                 return {HTTP_VERSION_NOT_SUPPORTED, "HTTP Version Not Supported"};
+            case TIMEOUT:
+                return {TIMEOUT, "Timeout"};
             default:
                 throw std::logic_error("unknown status_code");
         }
