@@ -78,6 +78,16 @@ namespace http
             ev_signal_start(loop, sig);
         }
 
+        void register_period_watcher(ev_periodic* period) const
+        {
+            ev_periodic_start(loop, period);
+        }
+
+        void register_timer_watcher(ev_timer* timer) const
+        {
+            ev_timer_start(loop, timer);
+        }
+
         /**
          * \brief Start waiting for events.
          */

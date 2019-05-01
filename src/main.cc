@@ -39,6 +39,11 @@ static void stop_server(struct ev_loop* loop, ev_signal*, int)
 static void continue_server(struct ev_loop*, ev_signal*, int)
 {}
 
+static void periodic_cb(struct ev_loop*, ev_periodic*, int)
+{
+    std::cout << "Plop !" << std::endl;
+}
+
 static int launch_thread(int i)
 {
     for (auto conf : http::serv_conf.VHosts_)
@@ -56,6 +61,10 @@ static int launch_thread(int i)
     ev_signal sigpipe_watcher;
     ev_signal_init(&sigpipe_watcher, continue_server, SIGPIPE);
     loop.register_sigint_watcher(&sigpipe_watcher);
+
+    ev_periodic health_back;
+    ev_periodic_init(&health_back, periodic_cb, 0, 11, 0);
+    loop.register_period_watcher(&health_back);
 
     std::clog << "Server launched ! Process " << i << std::endl;
     loop();
