@@ -48,12 +48,12 @@ namespace http
             std::regex set_header("Host:(.*)\r\n");
             head = std::regex_replace(head, set_header, "");
             size_t place_header = head.find_first_of('\n') + 1;
-            if (conf_is_ipv6(conf_.proxy_pass_.value().ip_))
+            if (conf_is_ipv6(lastUpstream.ip_))
                 head.insert(place_header,
-                        "Host: " + conf_.proxy_pass_.value().ipv6_port_ + http_crlf);
+                        "Host: " + lastUpstream.ipv6_port_ + http_crlf);
             else
                 head.insert(place_header,
-                        "Host: " + conf_.proxy_pass_.value().ip_port_ + http_crlf);
+                        "Host: " + lastUpstream.ip_port_ + http_crlf);
             // Forwarded
             if (head.find("Forwarded:") != std::string::npos)
             {
