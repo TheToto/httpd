@@ -62,6 +62,8 @@ namespace http
             {
                 n = sock_->recv(str_c, 8192);
 
+                if (timer_init_keepalive)//FIXME
+                    stop_timer_keepalive();
                 if (n <= 0)
                 {
                     std::clog << "A socked has disconnect\n";
@@ -72,8 +74,6 @@ namespace http
                     return;
                 }
 
-                if (timer_init_keepalive)//FIXME
-                    stop_timer_keepalive();
                 if (!timer_init_trans)//FIXME
                     init_timer_trans();
                 data_size += n;
