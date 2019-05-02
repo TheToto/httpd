@@ -60,9 +60,10 @@ namespace http
             std::cout << "Stop timer" << std::endl;
             if (cut)
             {
+                shared_socket save_sock = sock_;
                 event_register.unregister_ew(this);
                 shared_vhost v = Dispatcher::get_fail();
-                Connection conn(sock_, v);
+                Connection conn(save_sock, v);
                 Request r;
                 r.set_mode(MOD::TIMEOUT_TRANSACTION);
                 APM::global_connections_reading--;
