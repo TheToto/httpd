@@ -51,7 +51,11 @@ namespace http
         void operator()() final
         {
             if (!req)
+            {
                 req = Request();
+                if (true)//FIXME if (throughput)
+                    init_timer_throughput();
+            }
             char str_c[8192];
             int n = 0;
             try
@@ -71,6 +75,9 @@ namespace http
                     event_register.unregister_ew(this);
                     return;
                 }
+
+                if (true)//FIXME if (thoughput)
+                    data_size += n;
             }
             catch (const std::exception& e)
             {
@@ -87,6 +94,7 @@ namespace http
             bool is_complete = req.value()(str_c, n);
             if (is_complete)
             {
+                stop_timer_throughput();
                 std::clog << "We have a request ! \n" << req.value().get_head() << std::endl;
                 stop_timer_trans();
                 event_register.unregister_ew(this);
@@ -105,6 +113,7 @@ namespace http
         void init_timer_trans()
         {
             // TODO : Set config value
+            std::cout << "Init timer 1!" << std::endl;
             timer_init_trans = true;
             ev_timer_init(&transaction_timer, abort_trans, 3., 0);
             transaction_timer.data = this;
@@ -114,20 +123,32 @@ namespace http
         void init_timer_keepalive()
         {
             // TODO : Set config value
+            std::cout << "Init timer 2!" << std::endl;
             timer_init_keepalive = true;
             ev_timer_init(&keepalive_timer, abort_keepalive, 10., 0);
             keepalive_timer.data = this;
             event_register.loop_get().register_timer_watcher(&keepalive_timer);
         }
 
+        void init_timer_throughput()
+        {
+            // TODO : Set config value
+            std::cout << "Init timer 3!" << std::endl;
+            ev_timer_init(&throughput_timer, callback_throughput, 2., 0);
+            throughput_timer.data = this;
+            event_register.loop_get().register_timer_watcher(&throughput_timer);
+        }
+
         void stop_timer_trans(bool cut = false)
         {
+            std::cout << "STOP timer 1!" << std::endl;
             if (timer_init_keepalive)
                 stop_timer_keepalive();
             timer_init_trans = false;
             ev_timer_stop(event_register.loop_get().loop, &transaction_timer);
             if (cut)
             {
+                std::cout << "ERROR timer 1!" << std::endl;
                 shared_socket save_sock = sock_;
                 event_register.unregister_ew(this);
                 shared_vhost v = Dispatcher::get_fail();
@@ -141,10 +162,12 @@ namespace http
 
         void stop_timer_keepalive(bool cut = false)
         {
+            std::cout << "STOP timer 2!" << std::endl;
             timer_init_keepalive = false;
             ev_timer_stop(event_register.loop_get().loop, &keepalive_timer);
             if (cut)
             {
+                std::cout << "ERROR timer 2!" << std::endl;
                 shared_socket save_sock = sock_;
                 event_register.unregister_ew(this);
                 shared_vhost v = Dispatcher::get_fail();
@@ -154,6 +177,14 @@ namespace http
                 APM::global_connections_reading--;
                 v->respond(r, conn, 0, 0);
             }
+        }
+
+        void stop_timer_throughput()
+        {
+            std::cout << "STOP timer 3!" << std::endl;
+            if (timer_init_keepalive)
+                stop_timer_keepalive();
+            ev_timer_stop(event_register.loop_get().loop, &throughput_timer);
         }
 
         static void abort_trans(struct ev_loop*, ev_timer *w, int)
@@ -168,6 +199,28 @@ namespace http
             ew->stop_timer_keepalive(true);
         }
 
+        static void callback_throughput(struct ev_loop*, ev_timer *w, int)
+        {
+            std::cout << "CALLBACK timer 3!" << std::endl;
+            auto ew = reinterpret_cast<ClientEW*>(w->data);
+            ew->stop_timer_throughput();
+            if (ew->data_size / 2.0 < 1000)//FIXME if (ew->data_size / throughput_time < throughput_val)
+            {
+                std::cout << "ERROR timer 3!" << std::endl;
+                if (ew->timer_init_trans)
+                    ew->stop_timer_trans();
+                shared_socket save_sock = ew->sock_;
+                event_register.unregister_ew(ew);
+                shared_vhost v = Dispatcher::get_fail();
+                Request r;
+                r.set_mode(MOD::TIMEOUT_THROUGHPUT);
+                Connection conn(save_sock, v, r);
+                APM::global_connections_reading--;
+                v->respond(r, conn, 0, 0);
+                return;
+            }
+            ew->init_timer_throughput();
+        }
 
     private:
         /**
@@ -175,8 +228,11 @@ namespace http
          */
         ev_timer transaction_timer;
         ev_timer keepalive_timer;
+        ev_timer throughput_timer;
         bool timer_init_trans = false;
         bool timer_init_keepalive = false;
+
+        size_t data_size;
 
         shared_socket sock_;
         std::optional<Request> req;

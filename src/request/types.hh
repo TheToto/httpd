@@ -50,7 +50,8 @@ namespace http
         ERROR_URI_TOO_LONG,
         ERROR_PAYLOAD_TOO_LARGE,
         TIMEOUT_TRANSACTION,
-        TIMEOUT_KEEPALIVE
+        TIMEOUT_KEEPALIVE,
+        TIMEOUT_THROUGHPUT
     };
 
     /**

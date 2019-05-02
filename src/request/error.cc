@@ -97,4 +97,11 @@ namespace http::error
         r.add_header("X-Timeout-Reason", "Keep-Alive");
         return r;
     }
+
+    Response timeout_throughput(const Request& request)
+    {
+        Response r = Response(request, STATUS_CODE::TIMEOUT);
+        r.add_header("X-Timeout-Reason", "Throughput");
+        return r;
+    }
 } // namespace http::error
