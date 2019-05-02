@@ -84,7 +84,12 @@ namespace http
                     event_register.unregister_ew(this);
                     if (conn_.is_health())
                     {
+                        Health::health_callback(conn_, Response(""));//failed
+                        return;
+                    }
+                    if (conn_.vhost_->conf_get().proxy_pass_->method_ == fail_robin){
                         Health::health_callback(conn_, Response(""));
+                        conn_.vhost_->respond(conn_.req_, conn_, 0, 0);
                         return;
                     }
                     event_register.register_ew<SendResponseEW>(
@@ -98,7 +103,12 @@ namespace http
                 event_register.unregister_ew(this);
                 if (conn_.is_health())
                 {
+                    Health::health_callback(conn_, Response(""));//failed
+                    return;
+                }
+                if (conn_.vhost_->conf_get().proxy_pass_->method_ == fail_robin){
                     Health::health_callback(conn_, Response(""));
+                    conn_.vhost_->respond(conn_.req_, conn_, 0, 0);
                     return;
                 }
                 event_register.register_ew<SendResponseEW>(
@@ -116,7 +126,7 @@ namespace http
                 Response r(content_);
                 if (conn_.is_health())
                 {
-                    Health::health_callback(conn_, r);
+                    Health::health_callback(conn_, r);//success or not
                     return;
                 }
                 event_register.register_ew<SendResponseEW>(conn_, r);

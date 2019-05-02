@@ -78,7 +78,7 @@ namespace http
         if (mode == AF_INET)
         {
             addr_def.sin_family = AF_INET;
-            inet_pton(AF_INET, "0.0.0.0", &addr_def.sin_addr);
+            inet_pton(AF_INET, ROOT_IP, &addr_def.sin_addr);
         }
         else
         {

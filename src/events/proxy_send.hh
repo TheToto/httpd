@@ -72,6 +72,11 @@ namespace http
                         Health::health_callback(conn_, Response(""));
                         return;
                     }
+                    if (conn_.vhost_->conf_get().proxy_pass_->method_ == fail_robin){
+                        Health::health_callback(conn_, Response(""));
+                        conn_.vhost_->respond(conn_.req_, conn_, 0, 0);
+                        return;
+                    }
                     event_register.register_ew<SendResponseEW>(
                         conn_, error::bad_gateway(Request()));
                     return;
