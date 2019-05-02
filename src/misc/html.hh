@@ -28,11 +28,11 @@ namespace misc
         {
             std::string abs_path = path.substr(1);
             std::string body;
-            body += "<li>\n";
-            body += "<ul><a href=\"" + abs_path + "..\">..</a></ul>\n";
+            body += "<ul>\n";
+            body += "<li><a href=\"" + abs_path + "..\">..</a></li>\n";
             for (auto& p : std::filesystem::directory_iterator(path))
             {
-                body += "<ul>";
+                body += "<li>";
                 body += "<a href=\"";
                 body += abs_path;
                 body += p.path().filename();
@@ -43,9 +43,9 @@ namespace misc
                 if (p.is_directory())
                     body += "/";
                 body += "</a>";
-                body += "</ul>\n";
+                body += "</li>\n";
             }
-            body += "</li>\n";
+            body += "</ul>\n";
             return generate_html("Index of " + abs_path, body);
         }
 
