@@ -42,7 +42,8 @@ namespace http
             int flags = fcntl(tmpfd, F_GETFL);
             flags |= O_NONBLOCK;
             fcntl(tmpfd, F_SETFL, flags);
-            init_timer_keepalive();
+            if (serv_conf.keep_alive.has_value())
+                init_timer_keepalive();
         }
 
         /**
@@ -54,7 +55,7 @@ namespace http
             if (!req)
             {
                 req = Request();
-                if (true)//FIXME if (throughput)
+                if (serv_conf.throughput_val.has_value())
                     init_timer_throughput();
             }
             char str_c[8192];
@@ -63,7 +64,7 @@ namespace http
             {
                 n = sock_->recv(str_c, 8192);
 
-                if (timer_init_keepalive)//FIXME
+                if (timer_init_keepalive)
                     stop_timer_keepalive();
                 if (n <= 0)
                 {
@@ -76,7 +77,7 @@ namespace http
                     return;
                 }
 
-                if (!timer_init_trans)//FIXME
+                if (serv_conf.transaction.has_value() && !timer_init_trans)
                     init_timer_trans();
                 data_size += n;
             }
@@ -118,7 +119,8 @@ namespace http
             // TODO : Set config value
             std::cout << "Init timer 1!" << std::endl;
             timer_init_trans = true;
-            ev_timer_init(&transaction_timer, abort_trans, 3., 0);
+            ev_timer_init(&transaction_timer, abort_trans,
+                          serv_conf.transaction.value(), 0);
             transaction_timer.data = this;
             event_register.loop_get().register_timer_watcher(&transaction_timer);
         }
@@ -128,7 +130,8 @@ namespace http
             // TODO : Set config value
             std::cout << "Init timer 2!" << std::endl;
             timer_init_keepalive = true;
-            ev_timer_init(&keepalive_timer, abort_keepalive, 10., 0);
+            ev_timer_init(&keepalive_timer, abort_keepalive,
+                          serv_conf.keep_alive.value(), 0);
             keepalive_timer.data = this;
             event_register.loop_get().register_timer_watcher(&keepalive_timer);
         }
@@ -145,6 +148,8 @@ namespace http
 
         void stop_timer_trans(bool cut = false)
         {
+            if (!serv_conf.transaction.has_value())
+                return;
             std::cout << "STOP timer 1!" << std::endl;
             if (timer_init_keepalive)
                 stop_timer_keepalive();
@@ -168,6 +173,8 @@ namespace http
 
         void stop_timer_keepalive(bool cut = false)
         {
+            if (!serv_conf.keep_alive.has_value())
+                return;
             std::cout << "STOP timer 2!" << std::endl;
             timer_init_keepalive = false;
             ev_timer_stop(event_register.loop_get().loop, &keepalive_timer);
@@ -191,6 +198,8 @@ namespace http
 
         void stop_timer_throughput()
         {
+            if (!serv_conf.throughput_val.has_value())
+                return;
             std::cout << "STOP timer 3!" << std::endl;
             if (timer_init_keepalive)
                 stop_timer_keepalive();
@@ -212,10 +221,13 @@ namespace http
 
         static void callback_throughput(struct ev_loop*, ev_timer *w, int)
         {
+            if (!serv_conf.throughput_val.has_value())
+                return;
             std::cout << "CALLBACK timer 3!" << std::endl;
             auto ew = reinterpret_cast<ClientEW*>(w->data);
             ew->stop_timer_throughput();
-            if (ew->data_size / 2.0 < 1000)//FIXME if (ew->data_size / throughput_time < throughput_val)
+            if (ew->data_size / serv_conf.throughput_time.value() 
+                        < serv_conf.throughput_val.value())
             {
                 std::cout << "ERROR timer 3!" << std::endl;
                 if (ew->timer_init_trans)
