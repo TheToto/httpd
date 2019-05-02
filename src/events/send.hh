@@ -107,9 +107,28 @@ namespace http
             if (sended >= file_size_)
             {
                 event_register.unregister_ew(this);
-                event_register.register_ew<ClientEW>(sock_);
-                std::clog << "Response sent ! Listening for other request...\n";
+                if (check_keep_alive())
+                {
+                    event_register.register_ew<ClientEW>(sock_);
+                    std::clog << "Response sent ! Listening for other request...\n";
+                }
+                else
+                {
+                    std::clog << "Response sent ! Closing connection...\n";
+                }
             }
+        }
+
+        bool check_keep_alive()
+        {
+            if (conn_.req_.get_header("Connection") == "close")
+                return false;
+            return !(resp_.get_status() >= 500
+                     || resp_.get_status() == 400
+                     || resp_.get_status() == 413
+                     || resp_.get_status() == 414
+                     || resp_.get_status() == 431
+                     || resp_.get_status() == 408);
         }
 
     private:
