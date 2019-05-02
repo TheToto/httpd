@@ -21,11 +21,19 @@ namespace http
      */
     struct Connection
     {
-        Connection(shared_socket sock, std::shared_ptr<VHost> vhost, int health = -1)
+        Connection(shared_socket sock, std::shared_ptr<VHost> vhost, int health)
                 : sock_(sock)
                 , vhost_(vhost)
                 , health_(health)
         {}
+
+        Connection(shared_socket sock, std::shared_ptr<VHost> vhost, Request& req)
+                : sock_(sock)
+                , vhost_(vhost)
+                , req_(req)
+        {
+            health_ = -1;
+        }
 
         Connection() = default;
         Connection(const Connection&) = default;
@@ -41,7 +49,8 @@ namespace http
 
         shared_socket sock_;
         shared_socket backend_ = nullptr;
-        std::shared_ptr<VHost> vhost_ = nullptr;
+        std::shared_ptr<VHost> vhost_;
+        Request req_;
         int health_;
         /* FIXME: Add members to store the information relative to the
         ** connection.

@@ -63,9 +63,9 @@ namespace http
                 shared_socket save_sock = sock_;
                 event_register.unregister_ew(this);
                 shared_vhost v = Dispatcher::get_fail();
-                Connection conn(save_sock, v);
                 Request r;
                 r.set_mode(MOD::TIMEOUT_TRANSACTION);
+                Connection conn(save_sock, v, r);
                 APM::global_connections_reading--;
                 v->respond(r, conn, 0, 0);
             }
@@ -122,7 +122,7 @@ namespace http
                 stop_timer();
                 event_register.unregister_ew(this);
                 shared_vhost v = dispatcher(req.value());
-                Connection conn(sock_, v);
+                Connection conn(sock_, v, req.value());
                 v->get_apm().add_request();
                 APM::global_connections_reading--;
                 v->respond(req.value(), conn, 0, 0); // FIXME : Iterators

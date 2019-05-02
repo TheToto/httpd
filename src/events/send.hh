@@ -36,6 +36,8 @@ namespace http
                                 bool is_head = false)
             : EventWatcher(conn.sock_->fd_get()->fd_, EV_WRITE)
         {
+            conn_ = conn;
+            resp_ = resp;
             APM::global_connections_writing++;
             conn.vhost_->get_apm().add_request_final(resp.get_status());
             sock_ = conn.sock_;
@@ -120,6 +122,8 @@ namespace http
         misc::shared_fd file_;
         size_t file_size_;
         off_t sended_;
+        Connection conn_;
+        Response resp_;
         /**
          * \brief Port on which the socket is listening.
          */
