@@ -61,10 +61,6 @@ namespace http
             try
             {
                 n = sock_->recv(str_c, 8192);
-                if (timer_init_keepalive)
-                    stop_timer_keepalive();
-                if (!timer_init_trans)
-                    init_timer_trans();
 
                 if (n <= 0)
                 {
@@ -76,8 +72,11 @@ namespace http
                     return;
                 }
 
-                if (true)//FIXME if (thoughput)
-                    data_size += n;
+                if (timer_init_keepalive)//FIXME
+                    stop_timer_keepalive();
+                if (!timer_init_trans)//FIXME
+                    init_timer_trans();
+                data_size += n;
             }
             catch (const std::exception& e)
             {
@@ -134,6 +133,7 @@ namespace http
         {
             // TODO : Set config value
             std::cout << "Init timer 3!" << std::endl;
+            timer_init_throughput = true;
             ev_timer_init(&throughput_timer, callback_throughput, 2., 0);
             throughput_timer.data = this;
             event_register.loop_get().register_timer_watcher(&throughput_timer);
@@ -149,6 +149,8 @@ namespace http
             if (cut)
             {
                 std::cout << "ERROR timer 1!" << std::endl;
+                if (timer_init_throughput)
+                    stop_timer_throughput();
                 shared_socket save_sock = sock_;
                 event_register.unregister_ew(this);
                 shared_vhost v = Dispatcher::get_fail();
@@ -168,6 +170,10 @@ namespace http
             if (cut)
             {
                 std::cout << "ERROR timer 2!" << std::endl;
+                if (timer_init_throughput)
+                    stop_timer_throughput();
+                if (timer_init_trans)
+                    stop_timer_trans();
                 shared_socket save_sock = sock_;
                 event_register.unregister_ew(this);
                 shared_vhost v = Dispatcher::get_fail();
@@ -184,6 +190,7 @@ namespace http
             std::cout << "STOP timer 3!" << std::endl;
             if (timer_init_keepalive)
                 stop_timer_keepalive();
+            timer_init_throughput = false;
             ev_timer_stop(event_register.loop_get().loop, &throughput_timer);
         }
 
@@ -231,6 +238,7 @@ namespace http
         ev_timer throughput_timer;
         bool timer_init_trans = false;
         bool timer_init_keepalive = false;
+        bool timer_init_throughput = false;
 
         size_t data_size;
 
