@@ -50,6 +50,7 @@ namespace http
          */
         void operator()() final
         {
+            is_running = true;
             if (!req)
             {
                 req = Request();
@@ -71,6 +72,7 @@ namespace http
                     APM::global_connections_reading--;
                     stop_timer_trans();
                     event_register.unregister_ew(this);
+                    is_running = false;
                     return;
                 }
 
@@ -85,7 +87,11 @@ namespace http
                 APM::global_connections_reading--;
                 stop_timer_trans();
                 event_register.unregister_ew(this);
+                is_running = false;
                 return;
+            }
+
+            while(timer_init_throughput) {
             }
 
             // Return true if request is complete or ERROR. Return false if the
@@ -107,6 +113,7 @@ namespace http
             {
                 std::clog << "Current request is not complete...\n";
             }
+            is_running = false;
         }
 
         void init_timer_trans()
@@ -134,7 +141,7 @@ namespace http
             // TODO : Set config value
             std::cout << "Init timer 3!" << std::endl;
             timer_init_throughput = true;
-            ev_timer_init(&throughput_timer, callback_throughput, 2., 0);
+            ev_timer_init(&throughput_timer, callback_throughput, 0.01, 0);
             throughput_timer.data = this;
             event_register.loop_get().register_timer_watcher(&throughput_timer);
         }
@@ -216,14 +223,16 @@ namespace http
                 std::cout << "ERROR timer 3!" << std::endl;
                 if (ew->timer_init_trans)
                     ew->stop_timer_trans();
-                shared_socket save_sock = ew->sock_;
+                if (!ew->is_running) {
+                    shared_socket save_sock = ew->sock_;
+                    shared_vhost v = Dispatcher::get_fail();
+                    Request r;
+                    r.set_mode(MOD::TIMEOUT_THROUGHPUT);
+                    Connection conn(save_sock, v, r);
+                    APM::global_connections_reading--;
+                    v->respond(r, conn, 0, 0);
+                }
                 event_register.unregister_ew(ew);
-                shared_vhost v = Dispatcher::get_fail();
-                Request r;
-                r.set_mode(MOD::TIMEOUT_THROUGHPUT);
-                Connection conn(save_sock, v, r);
-                APM::global_connections_reading--;
-                v->respond(r, conn, 0, 0);
                 return;
             }
             ew->init_timer_throughput();
@@ -239,6 +248,7 @@ namespace http
         bool timer_init_trans = false;
         bool timer_init_keepalive = false;
         bool timer_init_throughput = false;
+        bool is_running = false;
 
         size_t data_size;
 
