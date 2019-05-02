@@ -7,6 +7,7 @@
 
 #include <memory>
 
+#include "socket/default-socket.hh"
 #include "config/config.hh"
 #include "error/not-implemented.hh"
 #include "misc/openssl/ssl.hh"
@@ -81,7 +82,7 @@ namespace http
         virtual void respond(Request&, Connection, remaining_iterator,
                              remaining_iterator) = 0;
 
-        inline const VHostConfig& conf_get() const noexcept
+        inline VHostConfig& conf_get() noexcept
         {
             return conf_;
         }

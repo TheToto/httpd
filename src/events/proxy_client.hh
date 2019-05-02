@@ -18,6 +18,7 @@
 #include "vhost/connection.hh"
 #include "vhost/dispatcher.hh"
 #include "vhost/vhost.hh"
+#include "config/health.hh"
 
 namespace http
 {
@@ -83,7 +84,7 @@ namespace http
                     event_register.unregister_ew(this);
                     if (conn_.is_health())
                     {
-                        // FIXME : callback_louis(conn_, Response("")); (invalid/dead)
+                        Health::health_callback(conn_, Response(""));
                         return;
                     }
                     event_register.register_ew<SendResponseEW>(
@@ -97,7 +98,7 @@ namespace http
                 event_register.unregister_ew(this);
                 if (conn_.is_health())
                 {
-                    // FIXME : callback_louis(conn_, Response("")); (invalid/dead)
+                    Health::health_callback(conn_, Response(""));
                     return;
                 }
                 event_register.register_ew<SendResponseEW>(
@@ -115,7 +116,7 @@ namespace http
                 Response r(content_);
                 if (conn_.is_health())
                 {
-                    // FIXME : callback_louis(conn_, r); (valid)
+                    Health::health_callback(conn_, r);
                     return;
                 }
                 event_register.register_ew<SendResponseEW>(conn_, r);

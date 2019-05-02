@@ -33,6 +33,10 @@ namespace http
         static shared_vhost get_fail();
 
     private:
+    public:
+        const std::vector<shared_vhost> &getVhosts() const;
+
+    private:
         std::vector<shared_vhost> vhosts_;
     };
 

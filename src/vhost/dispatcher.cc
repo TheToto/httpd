@@ -158,4 +158,8 @@ namespace http
         return VHostFactory::Fail();
     }
 
+
+    const std::vector<shared_vhost> &Dispatcher::getVhosts() const {
+        return vhosts_;
+    }
 } // namespace http
