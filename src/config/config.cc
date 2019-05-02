@@ -43,6 +43,18 @@ namespace http
         return port_ == -1;
     }
 
+    static methods whichMethod(std::string& str){
+        if (str.empty())
+            return method_none;
+        if (str == ROUNDROBIN)
+            return round_robin;
+        if (str == FAILOVER)
+            return failover;
+        if (str == FAILROBIN)
+            return fail_robin;
+        return method_error;
+    }
+
     ProxyConfig ProxyConfig::parse_upstream(json& proxy,
             json& j){
 
@@ -50,17 +62,18 @@ namespace http
         std::string upstreamLink = "";
         std::string ip = "";
         std::string method = "";
+        methods m = method_none;
         int weight = 1;
         int port = 0;
         std::string health = "";
 
         try {
-            upstreamLink = proxy["upstream"];
+            upstreamLink = proxy[UPSTREAM];
         }
         catch (const std::exception&) {}
         try {
-            ip = proxy["ip"];
-            port = proxy["port"];
+            ip = proxy[IP];
+            port = proxy[PORT];
         }
         catch (std::exception& e){
             if (upstreamLink.empty())
@@ -69,34 +82,37 @@ namespace http
 
         if (!ip.empty()){
             v.push_back(Upstream(ip, port, 2, health));
-            return ProxyConfig(proxy, v, method);
+            return ProxyConfig(proxy, v, m);
         }
-        method = j["upstreams"][upstreamLink]["method"];
-        for (auto i: j["upstreams"][upstreamLink]["hosts"]){
-            ip = i["ip"];
-            port = i["port"];
+        method = j[UPSTREAMS][upstreamLink][METHOD];
+        m = whichMethod(method);
+        if (m == method_error)
+            throw std::invalid_argument("Method used in upstreams not recognized: " + method);
+        for (auto i: j[UPSTREAMS][upstreamLink][HOSTS]){
+            ip = i[IP];
+            port = i[PORT];
             try {
-                weight = i["weight"];
+                weight = i[WEIGHT];
             }
             catch (std::exception&){
                 weight = 1;
             }
-            if (method == "failover" || method == "fail-robin")
-                health = i["health"];
+            if (method == FAILOVER || method == FAILROBIN)
+                health = i[HEALTH];
             v.push_back(Upstream(ip, port, weight, health));
             health = "";
         }
-        return ProxyConfig(proxy, v, method);
+        return ProxyConfig(proxy, v, m);
     }
 
     ProxyConfig::ProxyConfig(json& proxy, std::vector<Upstream> v,
-            std::string& method)
+            methods& method)
     {
         std::string tmp;
         std::string tmp2;
         try
         {
-            for (auto i : proxy["proxy_set_header"].items())
+            for (auto i : proxy[PROXY_SET_HEADER].items())
             {
                 tmp = i.value();
                 tmp2 = i.key();
@@ -107,7 +123,7 @@ namespace http
         {}
         try
         {
-            for (auto i : proxy["proxy_remove_header"])
+            for (auto i : proxy[PROXY_REMOVE_HEADER])
             {
                 tmp = i;
                 proxy_remove_header.insert(tmp);
@@ -117,7 +133,7 @@ namespace http
         {}
         try
         {
-            for (auto i : proxy["set_header"].items())
+            for (auto i : proxy[SET_HEADER].items())
             {
                 tmp = i.value();
                 tmp2 = i.key();
@@ -128,7 +144,7 @@ namespace http
         {}
         try
         {
-            for (auto i : proxy["remove_header"])
+            for (auto i : proxy[REMOVE_HEADER])
             {
                 tmp = i;
                 remove_header.insert(tmp);
@@ -137,9 +153,8 @@ namespace http
         catch (const std::exception&)
         {}
 
-
         method_ = method;
-        upstreams = upQueue(v);
+        upstreams = upQueue(v, method);
     }
 
     VHostConfig::VHostConfig(std::string ip, int port, std::string server_name,
@@ -189,8 +204,8 @@ namespace http
             for (size_t j = i + 1; j < VHosts_.size(); j++)
                 {
                     if ((VHosts_[i].ip_ == VHosts_[j].ip_
-                        || VHosts_[i].ip_ == "0.0.0.0"
-                        || VHosts_[j].ip_ == "0.0.0.0")
+                        || VHosts_[i].ip_ == ROOT_IP
+                        || VHosts_[j].ip_ == ROOT_IP)
                         && VHosts_[i].port_ == VHosts_[j].port_
                         && VHosts_[i].server_name_ == VHosts_[j].server_name_)
                             throw std::invalid_argument("VHosts "
@@ -202,9 +217,9 @@ namespace http
     static void parse_vhost(nlohmann::basic_json<>& i, ServerConfig& serv,
             nlohmann::basic_json<>& j)
     {
-        std::string ip = i["ip"];
-        int port = i["port"];
-        std::string server_name = i["server_name"];
+        std::string ip = i[IP];
+        int port = i[PORT];
+        std::string server_name = i[SERVERNAME];
 
         if (ip.empty() || port <= 0 || server_name.empty())
             throw std::invalid_argument("invalid JSON file: a mandatory "
@@ -213,25 +228,25 @@ namespace http
         std::string root;
         try
         {
-            root = i["root"];
+            root = i[ROOT];
         }
         catch (const std::exception& e)
         {
-            root = ".";
+            root = CUR_DIR;
         }
         std::string default_file;
         try
         {
-            default_file = i["default_file"];
+            default_file = i[DEFAULT_FILE];
         }
         catch (const std::exception& e)
         {
-            default_file = "index.html";
+            default_file = INDEX;
         }
         std::string ssl_cert = "";
         try
         {
-            ssl_cert = i["ssl_cert"];
+            ssl_cert = i[SSL_CERT];
         }
         catch (const std::exception& e)
         {}
@@ -239,7 +254,7 @@ namespace http
         std::string ssl_key = "";
         try
         {
-            ssl_key = i["ssl_key"];
+            ssl_key = i[SSL_KEY];
         }
         catch (const std::exception& e)
         {}
@@ -250,7 +265,7 @@ namespace http
         std::optional<std::string> auth_basic = std::nullopt;
         try
         {
-            auth_basic = i["auth_basic"];
+            auth_basic = i[AUTH_BASIC];
         }
         catch (const std::exception& e)
         {
@@ -260,11 +275,11 @@ namespace http
         std::optional<std::list<std::string>> auth_basic_users = std::nullopt;
         try
         {
-            auto list = i.find("auth_basic_users");
+            auto list = i.find(AUTH_BASIC_USERS);
             if (list != i.end())
             {
                 auth_basic_users = std::list<std::string>();
-                for (std::string cur : i["auth_basic_users"])
+                for (std::string cur : i[AUTH_BASIC_USERS])
                     auth_basic_users.value()
                         .push_front(ssl::base64_encode(cur));
             }
@@ -281,7 +296,7 @@ namespace http
         std::string health_endpoint = "";
         try
         {
-            health_endpoint = i["health_endpoint"];
+            health_endpoint = i[HEALTH_ENDP];
         }
         catch (const std::exception& e)
         {}
@@ -289,7 +304,7 @@ namespace http
         bool auto_index = false;
         try
         {
-            auto_index = i["auto_index"];
+            auto_index = i[AUTO_INDEX];
         }
         catch (const std::exception& e)
         {}
@@ -297,7 +312,7 @@ namespace http
         bool default_vhost = false;
         try
         {
-            default_vhost = i["default_vhost"];
+            default_vhost = i[DEFAULT_VHOST];
         }
         catch (const std::exception& e)
         {}
@@ -305,13 +320,13 @@ namespace http
         std::optional<ProxyConfig> proxy = std::nullopt;
         try
         {
-            proxy = ProxyConfig::parse_upstream(i["proxy_pass"], j);
+            proxy = ProxyConfig::parse_upstream(i[PROXY_PASS], j);
         }
         catch (const std::exception& e)
         {}
 
         if ((proxy != std::nullopt)
-            && (root != "." || default_file != "index.html"
+            && (root != CUR_DIR || default_file != INDEX
                 || auto_index != false || default_vhost != false))
             throw std::invalid_argument(
                 "ERROR: a proxy_pass cannot be set if "
@@ -333,47 +348,49 @@ namespace http
 
         try
         {
-            serv.payload_max_size = j["payload_max_size"];
+            serv.payload_max_size = j[PAYLOAD_MS];
         }
         catch (const std::exception&)
         {}
         try
         {
-            serv.uri_max_size = j["uri_max_size"];
+            serv.uri_max_size = j[URI_MS];
         }
         catch (const std::exception&)
         {}
         try
         {
-            serv.header_max_size = j["header_max_size"];
-        }
-        catch (const std::exception&)
-        {}
-        try
-        {
-            serv.keep_alive = j["timeout"]["keep_alive"];
-        }
-        catch (const std::exception& e)
-        {}
-        try
-        {
-            serv.transaction = j["timeout"]["transaction"];
-        }
-        catch (const std::exception&)
-        {}
-        try
-        {
-            serv.throughput_val = j["timeout"]["throughput_val"];
-            serv.throughput_time = j["timeout"]["throughput_time"];
+            serv.header_max_size = j[HEADER_MS];
         }
         catch (const std::exception&)
         {}
 
-        if (serv.throughput_val.has_value() != serv.throughput_time.has_value())
-            throw std::invalid_argument("Both throughput's value and "
-                                        "time have to be set");
+        json TO;
+        try {
+            TO = j[TIMEOUT_H];
+        } catch (const std::exception&){}
+
+        if (TO.size() > 0) {
+            try {
+                serv.keep_alive = TO[KEEP_ALIVE];
+            }
+            catch (const std::exception &e) {}
+            try {
+                serv.transaction = TO[TRANSACTION];
+            }
+            catch (const std::exception &) {}
+            try {
+                serv.throughput_val = TO[THP_VAL];
+                serv.throughput_time = TO[THP_TIME];
+            }
+            catch (const std::exception &) {}
+
+            if (serv.throughput_val.has_value() != serv.throughput_time.has_value())
+                throw std::invalid_argument("Both throughput's value and "
+                                            "time have to be set");//TODO test if this case works
+        }
         try{
-            serv.nb_workers = j["nb_workers"];
+            serv.nb_workers = j[NB_WORKERS];
         }
         catch (const std::exception&)
         {
@@ -383,7 +400,7 @@ namespace http
             throw std::invalid_argument("Number of workers "
                                             "cannot be negative");
 
-        auto ctn = j["vhosts"];
+        auto ctn = j[VHOSTS];
 
         for (auto i : ctn)
         {
@@ -409,7 +426,8 @@ namespace http
         return 0;
     }
 
-    upQueue::upQueue(std::vector<Upstream> &v) {
+    upQueue::upQueue(std::vector<Upstream> &v, methods& method) {
+        m = method;
         vector = v;
         fillQueue();
     }
@@ -425,7 +443,7 @@ namespace http
                 return nullUpstream;
             res = vector[queue.front()];
             queue.pop_front();
-        } while (!res.alive);
+        } while ((m == failover || m == fail_robin) && !res.alive);
         return res;
     }
 

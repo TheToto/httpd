@@ -60,8 +60,8 @@ namespace http {
         for (shared_vhost vhost : dispatcher.getVhosts())
         {
             if (vhost->conf_get().proxy_pass_.has_value()) {
-                const std::string& tmp = vhost->conf_get().proxy_pass_.value().method_;
-                if (tmp == "failover" || tmp == "fail-robin")
+                const methods & tmp = vhost->conf_get().proxy_pass_.value().method_;
+                if (tmp == fail_robin || tmp == failover)
                     Health::check_alive(vhost);
             }
         }

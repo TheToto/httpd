@@ -14,16 +14,65 @@
 #include <arpa/inet.h>
 #include <queue>
 
+#define AUTH_BASIC "auth_basic"
+#define AUTH_BASIC_USERS "auth_basic_users"
+#define AUTO_INDEX "auto_index"
+#define CUR_DIR "."
+#define DEFAULT_FILE "default_file"
+#define DEFAULT_VHOST "default_vhost"
+#define FAILOVER "failover"
+#define FAILROBIN "fail-robin"
+#define HEADER_MS "header_max_size"
+#define HEALTH "health"
+#define HEALTH_ENDP "health_endpoint"
+#define HOSTS "hosts"
+#define INDEX "index.html"
+#define IP "ip"
+#define KEEP_ALIVE "keep_alive"
+#define METHOD "method"
+#define NB_WORKERS "nb_workers"
+#define PAYLOAD_MS "payload_max_size"
+#define PORT "port"
+#define PROXY_PASS "proxy_pass"
+#define PROXY_REMOVE_HEADER "proxy_remove_header"
+#define PROXY_SET_HEADER "proxy_set_header"
+#define REMOVE_HEADER "remove_header"
+#define ROOT "root"
+#define ROOT_IP "0.0.0.0"
+#define ROUNDROBIN "round-robin"
+#define SERVERNAME "server_name"
+#define SET_HEADER "set_header"
+#define SSL_CERT "ssl_cert"
+#define SSL_KEY "ssl_key"
+#define TIMEOUT_H "timeout"
+#define TRANSACTION "transaction"
+#define THP_TIME "throughput_time"
+#define THP_VAL "throughput_val"
+#define UPSTREAM "upstream"
+#define UPSTREAMS "upstreams"
+#define URI_MS "uri_max_size"
+#define VHOSTS "vhosts"
+#define WEIGHT "weight"
+
 using json = nlohmann::json;
 
-namespace http
-{
+namespace http {
+
+
 
     /**
      *  \struct Upstream
      *  \brief Adress of one instance of the Reverse Proxy
      *
      **/
+
+    enum methods{
+        failover,
+        fail_robin,
+        round_robin,
+        method_none,
+        method_error
+    };
     struct Upstream{
 
         Upstream(std::string& ip, int port, int weight, std::string& health);
@@ -45,13 +94,15 @@ namespace http
 
     struct upQueue{
         upQueue() = default;
-        upQueue(std::vector<Upstream>& v);
+        upQueue(std::vector<Upstream>& v, methods& method);
         Upstream getNext();
 
         std::string build_health(std::string heal_ep, std::string ipPort);
         void set_health(int health, bool is_ok);
 
         void fillQueue();
+
+        methods m;
         std::deque<int> queue;
         std::vector<Upstream> vector;
     };
@@ -65,7 +116,7 @@ namespace http
     struct ProxyConfig
     {
         ProxyConfig(json& proxy, std::vector<Upstream> v,
-                    std::string& method);
+                    methods& method);
         ProxyConfig(const ProxyConfig&) = default;
         ProxyConfig& operator=(const ProxyConfig&) = default;
         ProxyConfig(ProxyConfig&&) = default;
@@ -74,7 +125,7 @@ namespace http
         static ProxyConfig parse_upstream(json& proxy, json& j);
 
         upQueue upstreams;/// Vector of upstreams available for this proxy
-        std::string method_;    ///what is the current method (RR, failR etc.)."" being no method
+        methods method_;    ///what is the current method (RR, failR etc.)."" being no method
         std::map<std::string,std::string> proxy_set_header;
         std::set<std::string> proxy_remove_header;
         std::map<std::string, std::string> set_header;
