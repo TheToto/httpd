@@ -163,6 +163,12 @@ namespace http
         std::optional<size_t> payload_max_size = std::nullopt;
         std::optional<size_t> uri_max_size = std::nullopt;
         std::optional<size_t> header_max_size = std::nullopt;
+
+        std::optional<size_t> keep_alive = std::nullopt;
+        std::optional<size_t> transaction = std::nullopt;
+        std::optional<size_t> throughput_val = std::nullopt;
+        std::optional<size_t> throughput_time = std::nullopt;
+
         int nb_workers = 1;
         bool is_default = false;
     };

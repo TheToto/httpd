@@ -349,6 +349,29 @@ namespace http
         }
         catch (const std::exception&)
         {}
+        try
+        {
+            serv.keep_alive = j["timeout"]["keep_alive"];
+        }
+        catch (const std::exception& e)
+        {}
+        try
+        {
+            serv.transaction = j["timeout"]["transaction"];
+        }
+        catch (const std::exception&)
+        {}
+        try
+        {
+            serv.throughput_val = j["timeout"]["throughput_val"];
+            serv.throughput_time = j["timeout"]["throughput_time"];
+        }
+        catch (const std::exception&)
+        {}
+
+        if (serv.throughput_val.has_value() != serv.throughput_time.has_value())
+            throw std::invalid_argument("Both throughput's value and "
+                                        "time have to be set");
         try{
             serv.nb_workers = j["nb_workers"];
         }
