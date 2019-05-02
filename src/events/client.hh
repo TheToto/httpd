@@ -42,39 +42,7 @@ namespace http
             int flags = fcntl(tmpfd, F_GETFL);
             flags |= O_NONBLOCK;
             fcntl(tmpfd, F_SETFL, flags);
-        }
-
-        void init_timer()
-        {
-            // TODO : Set config value
-            timer_init = true;
-            std::cout << "Init timer" << std::endl;
-            ev_timer_init(&transaction_timer, abort, 3., 0);
-            transaction_timer.data = this;
-            event_register.loop_get().register_timer_watcher(&transaction_timer);
-        }
-
-        void stop_timer(bool cut = false)
-        {
-            ev_timer_stop(event_register.loop_get().loop, &transaction_timer);
-            std::cout << "Stop timer" << std::endl;
-            if (cut)
-            {
-                shared_socket save_sock = sock_;
-                event_register.unregister_ew(this);
-                shared_vhost v = Dispatcher::get_fail();
-                Request r;
-                r.set_mode(MOD::TIMEOUT_TRANSACTION);
-                Connection conn(save_sock, v, r);
-                APM::global_connections_reading--;
-                v->respond(r, conn, 0, 0);
-            }
-        }
-
-        static void abort(struct ev_loop*, ev_timer *w, int)
-        {
-            auto ew = reinterpret_cast<ClientEW*>(w->data);
-            ew->stop_timer(true);
+            init_timer_keepalive();
         }
 
         /**
@@ -89,16 +57,17 @@ namespace http
             try
             {
                 n = sock_->recv(str_c, 8192);
-
-                if (!timer_init)
-                    init_timer();
+                if (timer_init_keepalive)
+                    stop_timer_keepalive();
+                if (!timer_init_trans)
+                    init_timer_trans();
 
                 if (n <= 0)
                 {
                     std::clog << "A socked has disconnect\n";
                     APM::global_connections_active--;
                     APM::global_connections_reading--;
-                    stop_timer();
+                    stop_timer_trans();
                     event_register.unregister_ew(this);
                     return;
                 }
@@ -108,7 +77,7 @@ namespace http
                 std::clog << "A socked has disconnect\n";
                 APM::global_connections_active--;
                 APM::global_connections_reading--;
-                stop_timer();
+                stop_timer_trans();
                 event_register.unregister_ew(this);
                 return;
             }
@@ -119,7 +88,7 @@ namespace http
             if (is_complete)
             {
                 std::clog << "We have a request ! \n" << req.value().get_head() << std::endl;
-                stop_timer();
+                stop_timer_trans();
                 event_register.unregister_ew(this);
                 shared_vhost v = dispatcher(req.value());
                 Connection conn(sock_, v, req.value());
@@ -133,12 +102,81 @@ namespace http
             }
         }
 
+        void init_timer_trans()
+        {
+            // TODO : Set config value
+            timer_init_trans = true;
+            ev_timer_init(&transaction_timer, abort_trans, 3., 0);
+            transaction_timer.data = this;
+            event_register.loop_get().register_timer_watcher(&transaction_timer);
+        }
+
+        void init_timer_keepalive()
+        {
+            // TODO : Set config value
+            timer_init_keepalive = true;
+            ev_timer_init(&keepalive_timer, abort_keepalive, 10., 0);
+            keepalive_timer.data = this;
+            event_register.loop_get().register_timer_watcher(&keepalive_timer);
+        }
+
+        void stop_timer_trans(bool cut = false)
+        {
+            if (timer_init_keepalive)
+                stop_timer_keepalive();
+            timer_init_trans = false;
+            ev_timer_stop(event_register.loop_get().loop, &transaction_timer);
+            if (cut)
+            {
+                shared_socket save_sock = sock_;
+                event_register.unregister_ew(this);
+                shared_vhost v = Dispatcher::get_fail();
+                Request r;
+                r.set_mode(MOD::TIMEOUT_TRANSACTION);
+                Connection conn(save_sock, v, r);
+                APM::global_connections_reading--;
+                v->respond(r, conn, 0, 0);
+            }
+        }
+
+        void stop_timer_keepalive(bool cut = false)
+        {
+            timer_init_keepalive = false;
+            ev_timer_stop(event_register.loop_get().loop, &keepalive_timer);
+            if (cut)
+            {
+                shared_socket save_sock = sock_;
+                event_register.unregister_ew(this);
+                shared_vhost v = Dispatcher::get_fail();
+                Request r;
+                r.set_mode(MOD::TIMEOUT_KEEPALIVE);
+                Connection conn(save_sock, v, r);
+                APM::global_connections_reading--;
+                v->respond(r, conn, 0, 0);
+            }
+        }
+
+        static void abort_trans(struct ev_loop*, ev_timer *w, int)
+        {
+            auto ew = reinterpret_cast<ClientEW*>(w->data);
+            ew->stop_timer_trans(true);
+        }
+
+        static void abort_keepalive(struct ev_loop*, ev_timer *w, int)
+        {
+            auto ew = reinterpret_cast<ClientEW*>(w->data);
+            ew->stop_timer_keepalive(true);
+        }
+
+
     private:
         /**
          * \brief Client socket.
          */
         ev_timer transaction_timer;
-        bool timer_init = false;
+        ev_timer keepalive_timer;
+        bool timer_init_trans = false;
+        bool timer_init_keepalive = false;
 
         shared_socket sock_;
         std::optional<Request> req;

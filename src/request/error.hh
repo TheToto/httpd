@@ -31,5 +31,6 @@ namespace http::error
     Response service_unavailable(const Request&);
     Response gateway_timeout(const Request&);
     Response timeout_transaction(const Request&);
+    Response timeout_keepalive(const Request&);
     Response http_version_not_supported(const Request&);
 } // namespace http::error

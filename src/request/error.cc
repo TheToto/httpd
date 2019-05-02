@@ -90,4 +90,11 @@ namespace http::error
         r.add_header("X-Timeout-Reason", "Transaction");
         return r;
     }
+
+    Response timeout_keepalive(const Request& request)
+    {
+        Response r = Response(request, STATUS_CODE::TIMEOUT);
+        r.add_header("X-Timeout-Reason", "Keep-Alive");
+        return r;
+    }
 } // namespace http::error

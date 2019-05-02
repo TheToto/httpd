@@ -49,7 +49,8 @@ namespace http
         HEADER_FIELD_TOO_LARGE,
         ERROR_URI_TOO_LONG,
         ERROR_PAYLOAD_TOO_LARGE,
-        TIMEOUT_TRANSACTION
+        TIMEOUT_TRANSACTION,
+        TIMEOUT_KEEPALIVE
     };
 
     /**
@@ -98,7 +99,7 @@ namespace http
             case HTTP_VERSION_NOT_SUPPORTED:
                 return {HTTP_VERSION_NOT_SUPPORTED, "HTTP Version Not Supported"};
             case TIMEOUT:
-                return {TIMEOUT, "Timeout"};
+                return {TIMEOUT, "Request Timeout"};
             default:
                 throw std::logic_error("unknown status_code");
         }
