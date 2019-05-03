@@ -74,9 +74,12 @@ namespace http
                 try
                 {
                     std::cout << "debug : " << sock_.get()->fd_get().get()->fd_ << std::endl;
-                    sended_header_ +=
-                        sock_->send(to_send_.c_str() + sended_header_,
-                                    to_send_.size() - sended_header_);
+                    ssize_t tmpsend = sock_->send(to_send_.c_str() + sended_header_,
+                                                  to_send_.size() - sended_header_);
+                    init_timer_throughput();
+                    sended_header_ += tmpsend;
+                    datasize += tmpsend;
+
                     if (sended_header_ < to_send_.size())
                         return;
                 }
@@ -84,6 +87,7 @@ namespace http
                 {
                     std::clog << "Connection aborded ! 1\n";
                     APM::global_connections_active--;
+                    stop_timer_thoughput();
                     event_register.unregister_ew(this);
                     return;
                 }
@@ -92,12 +96,14 @@ namespace http
             {
                 try
                 {
-                    sock_->sendfile(file_, sended_, file_size_ - sended_);
+                    ssize_t tmpsend = sock_->sendfile(file_, sended_, file_size_ - sended_);
+                    datasize += tmpsend;
                 }
                 catch (const std::exception&)
                 {
                     std::clog << "Connection aborded ! 2\n";
                     APM::global_connections_active--;
+                    stop_timer_thoughput();
                     event_register.unregister_ew(this);
                     return;
                 }
@@ -106,6 +112,7 @@ namespace http
             size_t sended = sended_;
             if (sended >= file_size_)
             {
+                stop_timer_thoughput();
                 event_register.unregister_ew(this);
                 if (check_keep_alive())
                 {
@@ -131,6 +138,40 @@ namespace http
                      || resp_.get_status() == 408);
         }
 
+        void init_timer_throughput()
+        {
+            if (serv_conf.throughput_time.has_value()) {
+                timer_init_throughput = true;
+                ev_periodic_init(&throughput_timer, callback_throughput, 0, serv_conf.throughput_time.value(), 0);
+                throughput_timer.data = this;
+                event_register.loop_get().register_period_watcher(&throughput_timer);
+            }
+        }
+
+        void stop_timer_thoughput() {
+            if (timer_init_throughput) {
+                timer_init_throughput = false;
+                ev_periodic_stop(event_register.loop_get().loop, &throughput_timer);
+            }
+        }
+
+        void check_timer_throughput() {
+            if (datasize / serv_conf.throughput_time.value()
+                < serv_conf.throughput_val.value()) {
+                stop_timer_thoughput();
+                event_register.unregister_ew(this);
+            }
+            datasize = 0;
+        }
+
+
+        static void callback_throughput(struct ev_loop*, ev_periodic *w, int)
+        {
+            auto ew = reinterpret_cast<SendResponseEW*>(w->data);
+            ew->check_timer_throughput();
+        }
+
+
     private:
         /**
          * \brief SendResponse socket.
@@ -143,6 +184,10 @@ namespace http
         off_t sended_;
         Connection conn_;
         Response resp_;
+
+        ev_periodic throughput_timer;
+        bool timer_init_throughput = false;
+        size_t datasize = 0;
         /**
          * \brief Port on which the socket is listening.
          */
