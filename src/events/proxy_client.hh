@@ -55,7 +55,7 @@ namespace http
         /**
          * \brief Create a ClientProxyEW from a Client socket.
          */
-        explicit ClientProxyEW(Connection conn)
+        explicit ClientProxyEW(Connection conn, int timer_time)
             : EventWatcher(conn.backend_->fd_get()->fd_, EV_READ)
         {
             conn_ = conn;
@@ -65,6 +65,9 @@ namespace http
             int flags = fcntl(tmpfd, F_GETFL);
             flags |= O_NONBLOCK;
             fcntl(tmpfd, F_SETFL, flags);
+
+            if (timer_time != -1)
+                init_timer_trans(timer_time);
         }
 
         /**
@@ -81,6 +84,7 @@ namespace http
                 if (n <= 0)
                 {
                     std::clog << "The backend has disconnect\n";
+                    stop_timer_trans();
                     event_register.unregister_ew(this);
                     if (conn_.is_health())
                     {
@@ -100,6 +104,7 @@ namespace http
             catch (const std::exception& e)
             {
                 std::clog << "The backend has disconnect\n";
+                stop_timer_trans();
                 event_register.unregister_ew(this);
                 if (conn_.is_health())
                 {
@@ -122,6 +127,7 @@ namespace http
             {
                 conn_.vhost_->apply_set_remove_header(false, content_, conn_);
                 std::clog << "We have the backend response ! \n" << std::endl;
+                stop_timer_trans();
                 event_register.unregister_ew(this);
                 Response r(content_);
                 if (conn_.is_health())
@@ -139,6 +145,45 @@ namespace http
             }
         }
 
+        void stop_timer_trans(bool cut = false)
+        {
+            if (!timer_init_trans)
+                return;
+            timer_init_trans = false;
+            ev_timer_stop(event_register.loop_get().loop, &transaction_timer);
+            if (cut)
+            {
+                shared_socket save_sock = sock_;
+                event_register.unregister_ew(this);
+                if (conn_.is_health())
+                {
+                    Health::health_callback(conn_, Response(""));
+                    return;
+                }
+                shared_vhost v = Dispatcher::get_fail();
+                Request r;
+                r.set_mode(MOD::TIMEOUT_TRANSACTION_PROXY);
+                Connection conn(save_sock, v, r);
+                v->respond(r, conn, 0, 0);
+            }
+        }
+
+        static void abort_trans(struct ev_loop*, ev_timer *w, int)
+        {
+            auto ew = reinterpret_cast<ClientProxyEW*>(w->data);
+            ew->stop_timer_trans(true);
+        }
+
+        void init_timer_trans(int remain)
+        {
+            if (/*conn_.vhost_.get()->conf_get()..has_value() TODO : CONFIG ! */true) {
+                timer_init_trans = true;
+                ev_timer_init(&transaction_timer, abort_trans, remain, 0);
+                transaction_timer.data = this;
+                event_register.loop_get().register_timer_watcher(&transaction_timer);
+            }
+        }
+
     private:
         /**
          * \brief Client socket.
@@ -146,6 +191,9 @@ namespace http
         Connection conn_;
         shared_socket sock_;
         std::string content_;
+
+        ev_timer transaction_timer;
+        bool timer_init_trans = false;
         /**
          * \brief Port on which the socket is listening.
          */

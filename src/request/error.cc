@@ -104,4 +104,12 @@ namespace http::error
         r.add_header("X-Timeout-Reason", "Throughput");
         return r;
     }
+
+    Response timeout_transaction_proxy(const Request& request)
+    {
+        Response r = Response(request, STATUS_CODE::GATEWAY_TIMEOUT);
+        r.add_header("X-Timeout-Reason", "Transaction");
+        return r;
+    }
+
 } // namespace http::error

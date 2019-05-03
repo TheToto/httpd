@@ -25,6 +25,8 @@ namespace http
             send_response(conn, error::method_not_allowed(r));
         else if (mod == MOD::TIMEOUT_TRANSACTION)
             send_response(conn, error::timeout_transaction(r));
+        else if (mod == MOD::TIMEOUT_TRANSACTION_PROXY)
+            send_response(conn, error::timeout_transaction_proxy(r));
         else if (mod == MOD::TIMEOUT_KEEPALIVE)
             send_response(conn, error::timeout_keepalive(r));
         else if (mod == MOD::TIMEOUT_THROUGHPUT)
