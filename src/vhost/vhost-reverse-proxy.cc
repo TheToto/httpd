@@ -222,10 +222,8 @@ namespace http
                 || conn.vhost_->conf_get().proxy_pass_->method_ == fail_robin) {
                 conn.vhost_->conf_get().proxy_pass_.value()
                         .upstreams.set_health(lastUpstream.index_, false);
-                send_response(conn, error::service_unavailable(request));
             }
-            else
-                send_response(conn, error::bad_gateway(request));
+            send_response(conn, error::bad_gateway(request));
             return;
         }
         conn.backend_ = sock;
