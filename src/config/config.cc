@@ -103,8 +103,11 @@ namespace http
             catch (std::exception&){
                 weight = 1;
             }
-            if (method == FAILOVER || method == FAILROBIN)
+            if (method == FAILOVER || method == FAILROBIN) {
                 health = i[HEALTH];
+                if (health.empty())
+                    throw std::invalid_argument("Health field must be precised in each upstream def");
+            }
             v.push_back(Upstream(ip, port, weight, health));
             health = "";
         }
@@ -465,10 +468,10 @@ namespace http
     }
 
     void upQueue::set_health(int health, bool is_ok) {
-        vector[health].health_ = is_ok;
+        vector[health].alive = is_ok;
     }
 
-    std::string upQueue::build_health(std::string heal_ep, std::string ipPort){
+    std::string upQueue::build_health(std::string &heal_ep, std::string &ipPort){
         return "GET " + heal_ep + " HTTP/1.1" + http_crlf + "Host: " + ipPort + http_crlfx2;
     }
 } // namespace http

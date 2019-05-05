@@ -97,7 +97,7 @@ namespace http {
         upQueue(std::vector<Upstream>& v, methods& method);
         Upstream getNext();
 
-        std::string build_health(std::string heal_ep, std::string ipPort);
+        std::string build_health(std::string& heal_ep, std::string& ipPort);
         void set_health(int health, bool is_ok);
 
         void fillQueue();
