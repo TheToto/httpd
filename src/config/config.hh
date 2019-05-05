@@ -75,7 +75,7 @@ namespace http {
     };
     struct Upstream{
 
-        Upstream(std::string& ip, int port, int weight, std::string& health);
+        Upstream(std::string& ip, int port, int weight, std::string& health, int index);
         Upstream() = default;
         bool isNull();
 
@@ -86,11 +86,12 @@ namespace http {
         std::string ipv6_port_;
         std::string health_; /// Usefull if method checks failed/dead proxy, "" meaning method does not
         bool alive = true;
+        int index_;
         int weight_;        /// Do not use
     };
 
     static std::string nullStr = "";
-    static Upstream nullUpstream(nullStr, -1, -1, nullStr);
+    static Upstream nullUpstream(nullStr, -1, -1, nullStr, -1);
 
     struct upQueue{
         upQueue() = default;

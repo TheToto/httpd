@@ -221,7 +221,7 @@ namespace http
             if (conn.vhost_->conf_get().proxy_pass_->method_ == failover
                 || conn.vhost_->conf_get().proxy_pass_->method_ == fail_robin) {
                 conn.vhost_->conf_get().proxy_pass_.value()
-                        .upstreams.set_health(conn.health_, false);
+                        .upstreams.set_health(lastUpstream.index_, false);
                 send_response(conn, error::service_unavailable(request));
             }
             else
@@ -229,6 +229,7 @@ namespace http
             return;
         }
         conn.backend_ = sock;
+        conn.health_ = - lastUpstream.index_;
         // 2. Send client request to backend (new EventWatcher ProxySend)
         apply_set_remove_header(true, request.get_head(), conn);
         event_register.register_ew<SendProxyEW>(conn, request.rebuild());

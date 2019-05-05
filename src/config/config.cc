@@ -31,8 +31,8 @@ using json = nlohmann::json;
 namespace http
 {
 
-    Upstream::Upstream(std::string& ip, int port, int weight, std::string& health):
-        ip_(ip), port_(port), health_(health), weight_(weight)
+    Upstream::Upstream(std::string& ip, int port, int weight, std::string& health, int index):
+        ip_(ip), port_(port), health_(health), index_(index), weight_(weight)
     {
         ipv6_ = "[" + ip_ + "]";
         ip_port_ = ip_ + ":" + std::to_string(port_);
@@ -87,7 +87,7 @@ namespace http
         catch (const std::exception&){}
 
         if (!ip.empty()){
-            v.push_back(Upstream(ip, port, 2, health));
+            v.push_back(Upstream(ip, port, 2, health, v.size()));
             return ProxyConfig(proxy, v, m, Timeout);
         }
         method = j[UPSTREAMS][upstreamLink][METHOD];
@@ -108,7 +108,7 @@ namespace http
                 if (health.empty())
                     throw std::invalid_argument("Health field must be precised in each upstream def");
             }
-            v.push_back(Upstream(ip, port, weight, health));
+            v.push_back(Upstream(ip, port, weight, health, v.size()));
             health = "";
         }
         return ProxyConfig(proxy, v, m,Timeout);
