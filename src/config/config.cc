@@ -65,6 +65,7 @@ namespace http
         methods m = method_none;
         int weight = 1;
         int port = 0;
+        std::optional<int> Timeout;
         std::string health = "";
 
         try {
@@ -80,9 +81,14 @@ namespace http
                 throw e;
         }
 
+        try {
+            Timeout = proxy[TIMEOUT_H];
+        }
+        catch (const std::exception&){}
+
         if (!ip.empty()){
             v.push_back(Upstream(ip, port, 2, health));
-            return ProxyConfig(proxy, v, m);
+            return ProxyConfig(proxy, v, m, Timeout);
         }
         method = j[UPSTREAMS][upstreamLink][METHOD];
         m = whichMethod(method);
@@ -102,11 +108,11 @@ namespace http
             v.push_back(Upstream(ip, port, weight, health));
             health = "";
         }
-        return ProxyConfig(proxy, v, m);
+        return ProxyConfig(proxy, v, m,Timeout);
     }
 
     ProxyConfig::ProxyConfig(json& proxy, std::vector<Upstream> v,
-            methods& method)
+            methods& method, std::optional<int>& Timeout)
     {
         std::string tmp;
         std::string tmp2;
@@ -155,6 +161,7 @@ namespace http
 
         method_ = method;
         upstreams = upQueue(v, method);
+        to_ = Timeout;
     }
 
     VHostConfig::VHostConfig(std::string ip, int port, std::string server_name,

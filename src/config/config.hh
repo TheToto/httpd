@@ -116,7 +116,7 @@ namespace http {
     struct ProxyConfig
     {
         ProxyConfig(json& proxy, std::vector<Upstream> v,
-                    methods& method);
+                    methods& method, std::optional<int>& Timeout);
         ProxyConfig(const ProxyConfig&) = default;
         ProxyConfig& operator=(const ProxyConfig&) = default;
         ProxyConfig(ProxyConfig&&) = default;
@@ -130,6 +130,7 @@ namespace http {
         std::set<std::string> proxy_remove_header;
         std::map<std::string, std::string> set_header;
         std::set<std::string> remove_header;
+        std::optional<int> to_;
     };
 
     /**
