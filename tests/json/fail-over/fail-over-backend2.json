@@ -1,0 +1,12 @@
+{
+  "vhosts": [
+    {
+      "ip": "127.0.0.1",
+      "port": 8002,
+      "server_name": "localhost",
+      "root": ".",
+      "default_file": "2.html",
+      "health_endpoint": "/health"
+    }
+  ]
+}
