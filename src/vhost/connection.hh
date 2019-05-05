@@ -22,7 +22,7 @@ namespace http
     struct Connection
     {
         Connection(shared_socket sock, std::shared_ptr<VHost> vhost, int health)
-                : sock_(sock)
+                : backend_(sock)
                 , vhost_(vhost)
                 , health_(health)
         {}
