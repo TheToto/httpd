@@ -48,6 +48,7 @@ namespace http {
             }
             if (it == res.end())
             {
+                std::cout << vhost.get()->conf_get().proxy_pass_.value().upstreams.vector[i].ip_port_ << " set to " << 0 << std::endl;
                 cur.alive = false;
                 continue;
             }
@@ -68,6 +69,7 @@ namespace http {
     }
 
     void Health::health_callback(Connection &conn, Response resp) {
+        std::cout << conn.vhost_.get()->conf_get().proxy_pass_.value().upstreams.vector[conn.health_].ip_port_ << " set to " << (resp.get_status() == STATUS_CODE::OK) << std::endl;
         conn.vhost_.get()->conf_get().proxy_pass_.value().upstreams.set_health(conn.health_, resp.get_status() == STATUS_CODE::OK);
     }
 }
