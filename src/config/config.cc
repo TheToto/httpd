@@ -460,8 +460,10 @@ namespace http
     void upQueue::fillQueue() {
         std::deque<int> q;
         for (unsigned long index2 = 0; index2 < vector.size(); index2++){
-            for (int index = 0; index < vector[index2].weight_; index++)
-                q.push_back(index2);
+            if (vector[index2].alive) {
+                for (int index = 0; index < vector[index2].weight_; index++)
+                    q.push_back(index2);
+            }
         }
         std::shuffle(q.begin(), q.end(), std::mt19937(std::random_device()()));
         queue = q;

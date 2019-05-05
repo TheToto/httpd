@@ -185,7 +185,11 @@ namespace http
         lastUpstream = next.upstreams.getNext();
         if (lastUpstream.isNull()){
             ///all reverse are dead
-            send_response(conn, error::service_unavailable(request));
+            if (conn.vhost_->conf_get().proxy_pass_->method_ == failover
+            || conn.vhost_->conf_get().proxy_pass_->method_ == fail_robin)
+                send_response(conn, error::service_unavailable(request));
+            else
+                send_response(conn, error::bad_gateway(request));
             return;
         }
 
