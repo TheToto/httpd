@@ -109,7 +109,7 @@ namespace http
          *  \brief VHost configuration.
          */
         VHostConfig conf_;
-        Upstream lastUpstream;//FIXME hoping thomas will answer to me someday
+        Upstream lastUpstream;
         APM apm;
         /**
          * \brief VHost's SSL context.

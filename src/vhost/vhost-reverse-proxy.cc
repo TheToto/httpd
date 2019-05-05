@@ -222,8 +222,6 @@ namespace http
         apply_set_remove_header(true, request.get_head(), conn);
         event_register.register_ew<SendProxyEW>(conn, request.rebuild());
 
-        //FIXME if backend failed, set status to dead and retry with another upstream until all died or success
-
         // 3. Recv backend header (new EventWatcher ClientProxy) and apply
         //   In ClientProxyEW
 
