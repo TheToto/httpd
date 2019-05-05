@@ -130,10 +130,16 @@ namespace http
                 stop_timer_trans();
                 event_register.unregister_ew(this);
                 Response r(content_);
+
                 if (conn_.is_health())
                 {
                     Health::health_callback(conn_, r);//success or not
                     return;
+                }
+
+                if (r.get_status() != OK){
+                    conn_.vhost_->conf_get().proxy_pass_.value()
+                    .upstreams.set_health(conn_.health_, false);
                 }
                 event_register.register_ew<SendResponseEW>(conn_, r);
             }

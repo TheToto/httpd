@@ -218,7 +218,14 @@ namespace http
         }
         if (it == res.end())
         {
-            send_response(conn, error::bad_gateway(request));
+            if (conn.vhost_->conf_get().proxy_pass_->method_ == failover
+                || conn.vhost_->conf_get().proxy_pass_->method_ == fail_robin) {
+                conn.vhost_->conf_get().proxy_pass_.value()
+                        .upstreams.set_health(conn.health_, false);
+                send_response(conn, error::service_unavailable(request));
+            }
+            else
+                send_response(conn, error::bad_gateway(request));
             return;
         }
         conn.backend_ = sock;
