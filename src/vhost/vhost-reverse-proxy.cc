@@ -229,7 +229,7 @@ namespace http
             return;
         }
         conn.backend_ = sock;
-        conn.health_ = - lastUpstream.index_;
+        conn.health_ = - lastUpstream.index_ - 1;
         // 2. Send client request to backend (new EventWatcher ProxySend)
         apply_set_remove_header(true, request.get_head(), conn);
         event_register.register_ew<SendProxyEW>(conn, request.rebuild());

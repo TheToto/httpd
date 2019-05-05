@@ -139,7 +139,7 @@ namespace http
 
                 if (r.get_status() != OK){
                     conn_.vhost_->conf_get().proxy_pass_.value()
-                    .upstreams.set_health(- conn_.health_, false);
+                    .upstreams.set_health(- conn_.health_ - 1, false);
                 }
                 event_register.register_ew<SendResponseEW>(conn_, r);
             }
