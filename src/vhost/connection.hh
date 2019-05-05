@@ -44,7 +44,7 @@ namespace http
 
         bool is_health()
         {
-            return health_ != -1;
+            return health_ > -1;
         }
 
         shared_socket sock_;
