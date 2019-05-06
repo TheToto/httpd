@@ -34,6 +34,13 @@ namespace http::error
         return Response(STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED, realm);
     }
 
+    Response moved_permanently(std::string new_uri)
+    {
+        auto r = Response(STATUS_CODE::MOVED_PERMANENTLY);
+        r.add_header("Location", new_uri);
+        return r;
+    }
+
     Response payload_too_large()
     {
         return Response(STATUS_CODE::PAYLOAD_TOO_LARGE);

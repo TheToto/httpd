@@ -17,6 +17,7 @@ namespace http
     enum STATUS_CODE : uint16_t
     {
         OK = 200,
+        MOVED_PERMANENTLY = 301,
         BAD_REQUEST = 400,
         UNAUTHORIZED = 401,
         FORBIDDEN = 403,
@@ -52,7 +53,8 @@ namespace http
         TIMEOUT_TRANSACTION,
         TIMEOUT_TRANSACTION_PROXY,
         TIMEOUT_KEEPALIVE,
-        TIMEOUT_THROUGHPUT
+        TIMEOUT_THROUGHPUT,
+        ERROR_MOVED_PERMANENTLY
     };
 
     /**
@@ -77,6 +79,8 @@ namespace http
                 return {NOT_FOUND, "Not Found"};
             case METHOD_NOT_ALLOWED:
                 return {METHOD_NOT_ALLOWED, "Method Not Allowed"};
+            case MOVED_PERMANENTLY:
+                return {MOVED_PERMANENTLY, "Moved Permanently"};
             case PROXY_AUTHENTICATION_REQUIRED:
                 return {PROXY_AUTHENTICATION_REQUIRED,
                         "Proxy Authentication Required"};

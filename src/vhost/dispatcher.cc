@@ -151,6 +151,14 @@ namespace http
             std::clog << "No vhost found for this request...\n";
             return VHostFactory::Fail();
         }
+        auto conf = (*cur)->conf_get();
+        std::string opt_new_uri = conf.old_uris_perm[r.get_uri()];
+        if (opt_new_uri != "")
+        {
+            r.set_uri(opt_new_uri);
+            r.set_mode(MOD::ERROR_MOVED_PERMANENTLY);
+            return VHostFactory::Fail();
+        }
         return *cur;
     }
 
