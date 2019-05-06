@@ -69,7 +69,7 @@ static int launch_thread(int i)
     ev_periodic_init(&health_back, periodic_cb, 0, 11, 0);
     loop.register_period_watcher(&health_back);
 
-    std::clog << "Server launched ! Process " << i << std::endl;
+    std::clog << "Server launched !" << std::endl << "Process " << i << std::endl;
     loop();
     return 0;
 }
