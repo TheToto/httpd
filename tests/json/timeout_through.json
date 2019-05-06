@@ -8,5 +8,5 @@
             "health_endpoint": "/health"
         }
     ],
-    "timeout": {"throughput_val":5,"throughput_time":5}
+    "timeout": {"throughput_val":5,"throughput_time":3}
 }

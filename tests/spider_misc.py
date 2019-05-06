@@ -41,6 +41,26 @@ def kill_server(serverProc):
     assert(serverProc.poll() == None)
     os.killpg(os.getpgid(serverProc.pid), signal.SIGINT)
 
+def create_socket(ip="127.0.0.1", port=8000):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect((ip, port))
+    return sock
+
+def make_request(sock, path):
+    file_content = open(path, "rb").read()
+    sock.send(file_content)
+
+def recup_resp(sock):
+    time.sleep(0.2)
+    setup_alarm(2)
+    try:
+        resp = http.client.HTTPResponse(sock)
+        resp.begin()
+    except Exception:
+        assert("No response" == "")
+    reset_alarm()
+    return resp
+    
 def custom_request(path, ip="127.0.0.1", port=8000):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((ip, port))

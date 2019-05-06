@@ -8,5 +8,5 @@
             "health_endpoint": "/health"
         }
     ],
-    "timeout": {"keep_alive":5}
+    "timeout": {"keep_alive":3}
 }
