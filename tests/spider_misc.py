@@ -10,7 +10,7 @@ import socket
 import http.client
 import signal
 
-def timeout_handler():
+def timeout_handler(signum, frame):
     raise Exception("end of time")
 
 def setup_alarm(time):
