@@ -34,6 +34,11 @@ namespace http::error
         return Response(STATUS_CODE::PROXY_AUTHENTICATION_REQUIRED, realm);
     }
 
+    Response moved_permanently()
+    {
+        return Response(STATUS_CODE::MOVED_PERMANENTLY);
+    }
+
     Response payload_too_large()
     {
         return Response(STATUS_CODE::PAYLOAD_TOO_LARGE);
