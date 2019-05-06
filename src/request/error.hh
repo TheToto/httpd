@@ -21,7 +21,7 @@ namespace http::error
     Response method_not_allowed(const Request&);
     Response proxy_authentication_required(const Request& request,
                                            std::string realm);
-    Response moved_permanently();
+    Response moved_permanently(std::string new_uri);
     Response payload_too_large();
     Response uri_too_long();
     Response upgrade_required(const Request&);

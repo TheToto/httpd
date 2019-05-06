@@ -53,7 +53,8 @@ namespace http
         TIMEOUT_TRANSACTION,
         TIMEOUT_TRANSACTION_PROXY,
         TIMEOUT_KEEPALIVE,
-        TIMEOUT_THROUGHPUT
+        TIMEOUT_THROUGHPUT,
+        ERROR_MOVED_PERMANENTLY
     };
 
     /**

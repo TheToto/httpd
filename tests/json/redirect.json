@@ -1,7 +1,4 @@
 {
-    "payload_max_size": 1024,
-    "uri_max_size": 256,
-    "header_max_size": 512,
     "vhosts": [
         {
             "ip": "127.0.0.1",
@@ -39,13 +36,11 @@
             "root":"tests/",
             "health_endpoint":"/metrics",
             "default_file":"cantillon.jpg",
-            "auth_basic":"Please log in to sub.localhost!",
-            "auth_basic_users": ["lucas:bestspider"],
             "auto_index":true,
             "default_vhost":false,
             "old_uri_perm":
                 {
-                    "secret": "www.google.com"
+                    "/secret": "/json/redirect.json"
                 }
         }
     ]
