@@ -2,6 +2,7 @@
 
 import pytest
 import requests
+import socket
 import subprocess
 import os
 import signal
@@ -15,7 +16,7 @@ def test_keepalive():
     sock = create_socket()
     make_request(sock, 'tests/custom/valid.txt')
     res = recup_resp(sock)
-    assert(res.status == 404)
+    assert(res.status == 200)
     time.sleep(3)
     res = recup_resp(sock)
     assert(res.status == 408)
@@ -31,8 +32,8 @@ def test_keepalive_without_resquest():
     assert(res.status == 408)
 
 
-def test_transaction ():
-    serverProc = launch_server('tests/json/timeout_keepalive.json')
+def test_transaction():
+    serverProc = launch_server('tests/json/timeout_trans.json')
     assert(serverProc != None)
 
     sock = create_socket()
@@ -41,3 +42,27 @@ def test_transaction ():
     res = recup_resp(sock)
     assert(res.status == 408)
 
+def test_throughput():
+    serverProc = launch_server('tests/json/timeout_through.json')
+    assert(serverProc != None)
+
+    sock = create_socket()
+    sock.send(b'bla')
+    time.sleep(3)
+    res = recup_resp(sock)
+    assert(res.status == 408)
+
+def test_transaction_proxy():
+    serverProc = launch_server('tests/json/timeout_proxy.json')
+    assert(serverProc != None)
+    
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(("", 6666))
+    sock.listen(5)
+
+    sock = create_socket()
+    make_request(sock, 'tests/custom/valid.txt')
+    time.sleep(3)
+    res = recup_resp(sock)
+    assert(res.status == 504)
+    

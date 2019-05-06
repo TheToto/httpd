@@ -1,0 +1,15 @@
+{
+    "vhosts": [
+        {
+            "ip": "127.0.0.1",
+            "port": 8000,
+            "server_name": "localhost",
+            "proxy_pass":
+            {
+                "ip": "127.0.0.1",
+                "port": 6666,
+                "timeout": 2
+            }
+        }
+    ]
+}
