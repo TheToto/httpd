@@ -31,6 +31,7 @@
 #define KEEP_ALIVE "keep_alive"
 #define METHOD "method"
 #define NB_WORKERS "nb_workers"
+#define OLD_PERM "old_uri_perm"
 #define PAYLOAD_MS "payload_max_size"
 #define PORT "port"
 #define PROXY_PASS "proxy_pass"
@@ -156,7 +157,8 @@ namespace http {
                     std::string sslk, std::optional<ProxyConfig> proxy,
                     std::optional<std::string> authb,
                     std::optional<std::list<std::string>> authbu,
-                    std::string health, bool autoi, bool def_vh);
+                    std::string health, std::string old_uri_perm,
+                    bool autoi, bool def_vh);
 
         VHostConfig(const VHostConfig&) = default;
         VHostConfig& operator=(const VHostConfig&) = default;
@@ -189,6 +191,7 @@ namespace http {
         std::optional<std::string> auth_basic_  = std::nullopt;
         std::optional<std::list<std::string>> auth_basic_users_ = std::nullopt;
         std::string health_endpoint_  = "";
+        std::string old_uri_perm = "";
         bool auto_index_  = false;
         bool default_vhost_  = false;
     };
