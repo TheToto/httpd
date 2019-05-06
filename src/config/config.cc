@@ -452,7 +452,8 @@ namespace http
             if (queue.empty())
                 return nullUpstream;
             res = vector[queue.front()];
-            queue.pop_front();
+            if (m != failover || !res.alive)
+                queue.pop_front();
         } while ((m == failover || m == fail_robin) && !res.alive);
         return res;
     }
