@@ -102,7 +102,7 @@ namespace http
             ev_timer_stop(event_register.loop_get().loop, &transaction_timer);
             if (cut)
             {
-                shared_socket save_sock = sock_;
+                shared_socket save_sock = conn_.sock_;
                 event_register.unregister_ew(this);
                 if (conn_.is_health())
                 {
