@@ -182,7 +182,7 @@ namespace http
 
         void init_timer_trans(int remain)
         {
-            if (conn_.vhost_.get()->conf_get().proxy_pass_->to_.has_value()) {
+            if (conn_.vhost_.get()->conf_get().proxy_pass_->to_.has_value() && !timer_init_trans) {
                 timer_init_trans = true;
                 ev_timer_init(&transaction_timer, abort_trans, remain, 0);
                 transaction_timer.data = this;

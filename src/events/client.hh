@@ -104,7 +104,7 @@ namespace http
 
         void init_timer_trans()
         {
-            if (serv_conf.transaction.has_value()) {
+            if (serv_conf.transaction.has_value() && !timer_init_trans) {
                 std::cout << "Init timer 1!" << std::endl;
                 timer_init_trans = true;
                 ev_timer_init(&transaction_timer, abort_trans,
@@ -112,7 +112,7 @@ namespace http
                 transaction_timer.data = this;
                 event_register.loop_get().register_timer_watcher(&transaction_timer);
             }
-            if (serv_conf.throughput_time.has_value()) {
+            if (serv_conf.throughput_time.has_value() && !timer_init_throughput) {
                 timer_init_throughput = true;
                 ev_periodic_init(&throughput_timer, callback_throughput, 0, serv_conf.throughput_time.value(), 0);
                 throughput_timer.data = this;
@@ -122,7 +122,7 @@ namespace http
 
         void init_timer_keepalive()
         {
-            if (serv_conf.keep_alive.has_value()) {
+            if (serv_conf.keep_alive.has_value() && !timer_init_keepalive) {
                 timer_init_keepalive = true;
                 ev_timer_init(&keepalive_timer, abort_keepalive,
                               serv_conf.keep_alive.value(), 0);

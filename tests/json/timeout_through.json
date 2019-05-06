@@ -1,0 +1,12 @@
+{
+    "vhosts": [
+        {
+            "ip": "127.0.0.1",
+            "port": 8000,
+            "server_name": "localhost",
+            "root": ".",
+            "health_endpoint": "/health"
+        }
+    ],
+    "timeout": {"throughput_val":5,"throughput_time":5}
+}

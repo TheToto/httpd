@@ -140,7 +140,7 @@ namespace http
 
         void init_timer_throughput()
         {
-            if (serv_conf.throughput_time.has_value()) {
+            if (serv_conf.throughput_time.has_value() && !timer_init_throughput) {
                 timer_init_throughput = true;
                 ev_periodic_init(&throughput_timer, callback_throughput, 0, serv_conf.throughput_time.value(), 0);
                 throughput_timer.data = this;
