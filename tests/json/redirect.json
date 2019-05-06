@@ -43,7 +43,10 @@
             "auth_basic_users": ["lucas:bestspider"],
             "auto_index":true,
             "default_vhost":false,
-            "old_uri_perm":"www.google.com"
+            "old_uri_perm":
+                {
+                    "secret": "www.google.com"
+                }
         }
     ]
 }

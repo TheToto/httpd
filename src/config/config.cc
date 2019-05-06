@@ -173,8 +173,8 @@ namespace http
                              std::optional<ProxyConfig> proxy,
                              std::optional<std::string> authb,
                              std::optional<std::list<std::string>> authbu,
-                             std::string health, std::string old_permanent,
-                             bool autoi, bool def_vh)
+                             std::string health, bool autoi, bool def_vh,
+                             std::map<std::string, std::string> old_permanent)
         : ip_(ip)
         , port_(port)
         , server_name_(server_name)
@@ -186,7 +186,7 @@ namespace http
         , auth_basic_(authb)
         , auth_basic_users_(authbu)
         , health_endpoint_(health)
-        , old_uri_perm(old_permanent)
+        , old_uris_perm(old_permanent)
         , auto_index_(autoi)
         , default_vhost_(def_vh)
     {
@@ -313,13 +313,18 @@ namespace http
         catch (const std::exception& e)
         {}
 
-        std::string old_permanent = "";
+        std::map<std::string, std::string> old_permanent;
         try
         {
-            old_permanent = i[OLD_PERM];
+            for (auto it = i[OLD_PERM].begin(); it != i[OLD_PERM].end(); it++)
+            {
+                old_permanent[it.key()] = it.value();
+            }
         }
         catch (const std::exception& e)
-        {}
+        {
+            old_permanent.clear();
+        }
 
         bool auto_index = false;
         try
@@ -355,8 +360,8 @@ namespace http
         serv.VHosts_.push_back(
             VHostConfig(ip, port, server_name, root, default_file, ssl_cert,
                         ssl_key, proxy, auth_basic, auth_basic_users,
-                        health_endpoint, old_permanent,
-                        auto_index, default_vhost));
+                        health_endpoint, auto_index, default_vhost,
+                        old_permanent));
     }
 
     ServerConfig parse_configuration(const std::string& path)

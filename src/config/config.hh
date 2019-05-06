@@ -157,8 +157,8 @@ namespace http {
                     std::string sslk, std::optional<ProxyConfig> proxy,
                     std::optional<std::string> authb,
                     std::optional<std::list<std::string>> authbu,
-                    std::string health, std::string old_uri_perm,
-                    bool autoi, bool def_vh);
+                    std::string health, bool autoi, bool def_vh,
+                    std::map<std::string, std::string> old_uri_perm);
 
         VHostConfig(const VHostConfig&) = default;
         VHostConfig& operator=(const VHostConfig&) = default;
@@ -191,7 +191,7 @@ namespace http {
         std::optional<std::string> auth_basic_  = std::nullopt;
         std::optional<std::list<std::string>> auth_basic_users_ = std::nullopt;
         std::string health_endpoint_  = "";
-        std::string old_uri_perm = "";
+        std::map<std::string, std::string> old_uris_perm;
         bool auto_index_  = false;
         bool default_vhost_  = false;
     };
